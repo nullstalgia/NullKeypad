@@ -28,6 +28,7 @@ EasyButton button6(6, 35, true, true);
 EasyButton button7(5, 35, true, true);
 EasyButton button8(4, 35, true, true);
 
+// Labels for menu options
 const char *mainMenuItems[] =
 {
   "F13-21 Keys",
@@ -61,9 +62,13 @@ const char *chooseMenuItems[] =
   "10"
 };
 
+// How many items in current menu
 int item_count = 0;
+// Which one is chosen
 int chosen_in_menu = 0;
 
+
+// Our struct for EEPROM storage of RGB configs.
 struct RGBConfig {
   byte brightness;
   byte mode;
@@ -72,12 +77,12 @@ struct RGBConfig {
 };
 
 
-
 // Modes! Oh boy
 // Mode 0: Main Menu
 // Mode 1: F13-21 Keys (keypad with the "hidden" F13, F14, F15... keys.
 // Mode 2: RGB Controls (save RGB preferences in EEPROM)
 // Mode 3: Arrow Keys (Arrow keys and Tab, Enter, etc)
+// Mode 4: Simple counter for keeping track of whatever. Saves to EEPROM.
 int mode = 0;
 
 // Sub menus, mostly.
@@ -125,9 +130,9 @@ char *counter_keys[9] =
 };
 
 char *macro_names[9] =
-{ "Upload", "2", "3",
-  "PrgUp", "5", "6",
-  "7", "8", "9"
+{ "Compl.", "2", "3",
+  "Upload", "5", "6",
+  "PrgUp", "8", "9"
 };
 
 
@@ -140,6 +145,10 @@ int mode_start_delay = 250;
 unsigned long current_millis = 0;
 
 unsigned long rgb_speed_millis = 0;
+
+unsigned long eeprom_save_delay_millis = 0;
+
+bool mode_extension_bool = false;
 
 int reset_reset = -1;
 
@@ -159,8 +168,11 @@ void setup() {
     wasReleased[i] = false;
   }
 
-  // EEPROM Addresses: 1 - RGBConfig (4 bytes long)
-
+  // EEPROM Addresses:
+  // 1  - RGBConfig (4 bytes long)
+  // 12 - Counter X
+  // 14 - Counter Y
+  // 16 - Counter Z
   RGBConfig rgbConfig;
 
   EEPROM.get(1, rgbConfig);
@@ -169,6 +181,10 @@ void setup() {
   RGB_MODE = rgbConfig.mode;
   RGB_ON_PUSH = rgbConfig.on_push;
   RGB_SPEED = rgbConfig.speed;
+
+  EEPROM.get(12, counters[0]);
+  EEPROM.get(14, counters[1]);
+  EEPROM.get(16, counters[2]);
 
   // In case it was a new/invalid config.
 
@@ -312,7 +328,7 @@ void loop() {
       modeChangeSetup(chosen_in_menu);
     }
   } else {
-    if (current_millis - mode_start_millis > mode_start_delay) {
+    if ((current_millis - mode_start_millis) > mode_start_delay) {
       // Other modes go here!
 
       // F13-21
@@ -515,6 +531,10 @@ void loop() {
                 } else {
                   reset_reset = -1;
                 }
+              } else {
+                if (reset_reset != -1) {
+                  reset_reset = -1;
+                }
               }
               if (i == 3)
                 counters[0]++;
@@ -522,15 +542,18 @@ void loop() {
                 counters[1]++;
               if (i == 5)
                 counters[2]++;
-            }
-            if (wasReleased[i]) {
-              redraw = true;
+
               if (i == 6)
                 counters[0]--;
               if (i == 7)
                 counters[1]--;
               if (i == 8)
                 counters[2]--;
+            }
+            if (wasReleased[i]) {
+              redraw = true;
+              mode_extension_bool = true;
+              eeprom_save_delay_millis = current_millis;
             }
 
           }
@@ -540,6 +563,9 @@ void loop() {
 
             int i = 0;
             int budge = 3;
+            if(mode_extension_bool) {
+              canvas.drawHLine(0, 0, 96);
+            }
             for (int y = 0; y < 3; y ++) {
               for (int x = 0; x < 3; x ++) {
                 int xpos = 35 * x + 1;
@@ -569,20 +595,38 @@ void loop() {
             canvas.blt(20, 1);
           }
           redraw = false;
+
+          if ((current_millis - eeprom_save_delay_millis) > 7500 && mode_extension_bool) {
+            EEPROM.put(12, counters[0]);
+            EEPROM.put(14, counters[1]);
+            EEPROM.put(16, counters[2]);
+            mode_extension_bool = false;
+            redraw = true;
+          }
         }
-        // End Mode 4
-        // Mode 5: Macros (not custom, just stuff I use)
-        else if (mode == 5){
+      // End Mode 4
+      // Mode 5: Macros (not custom, just stuff I use)
+        else if (mode == 5) {
           for (int i = 0; i < 9; i++) {
             if (wasPressed[i]) {
               redraw = true;
 
-              if(i == 0){
+              // Arduino Compile
+              if (i == 0) {
+                Keyboard.press(KEY_LEFT_CTRL);
+                Keyboard.press('r');
+                Keyboard.releaseAll();
+              }
+              
+              // Regular Arduino Upload
+              if (i == 3) {
                 Keyboard.press(KEY_LEFT_CTRL);
                 Keyboard.press('u');
                 Keyboard.releaseAll();
               }
-              if(i == 3){
+              
+              // Arduino Upload with Programmer
+              if (i == 6) {
                 Keyboard.press(KEY_LEFT_CTRL);
                 Keyboard.press(KEY_LEFT_SHIFT);
                 Keyboard.press('u');
@@ -603,7 +647,7 @@ void loop() {
             //canvas.drawHLine(0, 60,  ssd1306_displayWidth() - 1);
 
             int i = 0;
-            int budge = 3;
+            int budge = 1;
             for (int y = 0; y < 3; y ++) {
               for (int x = 0; x < 3; x ++) {
                 int xpos = 40 * x + 1;
