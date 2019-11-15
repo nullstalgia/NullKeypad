@@ -37,6 +37,7 @@ const char *mainMenuItems[] =
   "Counter",
   "Media Keys",
   "Macro (wip)",
+  "Mouse"
 };
 
 const char *rgbMenuItems[] =
@@ -102,12 +103,19 @@ int pins[9] = {16, 14, 15, 10, 8, 7, 6, 5, 4};
 bool isPressed[10];
 bool wasPressed[10];
 bool wasReleased[10];
-char *fkeys[9] =
-{ "F13", "F14", "F15",
-  "F16", "F17", "F18",
-  "F19", "F20", "F21"
-};
 
+
+const char F1[] PROGMEM = "F13";
+const char F2[] PROGMEM = "F14";
+const char F3[] PROGMEM = "F15";
+const char F4[] PROGMEM = "F16";
+const char F5[] PROGMEM = "F17";
+const char F6[] PROGMEM = "F18";
+const char F7[] PROGMEM = "F19";
+const char F8[] PROGMEM = "F20";
+const char F9[] PROGMEM = "F21";
+
+const char *const fkeys[] PROGMEM = {F1, F2, F3, F4, F5, F6, F7, F8, F9};
 
 KeyboardKeycode fkey_code[9] =
 { KEY_F13, KEY_F14, KEY_F15,
@@ -116,11 +124,19 @@ KeyboardKeycode fkey_code[9] =
 };
 
 
-char *akeys[9] =
-{ "TAB", "ESC", "END",
-  "LALT", " ^", "RET",
-  "<-", " V", "->"
-};
+
+const char Ar1[] PROGMEM = "TAB";
+const char Ar2[] PROGMEM = "ESC";
+const char Ar3[] PROGMEM = "END";
+const char Ar4[] PROGMEM = "LALT";
+const char Ar5[] PROGMEM = " ^";
+const char Ar6[] PROGMEM = "RET";
+const char Ar7[] PROGMEM = "<-";
+const char Ar8[] PROGMEM = " V";
+const char Ar9[] PROGMEM = "->";
+
+const char *const akeys[] PROGMEM = {Ar1, Ar2, Ar3, Ar4, Ar5, Ar6, Ar7, Ar8, Ar9};
+
 KeyboardKeycode akey_code[9] =
 { KEY_TAB, KEY_ESC, KEY_END,
   KEY_LEFT_ALT, KEY_UP_ARROW, KEY_RETURN,
@@ -128,11 +144,18 @@ KeyboardKeycode akey_code[9] =
 };
 
 
-char *mediakeys[9] =
-{ "V+", "Mute", "V-",
-  "Prev", ">||", "Next",
-  "Rew", "Stop", "FF"
-};
+
+const char Me1[] PROGMEM = "V+";
+const char Me2[] PROGMEM = "Mute";
+const char Me3[] PROGMEM = "V-";
+const char Me4[] PROGMEM = "Prev";
+const char Me5[] PROGMEM = ">||";
+const char Me6[] PROGMEM = "Next";
+const char Me7[] PROGMEM = "Rew";
+const char Me8[] PROGMEM = "Stop";
+const char Me9[] PROGMEM = "FF";
+
+const char *const mediakeys[] PROGMEM = {Me1, Me2, Me3, Me4, Me5, Me6, Me7, Me8, Me9};
 
 ConsumerKeycode mediakey_code[9] =
 { MEDIA_VOLUME_UP, MEDIA_VOLUME_MUTE, MEDIA_VOLUME_DOWN,
@@ -140,18 +163,47 @@ ConsumerKeycode mediakey_code[9] =
   MEDIA_REWIND, MEDIA_STOP, MEDIA_FAST_FORWARD
 };
 
-char *counter_keys[9] =
-{ "X", "Y", "Z",
-  "^", "^", "^",
-  "V", "V", "V"
-};
 
-char *macro_names[9] =
-{ "Compl.", "2", "3",
-  "Upload", "5", "6",
-  "PrgUp", "8", "9"
-};
+const char C1[] PROGMEM = "";
+const char C2[] PROGMEM = "";
+const char C3[] PROGMEM = "";
+const char C4[] PROGMEM = "^";
+const char C5[] PROGMEM = "^";
+const char C6[] PROGMEM = "^";
+const char C7[] PROGMEM = "V";
+const char C8[] PROGMEM = "V";
+const char C9[] PROGMEM = "V";
 
+const char *const counter_keys[] PROGMEM = {C1, C2, C3, C4, C5, C6, C7, C8, C9};
+
+const char Ma1[] PROGMEM = "Compl.";
+const char Ma2[] PROGMEM = "2";
+const char Ma3[] PROGMEM = "3";
+const char Ma4[] PROGMEM = "Upload";
+const char Ma5[] PROGMEM = "5";
+const char Ma6[] PROGMEM = "6";
+const char Ma7[] PROGMEM = "PrgUp";
+const char Ma8[] PROGMEM = "8";
+const char Ma9[] PROGMEM = "9";
+
+const char *const macro_names[] PROGMEM = {Ma1, Ma2, Ma3, Ma4, Ma5, Ma6, Ma7, Ma8, Ma9};
+
+
+const char M1[] PROGMEM = "M1";
+const char M2[] PROGMEM = "M3";
+const char M3[] PROGMEM = "M2";
+const char M4[] PROGMEM = "Sp-";
+const char M5[] PROGMEM = "U";
+const char M6[] PROGMEM = "Sp+";
+const char M7[] PROGMEM = "L";
+const char M8[] PROGMEM = "D";
+const char M9[] PROGMEM = "R";
+
+const char *const mouse_keys[] PROGMEM = {M1, M2, M3, M4, M5, M6, M7, M8, M9};
+
+const static char mouse_buttons[] = {MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT};
+
+char button_buffer[7];
 
 bool redraw = true;
 
@@ -172,8 +224,6 @@ int reset_reset = -1;
 int counters[3] = {0, 0, 0};
 
 char counter_buffer[17];
-
-int secret_counter = 0;
 
 bool freeMemSet = false;
 
@@ -388,9 +438,13 @@ void loop() {
               int xpos = 35 * x + 1;
               int ypos = 20 * y + 1;
               if (!isPressed[i]) {
-                canvas.printFixed(xpos, ypos, fkeys[i], STYLE_NORMAL );
+                strcpy_P(button_buffer, (char *)pgm_read_word(&(fkeys[i])));
+                //button_buffer
+                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
               } else {
-                canvas.printFixed(xpos + budge, ypos + budge, fkeys[i], STYLE_BOLD );
+                strcpy_P(button_buffer, (char *)pgm_read_word(&(fkeys[i])));
+                //button_buffer
+                canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
               }
 
               i++;
@@ -528,9 +582,13 @@ void loop() {
                 int xpos = 35 * x + 1;
                 int ypos = 20 * y + 1;
                 if (!isPressed[i]) {
-                  canvas.printFixed(xpos, ypos, akeys[i], STYLE_NORMAL );
+                  strcpy_P(button_buffer, (char *)pgm_read_word(&(akeys[i])));
+                  //button_buffer
+                  canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
                 } else {
-                  canvas.printFixed(xpos + budge, ypos + budge, akeys[i], STYLE_BOLD );
+                  strcpy_P(button_buffer, (char *)pgm_read_word(&(akeys[i])));
+                  //button_buffer
+                  canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
                 }
 
                 i++;
@@ -608,9 +666,9 @@ void loop() {
                 int ypos = 20 * y + 1;
                 if (i < 3) {
                   //sprintf(menu_prog, "%d", counters[i]);
-                  if (secret_counter == 1) {
+                  if (sub_mode == 1) {
                     sprintf(counter_buffer, "%X", counters[i]);
-                  } else if (secret_counter == 2) {
+                  } else if (sub_mode == 2) {
                     itoa(counters[i], counter_buffer, 2);
                   } else {
                     itoa(counters[i], counter_buffer, 10);
@@ -618,7 +676,7 @@ void loop() {
 
                   //itoa(counters[i], counter_buffer, 16);
 
-                  if ( secret_counter != 2 ) {
+                  if ( sub_mode != 2 ) {
                     if (reset_reset == i) {
                       canvas.printFixed(xpos + budge, ypos, counter_buffer, STYLE_BOLD );
                     } else {
@@ -637,14 +695,18 @@ void loop() {
 
 
                   //itoa(counters[i], counter_buffer, 10);
-                  //canvas.printFixed(0 , 0, secret_counter, STYLE_BOLD );
+                  //canvas.printFixed(0 , 0, sub_mode, STYLE_BOLD );
 
                 } else {
                   ypos = 25 + ( y * 7) + 1;
                   if (!isPressed[i]) {
-                    canvas.printFixed(xpos, ypos, counter_keys[i], STYLE_NORMAL );
+                    strcpy_P(button_buffer, (char *)pgm_read_word(&(counter_keys[i])));
+                    //button_buffer
+                    canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
                   } else {
-                    canvas.printFixed(xpos + budge, ypos + budge, counter_keys[i], STYLE_BOLD );
+                    strcpy_P(button_buffer, (char *)pgm_read_word(&(counter_keys[i])));
+                    //button_buffer
+                    canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
                   }
                 }
 
@@ -691,9 +753,12 @@ void loop() {
                 int xpos = 35 * x + 1;
                 int ypos = 20 * y + 1;
                 if (!isPressed[i]) {
-                  canvas.printFixed(xpos, ypos, mediakeys[i], STYLE_NORMAL );
+                  strcpy_P(button_buffer, (char *)pgm_read_word(&(mediakeys[i])));
+                  //button_buffer
+                  canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
                 } else {
-                  canvas.printFixed(xpos + budge, ypos + budge, mediakeys[i], STYLE_BOLD );
+                  strcpy_P(button_buffer, (char *)pgm_read_word(&(mediakeys[i])));
+                  canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
                 }
 
                 i++;
@@ -752,9 +817,12 @@ void loop() {
                 int xpos = 40 * x + 1;
                 int ypos = 20 * y + 1;
                 if (!isPressed[i]) {
-                  canvas.printFixed(xpos, ypos, macro_names[i], STYLE_NORMAL );
+                  strcpy_P(button_buffer, (char *)pgm_read_word(&(macro_names[i])));
+                  //button_buffer
+                  canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
                 } else {
-                  canvas.printFixed(xpos + budge, ypos + budge, macro_names[i], STYLE_BOLD );
+                  strcpy_P(button_buffer, (char *)pgm_read_word(&(macro_names[i])));
+                  canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
                 }
 
                 i++;
@@ -767,6 +835,102 @@ void loop() {
           redraw = false;
         }
       // End Mode 6
+      // Mode 7: Mouse
+        else if (mode == 7) {
+          counters[0] = 0;
+          counters[1] = 0;
+          for (int i = 0; i < 9; i++) {
+            if (wasPressed[i]) {
+              redraw = true;
+              if (i < 3) {
+                if (counters[2] == 0) {
+                  Mouse.press(mouse_buttons[i]);
+                } else {
+                  if (Mouse.isPressed(mouse_buttons[i])) {
+                    Mouse.release(mouse_buttons[i]);
+                  } else {
+                    Mouse.press(mouse_buttons[i]);
+                  }
+                }
+              }
+
+              if (i == 3) {
+                sub_mode--;
+              } else if (i == 5) {
+                sub_mode++;
+              }
+
+              if (sub_mode < 1) {
+                sub_mode = 1;
+              } else if (sub_mode > 10) {
+                sub_mode = 10;
+              }
+
+              //continue;
+            }
+            if (wasReleased[i]) {
+              redraw = true;
+              if (counters[2] == 0) {
+                if (i < 3) {
+                  Mouse.release(mouse_buttons[i]);
+                }
+              }
+              //Consumer.release(mediakey_code[i]);
+            }
+            if (isPressed[i]) {
+              if (i == 4) {
+                counters[1] -= sub_mode;
+              } else if (i == 6) {
+                counters[0] -= sub_mode;
+              } else if (i == 7) {
+                counters[1] += sub_mode;
+              } else if (i == 8) {
+                counters[0] += sub_mode;
+              }
+            }
+          }
+          Mouse.move(counters[0], counters[1]);
+          if (redraw) {
+
+            canvas.clear();
+
+            int i = 0;
+            int budge = 3;
+            for (int y = 0; y < 3; y ++) {
+              for (int x = 0; x < 3; x ++) {
+                int xpos = 35 * x + 1;
+                int ypos = 20 * y + 1;
+                if ( i < 3 ) {
+
+                  if (!Mouse.isPressed(mouse_buttons[i])) {
+                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
+                    //char button_buffer[7];
+                    canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                  } else {
+                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
+                    canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                  }
+
+                } else {
+                  if (!isPressed[i]) {
+                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
+                    //char button_buffer[7];
+                    canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                  } else {
+                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
+                    canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                  }
+                }
+
+                i++;
+              }
+            }
+            canvas.blt(20, 1);
+          }
+          redraw = false;
+        }
+
+      // End Mode 7
 
     }
   }
@@ -857,13 +1021,23 @@ void modeChangeSetup(int new_mode) {
       showMenu(rgbMenuItems);
       break;
 
+    case 7:
+      counters[2] = 0;
+      delay(mode_start_delay * 3);
+      Mouse.begin();
+      sub_mode = 1;
+      if (isPressed[6]) {
+        counters[2] = 1;
+      } else if (isPressed[8]) {
+        counters[2] = 2;
+      }
+      break;
+
 
     case 4:
       ssd1306_setFixedFont(ssd1306xled_font5x7);
-      if (isPressed[6]) {
-        secret_counter = 1;
-      } else if (isPressed[8]) {
-        secret_counter = 2;
+      if (isPressed[6] || isPressed[8]) {
+        sub_mode = 1;
       }
       break;
 
