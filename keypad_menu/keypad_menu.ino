@@ -837,21 +837,18 @@ void loop() {
       // End Mode 6
       // Mode 7: Mouse
         else if (mode == 7) {
+          //void mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle {
           counters[0] = 0;
           counters[1] = 0;
+          bool mouse_wheel_enabled = bitRead(counters[2], 0);
+          bool toggle = bitRead(counters[2], 1);
+          bool mouse_wheel = bitRead(counters[2], 2);
+          int current_modifier = sub_mode;
           for (int i = 0; i < 9; i++) {
             if (wasPressed[i]) {
               redraw = true;
               if (i < 3) {
-                if (counters[2] == 0) {
-                  Mouse.press(mouse_buttons[i]);
-                } else {
-                  if (Mouse.isPressed(mouse_buttons[i])) {
-                    Mouse.release(mouse_buttons[i]);
-                  } else {
-                    Mouse.press(mouse_buttons[i]);
-                  }
-                }
+                mouseButton(mouse_buttons[i], false, mouse_wheel_enabled, toggle, false);
               }
 
               if (i == 3) {
@@ -868,28 +865,49 @@ void loop() {
 
               //continue;
             }
+
             if (wasReleased[i]) {
               redraw = true;
-              if (counters[2] == 0) {
-                if (i < 3) {
-                  Mouse.release(mouse_buttons[i]);
-                }
+              if (i < 3) {
+                mouseButton(mouse_buttons[i], true, mouse_wheel_enabled, toggle, false);
               }
               //Consumer.release(mediakey_code[i]);
             }
             if (isPressed[i]) {
-              if (i == 4) {
-                counters[1] -= sub_mode;
-              } else if (i == 6) {
-                counters[0] -= sub_mode;
-              } else if (i == 7) {
-                counters[1] += sub_mode;
-              } else if (i == 8) {
-                counters[0] += sub_mode;
+              if (i == 4 || i == 7) {
+                if (counters[1] != 0) {
+                  current_modifier = sub_mode * 2;
+                }
               }
+
+              if (i == 6 || i == 8) {
+                if (counters[0] != 0) {
+                  current_modifier = sub_mode * 2;
+                }
+              }
+              switch (i) {
+                case 4:
+                  counters[1] -= current_modifier;
+                  break;
+                case 6:
+                  counters[0] -= current_modifier;
+                  break;
+                case 7:
+                  counters[1] += current_modifier;
+                  break;
+                case 8:
+                  counters[0] += current_modifier;
+                  break;
+              }
+
             }
           }
-          Mouse.move(counters[0], counters[1]);
+          if (mouse_wheel_enabled && mouse_wheel) {
+            Mouse.move(0, 0, -counters[1]);
+            delay(50);
+          } else {
+            Mouse.move(counters[0], counters[1]);
+          }
           if (redraw) {
 
             canvas.clear();
@@ -902,7 +920,7 @@ void loop() {
                 int ypos = 20 * y + 1;
                 if ( i < 3 ) {
 
-                  if (!Mouse.isPressed(mouse_buttons[i])) {
+                  if (!mouseButton(mouse_buttons[i], true, mouse_wheel_enabled, toggle, true)) {
                     strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
                     //char button_buffer[7];
                     canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
@@ -1023,14 +1041,15 @@ void modeChangeSetup(int new_mode) {
 
     case 7:
       counters[2] = 0;
-      delay(mode_start_delay * 3);
-      Mouse.begin();
       sub_mode = 1;
       if (isPressed[6]) {
-        counters[2] = 1;
-      } else if (isPressed[8]) {
-        counters[2] = 2;
+        bitSet(counters[2], 0);
       }
+      if (isPressed[8]) {
+        bitSet(counters[2], 1);
+      }
+      delay(mode_start_delay * 3);
+      Mouse.begin();
       break;
 
 
@@ -1065,6 +1084,66 @@ void counterButton(int counter_index, bool addition) {
 
 }
 
+bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle, bool reading) {
+  if (!reading) {
+    if (button == MOUSE_MIDDLE) {
+      if (mouse_wheel) {
+        if (toggle && !m_release) {
+          if (bitRead(counters[2], 2)) {
+            bitClear(counters[2], 2);
+            return false;
+          } else {
+            bitSet(counters[2], 2);
+            return true;
+          }
+        } else if (toggle && m_release) {
+          return;
+        } else {
+          if (m_release) {
+            bitClear(counters[2], 2);
+            return false;
+          } else {
+            bitSet(counters[2], 2);
+            return true;
+          }
+        }
+
+      }
+    }
+
+    if (toggle && !m_release) {
+      if (Mouse.isPressed(button)) {
+        Mouse.release(button);
+        return false;
+      } else {
+        Mouse.press(button);
+        return true;
+      }
+    } else if (toggle && m_release) {
+      return false;
+    }
+
+    if (m_release) {
+      Mouse.release(button);
+      return false;
+    } else {
+      Mouse.press(button);
+      return true;
+    }
+  } else {
+    if (button == MOUSE_MIDDLE) {
+      if (mouse_wheel) {
+        if (bitRead(counters[2], 2)) {
+          return true;
+        }
+      }
+    }
+    return Mouse.isPressed(button);
+
+
+  }
+  return false;
+}
 
 void basicButt(bool read_b) {
   if (read_b) {
