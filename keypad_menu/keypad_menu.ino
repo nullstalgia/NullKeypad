@@ -6,20 +6,27 @@
 #include <EEPROM.h>
 #include <MemoryFree.h>
 
+// Pin for RGB LED control
 #define RGB_PIN     9
 #define LED_TYPE    NEOPIXEL
 #define NUM_LEDS    9
+// Array which holds each LED's RGB value
+CRGB leds[NUM_LEDS];
 
-
-
+// These control the global RGB and will be overwritten in setup()
+// when EEPROM is loaded.
 byte RGB_BRIGHTNESS = 50;
 byte RGB_MODE = 1;
 byte RGB_ON_PUSH = 2;
+byte RGB_SPEED = 1;
 
+// This is used for the rolling rainbow effect
 uint8_t gHue = 0;
 
+// Menu for the OLED
 SAppMenu menu;
 
+// Initing all of the buttons and enabling pullups
 EasyButton button0(16, 35, true, true);
 EasyButton button1(14, 35, true, true);
 EasyButton button2(15, 35, true, true);
@@ -47,6 +54,7 @@ const char *mainMenuItems[] =
   "Mouse"
 };
 
+// Ditto for RGB controls
 const char *rgbMenuItems[] =
 {
   "Brightness",
@@ -56,6 +64,7 @@ const char *rgbMenuItems[] =
   "Test + Info",
 };
 
+// For RGB control, these are the possible "choices" given for brightness, speed, etc.
 const char *chooseMenuItems[] =
 {
   "0",
@@ -92,23 +101,29 @@ struct RGBConfig {
 // Mode 2: RGB Controls (save RGB preferences in EEPROM)
 // Mode 3: Arrow Keys (Arrow keys and Tab, Enter, etc)
 // Mode 4: Simple counter for keeping track of whatever. Saves to EEPROM.
+// Mode 5: Media Keys! Controls volume, playpause. And extra useless buttons
+// Mode 6: Beginnings of Macros. Right now, it's just hardcoded Arduino Compile, Upload, and Upload with Prog.
+// Mode 7: Mouse mode. WASD-style mouse with clicks and adjustable speed.
 int mode = 0;
 
 // Sub menus, mostly.
+// Also used as a custom variable for functions that need that extra variable but don't want to use the extra RAM
 int sub_mode = 0;
 
+// Ditto
+bool mode_extension_bool = false;
+
+
+// Buffer for the X/Y on the top right of menus.
 char menu_prog[5];
 
-byte RGB_SPEED = 1;
 
 
-CRGB leds[NUM_LEDS];
+// The following is me squeezing as much RAM as I can out of this chip
+// Instead of having arrays of char arrays, I have several arrays of PROGMEM'd char arrays that are decoded as needed.
+// This is a bit slower it seems, but not so bad that it severely impacts the experience
 
-
-
-
-
-
+// F13-21 Mode
 const char F1[] PROGMEM = "F13";
 const char F2[] PROGMEM = "F14";
 const char F3[] PROGMEM = "F15";
@@ -128,7 +143,7 @@ KeyboardKeycode fkey_code[9] =
 };
 
 
-
+// Arrow Keys mode
 const char Ar1[] PROGMEM = "TAB";
 const char Ar2[] PROGMEM = "ESC";
 const char Ar3[] PROGMEM = "END";
@@ -148,7 +163,7 @@ KeyboardKeycode akey_code[9] =
 };
 
 
-
+// Media Keys mode
 const char Me1[] PROGMEM = "V+";
 const char Me2[] PROGMEM = "Mute";
 const char Me3[] PROGMEM = "V-";
@@ -167,7 +182,9 @@ ConsumerKeycode mediakey_code[9] =
   MEDIA_REWIND, MEDIA_STOP, MEDIA_FAST_FORWARD
 };
 
-
+// Counter mode
+// TBH I probably don't even need this
+// Nevermind! I do! It takes more mem to get rid of this than keep it.
 const char C1[] PROGMEM = "";
 const char C2[] PROGMEM = "";
 const char C3[] PROGMEM = "";
@@ -180,6 +197,8 @@ const char C9[] PROGMEM = "V";
 
 const char *const counter_keys[] PROGMEM = {C1, C2, C3, C4, C5, C6, C7, C8, C9};
 
+
+// Macros mode
 const char Ma1[] PROGMEM = "Compl.";
 const char Ma2[] PROGMEM = "2";
 const char Ma3[] PROGMEM = "3";
@@ -192,7 +211,7 @@ const char Ma9[] PROGMEM = "9";
 
 const char *const macro_names[] PROGMEM = {Ma1, Ma2, Ma3, Ma4, Ma5, Ma6, Ma7, Ma8, Ma9};
 
-
+// Mouse mode
 const char Mo1[] PROGMEM = "Sp-";
 const char Mo2[] PROGMEM = "M3";
 const char Mo3[] PROGMEM = "Sp+";
@@ -207,7 +226,7 @@ const char *const mouse_keys[] PROGMEM = {Mo1, Mo2, Mo3, Mo4, Mo5, Mo6, Mo7, Mo8
 
 const static char mouse_buttons[] = {MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT};
 
-
+// Also mouse mode. Was helpful for moving around buttons without dealing with memhogging arrays
 #define UP 4
 #define DOWN 7
 #define LEFT 6
@@ -218,31 +237,43 @@ const static char mouse_buttons[] = {MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT};
 #define SpeedDown 0
 #define SpeedUp 2
 
+// Buffer all of those PROGMEM'd buttons go into when I read them
 char button_buffer[7];
 
+// Modes use this to see if its time to redraw on the OLED
+// Since if they draw all the time, it slows down the whole operation
 bool redraw = true;
 
+// Compares against mode_start_delay to see if its time to give the user control of the mode.
 unsigned long mode_start_millis = 0;
 
 int mode_start_delay = 250;
 
+// Used instead of millis() that is refreshed on loop() start. Makes me feel better.
 unsigned long current_millis = 0;
 
+// Used to see if its time to cycle the RGB Effect (rainbows, etc)
 unsigned long rgb_speed_millis = 0;
 
+// Used to see if its been long enough after the user input a counter button that it's time to save to EEPROM
 unsigned long eeprom_save_delay_millis = 0;
 
-bool mode_extension_bool = false;
-
+// I hate the name of this, but I couldn't think of anything better.
+// Used for when a user double-presses a number in the counter to set it to 0
 int reset_reset = -1;
 
+// Counters that count in the counting counter app
 int counters[3] = {0, 0, 0};
 
+// When user is in binary counter mode, it uses this to store the binary number as a "string" to be easily printed to the OLED
 char counter_buffer[17];
 
-bool freeMemSet = false;
-
+// When holding the top key in the counter, change the value by this when going up or down
 byte modifier_factor = 10;
+
+
+// If user holds button8 (9) on boot, it replaces the progress with the free memory remaining
+bool freeMemSet = false;
 
 
 void setup() {
@@ -251,8 +282,7 @@ void setup() {
 
   //Serial.begin(115200);
 
-  // Init pushed array
-
+  // Initializing button pushed array
   for (int i = 0; i < 10; i++) {
     isPressed[i] = false;
     wasPressed[i] = false;
@@ -278,7 +308,6 @@ void setup() {
   EEPROM.get(16, counters[2]);
 
   // In case it was a new/invalid config.
-
   if (RGB_BRIGHTNESS == 255) {
     RGB_BRIGHTNESS = 0;
   }
@@ -313,9 +342,11 @@ void setup() {
     freeMemSet = true;
   }
 }
+// Canvas for most modes to draw on the OLED with.
 uint8_t can_buffer[96 * 60 / 8];
 NanoCanvas canvas(96, 60, can_buffer);
 void loop() {
+  // Read every button and put the values in the right arrays
   basicButt(true);
   current_millis = millis();
   for (int i = 0; i < 9; i++) {
@@ -323,19 +354,9 @@ void loop() {
     //pressed[i] = buttons[i]->wasPressed();
   }
 
-  // put your main code here, to run repeatedly:
-  //delay(1000);
-  //ssd1306_clearScreen( );
-
 
   // LED Stuff to *always* run
 
-  // Cycling the rainbow effect
-  /*
-    if((current_millis - rgb_speed_millis) >= RGB_SPEED){
-    gHue++;
-    rgb_speed_millis = rgb_speed_millis;
-    }*/
   EVERY_N_MILLISECONDS(RGB_SPEED) {
     gHue++;
   };
@@ -714,7 +735,6 @@ void loop() {
                   //canvas.printFixed(0 , 0, sub_mode, STYLE_BOLD );
 
                 } else {
-                  ypos = 25 + ( y * 7) + 1;
                   if (!isPressed[i]) {
                     strcpy_P(button_buffer, (char *)pgm_read_word(&(counter_keys[i])));
                     //button_buffer
