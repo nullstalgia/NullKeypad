@@ -919,13 +919,15 @@ void loop() {
         }
 
         // If the wheel is to be spun, ignore any X and Y movements and just spin the wheel
-        if (mouse_wheel_enabled && mouse_wheel) {
+        // But only send mouse events if needed, otherwise it messes with the whole PC (Especially on Windows)
+        if ((mouse_wheel_enabled && mouse_wheel) && (isPressed[UP] || isPressed[DOWN])) {
           Mouse.move(0, 0, -counters[1]);
           // Delay is because it was going too fast
           delay(50);
-        } else {
+        } else if (isPressed[UP] || isPressed[DOWN] || isPressed[LEFT] || isPressed[RIGHT]){
           Mouse.move(counters[0], counters[1]);
         }
+        
         if (redraw) {
           canvas.clear();
           // Printing current speed
