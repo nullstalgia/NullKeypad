@@ -10,10 +10,7 @@
 #define LED_TYPE    NEOPIXEL
 #define NUM_LEDS    9
 
-#define UP 4
-#define DOWN 7
-#define LEFT 6
-#define RIGHT 8
+
 
 byte RGB_BRIGHTNESS = 50;
 byte RGB_MODE = 1;
@@ -32,6 +29,11 @@ EasyButton button5(7, 35, true, true);
 EasyButton button6(6, 35, true, true);
 EasyButton button7(5, 35, true, true);
 EasyButton button8(4, 35, true, true);
+int pins[9] = {16, 14, 15, 10, 8, 7, 6, 5, 4};
+bool isPressed[10];
+bool wasPressed[10];
+bool wasReleased[10];
+
 
 // Labels for menu options
 const char *mainMenuItems[] =
@@ -104,10 +106,7 @@ CRGB leds[NUM_LEDS];
 
 
 
-int pins[9] = {16, 14, 15, 10, 8, 7, 6, 5, 4};
-bool isPressed[10];
-bool wasPressed[10];
-bool wasReleased[10];
+
 
 
 const char F1[] PROGMEM = "F13";
@@ -194,19 +193,30 @@ const char Ma9[] PROGMEM = "9";
 const char *const macro_names[] PROGMEM = {Ma1, Ma2, Ma3, Ma4, Ma5, Ma6, Ma7, Ma8, Ma9};
 
 
-const char M1[] PROGMEM = "M1";
-const char M2[] PROGMEM = "M3";
-const char M3[] PROGMEM = "M2";
-const char M4[] PROGMEM = "Sp-";
-const char M5[] PROGMEM = "U";
-const char M6[] PROGMEM = "Sp+";
-const char M7[] PROGMEM = "L";
-const char M8[] PROGMEM = "D";
-const char M9[] PROGMEM = "R";
+const char Mo1[] PROGMEM = "Sp-";
+const char Mo2[] PROGMEM = "M3";
+const char Mo3[] PROGMEM = "Sp+";
+const char Mo4[] PROGMEM = "M1";
+const char Mo5[] PROGMEM = "U";
+const char Mo6[] PROGMEM = "M2";
+const char Mo7[] PROGMEM = "L";
+const char Mo8[] PROGMEM = "D";
+const char Mo9[] PROGMEM = "R";
 
-const char *const mouse_keys[] PROGMEM = {M1, M2, M3, M4, M5, M6, M7, M8, M9};
+const char *const mouse_keys[] PROGMEM = {Mo1, Mo2, Mo3, Mo4, Mo5, Mo6, Mo7, Mo8, Mo9};
 
 const static char mouse_buttons[] = {MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT};
+
+
+#define UP 4
+#define DOWN 7
+#define LEFT 6
+#define RIGHT 8
+#define M1 3
+#define M2 5
+#define M3 1
+#define SpeedDown 0
+#define SpeedUp 2
 
 char button_buffer[7];
 
@@ -233,6 +243,7 @@ char counter_buffer[17];
 bool freeMemSet = false;
 
 byte modifier_factor = 10;
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -852,8 +863,8 @@ void loop() {
           for (int i = 0; i < 9; i++) {
             if (wasPressed[i]) {
               redraw = true;
-              if (i < 3) {
-                mouseButton(mouse_buttons[i], false, mouse_wheel_enabled, toggle, false);
+              if (i == M1 || i == M2 || i == M3) {
+                mouseButton(keyToMouseButton(i), false, mouse_wheel_enabled, toggle, false);
               }
 
 
@@ -865,8 +876,8 @@ void loop() {
 
             if (wasReleased[i]) {
               redraw = true;
-              if (i < 3) {
-                mouseButton(mouse_buttons[i], true, mouse_wheel_enabled, toggle, false);
+              if (i == M1 || i == M2 || i == M3) {
+                mouseButton(keyToMouseButton(i), true, mouse_wheel_enabled, toggle, false);
               }
               mouseMoving(i, true);
               //Consumer.release(mediakey_code[i]);
@@ -900,9 +911,9 @@ void loop() {
               for (int x = 0; x < 3; x ++) {
                 int xpos = 35 * x + 1;
                 int ypos = 20 * y + 1;
-                if ( i < 3 ) {
+                if (i == M1 || i == M2 || i == M3) {
 
-                  if (!mouseButton(mouse_buttons[i], true, mouse_wheel_enabled, toggle, true)) {
+                  if (!mouseButton(keyToMouseButton(i), true, mouse_wheel_enabled, toggle, true)) {
                     strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
                     //char button_buffer[7];
                     canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
@@ -1068,24 +1079,25 @@ void counterButton(int counter_index, bool addition) {
 
 }
 
+
 void mouseSpeed(int key) {
   switch (key) {
-    case 0:
-    case 1:
-    case 2:
-    case 4:
-    case 6:
-    case 7:
-    case 8:
+    case M1:
+    case M2:
+    case M3:
+    case UP:
+    case DOWN:
+    case LEFT:
+    case RIGHT:
       return;
       break;
   }
   bool changed = true;
   bool minus = false;
-  if (key == 3) {
+  if (key == SpeedDown) {
     sub_mode--;
     minus = true;
-  } else if (key == 5) {
+  } else if (key == SpeedUp) {
     sub_mode++;
   }
 
@@ -1130,11 +1142,11 @@ void mouseSpeed(int key) {
 
 void mouseMoving(int key, bool release) {
   switch (key) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 5:
+    case M1:
+    case M2:
+    case M3:
+    case SpeedUp:
+    case SpeedDown:
       return;
       break;
   }
@@ -1281,6 +1293,15 @@ bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle, boo
 
   }
   return false;
+}
+
+char keyToMouseButton(int key){
+  if(key == M2){
+    return MOUSE_RIGHT;
+  } else if (key == M3){
+    return MOUSE_MIDDLE;
+  }
+  return MOUSE_LEFT;
 }
 
 void basicButt(bool read_b) {
