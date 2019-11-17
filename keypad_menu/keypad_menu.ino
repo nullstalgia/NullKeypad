@@ -10,6 +10,11 @@
 #define LED_TYPE    NEOPIXEL
 #define NUM_LEDS    9
 
+#define UP 4
+#define DOWN 7
+#define LEFT 6
+#define RIGHT 8
+
 byte RGB_BRIGHTNESS = 50;
 byte RGB_MODE = 1;
 byte RGB_ON_PUSH = 2;
@@ -838,8 +843,8 @@ void loop() {
       // Mode 7: Mouse
         else if (mode == 7) {
           //void mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle {
-          counters[0] = 0;
-          counters[1] = 0;
+          //counters[0] = 0;
+          //counters[1] = 0;
           bool mouse_wheel_enabled = bitRead(counters[2], 0);
           bool toggle = bitRead(counters[2], 1);
           bool mouse_wheel = bitRead(counters[2], 2);
@@ -851,19 +856,11 @@ void loop() {
                 mouseButton(mouse_buttons[i], false, mouse_wheel_enabled, toggle, false);
               }
 
-              if (i == 3) {
-                sub_mode--;
-              } else if (i == 5) {
-                sub_mode++;
-              }
 
-              if (sub_mode < 1) {
-                sub_mode = 1;
-              } else if (sub_mode > 10) {
-                sub_mode = 10;
-              }
 
-              //continue;
+              mouseSpeed(i);
+
+              mouseMoving(i, false);
             }
 
             if (wasReleased[i]) {
@@ -871,35 +868,20 @@ void loop() {
               if (i < 3) {
                 mouseButton(mouse_buttons[i], true, mouse_wheel_enabled, toggle, false);
               }
+              mouseMoving(i, true);
               //Consumer.release(mediakey_code[i]);
             }
+
             if (isPressed[i]) {
-              if (i == 4 || i == 7) {
-                if (counters[1] != 0) {
-                  current_modifier = sub_mode * 2;
-                }
-              }
 
-              if (i == 6 || i == 8) {
-                if (counters[0] != 0) {
-                  current_modifier = sub_mode * 2;
-                }
-              }
-              switch (i) {
-                case 4:
-                  counters[1] -= current_modifier;
-                  break;
-                case 6:
-                  counters[0] -= current_modifier;
-                  break;
-                case 7:
-                  counters[1] += current_modifier;
-                  break;
-                case 8:
-                  counters[0] += current_modifier;
-                  break;
-              }
+            }
 
+            if (!isPressed[LEFT] && !isPressed[RIGHT]) {
+              counters[0] = 0;
+            }
+
+            if (!isPressed[UP] && !isPressed[DOWN]) {
+              counters[1] = 0;
             }
           }
           if (mouse_wheel_enabled && mouse_wheel) {
@@ -1040,6 +1022,8 @@ void modeChangeSetup(int new_mode) {
       break;
 
     case 7:
+      counters[0] = 0;
+      counters[1] = 0;
       counters[2] = 0;
       sub_mode = 1;
       if (isPressed[6]) {
@@ -1082,6 +1066,160 @@ void counterButton(int counter_index, bool addition) {
     }
   }
 
+}
+
+void mouseSpeed(int key) {
+  switch (key) {
+    case 0:
+    case 1:
+    case 2:
+    case 4:
+    case 6:
+    case 7:
+    case 8:
+      return;
+      break;
+  }
+  bool changed = true;
+  bool minus = false;
+  if (key == 3) {
+    sub_mode--;
+    minus = true;
+  } else if (key == 5) {
+    sub_mode++;
+  }
+
+  if (sub_mode < 1) {
+    sub_mode = 1;
+    changed = false;
+  } else if (sub_mode > 10) {
+    sub_mode = 10;
+    changed = false;
+  }
+
+  if (changed) {
+    if (counters[0] < 0) {
+      if (!minus) {
+        counters[0]--;
+      } else {
+        counters[0]++;
+      }
+    } else if (counters[0] > 0) {
+      if (!minus) {
+        counters[0]++;
+      } else {
+        counters[0]--;
+      }
+    }
+
+    if (counters[1] < 0) {
+      if (!minus) {
+        counters[1]--;
+      } else {
+        counters[1]++;
+      }
+    } else if (counters[1] > 0) {
+      if (!minus) {
+        counters[1]++;
+      } else {
+        counters[1]--;
+      }
+    }
+  }
+}
+
+void mouseMoving(int key, bool release) {
+  switch (key) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 5:
+      return;
+      break;
+  }
+
+  /*
+    if (i == UP || i == DOWN) {
+      if (counters[1] != 0) {
+        current_modifier = sub_mode * 2;
+      }
+    }
+
+    if (i == LEFT || i == RIGHT) {
+      if (counters[0] != 0) {
+        current_modifier = sub_mode * 2;
+      }
+    }
+
+    switch (i) {
+      case UP:
+        counters[1] -= current_modifier;
+        break;
+      case LEFT:
+        counters[0] -= current_modifier;
+        break;
+      case DOWN:
+        counters[1] += current_modifier;
+        break;
+      case RIGHT:
+        counters[0] += current_modifier;
+        break;
+    }
+  */
+
+  // Counter 0 is X
+  // Counter 1 is Y
+
+  int speed = sub_mode;
+  if (!release) {
+    if (key == UP || key == DOWN) {
+      if (counters[1] == 0) {
+        if (key == UP) {
+          counters[1] -= speed;
+          return;
+        } else if (key == DOWN) {
+          counters[1] += speed;
+        }
+      } else {
+        counters[1] = 0;
+        mouseMoving(key, false);
+      }
+    } else if (key == LEFT || key == RIGHT) {
+      if (counters[0] == 0) {
+        if (key == LEFT) {
+          counters[0] -= speed;
+          return;
+        } else if (key == RIGHT) {
+          counters[0] += speed;
+        }
+      } else {
+        counters[0] = 0;
+        mouseMoving(key, false);
+      }
+    }
+  } else {
+    if(key == UP && isPressed[DOWN]){
+      counters[1] = 0;
+      mouseMoving(DOWN, false);
+      return;
+    }
+    if(key == DOWN && isPressed[UP]){
+      counters[1] = 0;
+      mouseMoving(UP, false);
+      return;
+    }
+    if(key == LEFT && isPressed[RIGHT]){
+      counters[0] = 0;
+      mouseMoving(RIGHT, false);
+      return;
+    }
+    if(key == RIGHT && isPressed[LEFT]){
+      counters[0] = 0;
+      mouseMoving(LEFT, false);
+      return;
+    }
+  }
 }
 
 bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle, bool reading) {
