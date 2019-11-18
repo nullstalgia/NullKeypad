@@ -105,6 +105,7 @@ struct RGBConfig {
 // Mode 5: Media Keys! Controls volume, playpause. And extra useless buttons
 // Mode 6: Beginnings of Macros. Right now, it's just hardcoded Arduino Compile, Upload, and Upload with Prog.
 // Mode 7: Mouse mode. WASD-style mouse with clicks and adjustable speed.
+// Mode 8: Basic WASD with common game keys plus optional mouse mode replacing A and D
 int mode = 0;
 
 // Sub menus, mostly.
@@ -991,7 +992,7 @@ void loop() {
 
         // Bit map for counters[2]
         // 0 - If we're enabling the mouse for keys A and D
-        // 1 - Toggling mouse clicks (maybe change to something else)
+        // 1 - Nothing RN (maybe change to something else)
         // 2 - Mouse Wheel Active (haven't changed)
 
         // Read each bit of the counter to see the options
@@ -1011,7 +1012,7 @@ void loop() {
               // mouse_wheel_enabled
               // toggle enabled
               // only return if its pressed/active, and don't actually touch the mouse
-              mouseButton(keyToMouseButton(i), false, false, toggle, false);
+              mouseButton(keyToMouseButton(i), false, false, false, false);
             } else {
               // But if it's A/D and we have the mouse on
               if ((i == LEFT || i == RIGHT) && mouse_move_enabled) {
@@ -1027,7 +1028,7 @@ void loop() {
           if (wasReleased[i]) {
             redraw = true;
             if (i == M1 || i == M2 || i == M3) {
-              mouseButton(keyToMouseButton(i), true, false, toggle, false);
+              mouseButton(keyToMouseButton(i), true, false, false, false);
             } else {
               if ((i == LEFT || i == RIGHT) && mouse_move_enabled) {
                 mouseMoving(i, true);
@@ -1037,7 +1038,6 @@ void loop() {
             }
 
           }
-
 
           // Unused for now.
           if (isPressed[i]) {
