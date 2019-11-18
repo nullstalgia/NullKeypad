@@ -1027,7 +1027,7 @@ void loop() {
 
           if (wasReleased[i]) {
             redraw = true;
-            if (i == M1 || i == M2 || i == M3) {
+            if (i == M1 || i == M2) {
               mouseButton(keyToMouseButton(i), true, false, false, false);
             } else {
               if ((i == LEFT || i == RIGHT) && mouse_move_enabled) {
