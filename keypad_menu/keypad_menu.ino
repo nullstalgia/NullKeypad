@@ -51,7 +51,8 @@ const char *mainMenuItems[] =
   "Counter",
   "Media Keys",
   "Macro (wip)",
-  "Mouse"
+  "Mouse",
+  "WASD"
 };
 
 // Ditto for RGB Settings
@@ -124,17 +125,17 @@ char menu_prog[5];
 // This is a bit slower it seems, but not so bad that it severely impacts the experience
 
 // F13-21 Mode
-const char F1[] PROGMEM = "F13";
-const char F2[] PROGMEM = "F14";
-const char F3[] PROGMEM = "F15";
-const char F4[] PROGMEM = "F16";
-const char F5[] PROGMEM = "F17";
-const char F6[] PROGMEM = "F18";
-const char F7[] PROGMEM = "F19";
-const char F8[] PROGMEM = "F20";
-const char F9[] PROGMEM = "F21";
+const char F0[] PROGMEM = "F13";
+const char F1[] PROGMEM = "F14";
+const char F2[] PROGMEM = "F15";
+const char F3[] PROGMEM = "F16";
+const char F4[] PROGMEM = "F17";
+const char F5[] PROGMEM = "F18";
+const char F6[] PROGMEM = "F19";
+const char F7[] PROGMEM = "F20";
+const char F8[] PROGMEM = "F21";
 
-const char *const fkeys[] PROGMEM = {F1, F2, F3, F4, F5, F6, F7, F8, F9};
+const char *const fkeys[] PROGMEM = {F0, F1, F2, F3, F4, F5, F6, F7, F8};
 
 KeyboardKeycode fkey_code[9] =
 { KEY_F13, KEY_F14, KEY_F15,
@@ -144,17 +145,17 @@ KeyboardKeycode fkey_code[9] =
 
 
 // Arrow Keys mode
-const char Ar1[] PROGMEM = "TAB";
-const char Ar2[] PROGMEM = "ESC";
-const char Ar3[] PROGMEM = "END";
-const char Ar4[] PROGMEM = "LALT";
-const char Ar5[] PROGMEM = " ^";
-const char Ar6[] PROGMEM = "RET";
-const char Ar7[] PROGMEM = "<-";
-const char Ar8[] PROGMEM = " V";
-const char Ar9[] PROGMEM = "->";
+const char Ar0[] PROGMEM = "TAB";
+const char Ar1[] PROGMEM = "ESC";
+const char Ar2[] PROGMEM = "END";
+const char Ar3[] PROGMEM = "LALT";
+const char Ar4[] PROGMEM = " ^";
+const char Ar5[] PROGMEM = "RET";
+const char Ar6[] PROGMEM = "<-";
+const char Ar7[] PROGMEM = " V";
+const char Ar8[] PROGMEM = "->";
 
-const char *const akeys[] PROGMEM = {Ar1, Ar2, Ar3, Ar4, Ar5, Ar6, Ar7, Ar8, Ar9};
+const char *const akeys[] PROGMEM = {Ar0, Ar1, Ar2, Ar3, Ar4, Ar5, Ar6, Ar7, Ar8};
 
 KeyboardKeycode akey_code[9] =
 { KEY_TAB, KEY_ESC, KEY_END,
@@ -164,17 +165,17 @@ KeyboardKeycode akey_code[9] =
 
 
 // Media Keys mode
-const char Me1[] PROGMEM = "V+";
-const char Me2[] PROGMEM = "Mute";
-const char Me3[] PROGMEM = "V-";
-const char Me4[] PROGMEM = "Prev";
-const char Me5[] PROGMEM = ">||";
-const char Me6[] PROGMEM = "Next";
-const char Me7[] PROGMEM = "Rew";
-const char Me8[] PROGMEM = "Stop";
-const char Me9[] PROGMEM = "FF";
+const char Me0[] PROGMEM = "V+";
+const char Me1[] PROGMEM = "Mute";
+const char Me2[] PROGMEM = "V-";
+const char Me3[] PROGMEM = "Prev";
+const char Me4[] PROGMEM = ">||";
+const char Me5[] PROGMEM = "Next";
+const char Me6[] PROGMEM = "Rew";
+const char Me7[] PROGMEM = "Stop";
+const char Me8[] PROGMEM = "FF";
 
-const char *const mediakeys[] PROGMEM = {Me1, Me2, Me3, Me4, Me5, Me6, Me7, Me8, Me9};
+const char *const mediakeys[] PROGMEM = {Me0, Me1, Me2, Me3, Me4, Me5, Me6, Me7, Me8};
 
 ConsumerKeycode mediakey_code[9] =
 { MEDIA_VOLUME_UP, MEDIA_VOLUME_MUTE, MEDIA_VOLUME_DOWN,
@@ -185,64 +186,82 @@ ConsumerKeycode mediakey_code[9] =
 // Counter mode
 // TBH I probably don't even need this
 // Nevermind! I do! It takes more mem to get rid of this than keep it.
+const char C0[] PROGMEM = "";
 const char C1[] PROGMEM = "";
 const char C2[] PROGMEM = "";
-const char C3[] PROGMEM = "";
+const char C3[] PROGMEM = "^";
 const char C4[] PROGMEM = "^";
 const char C5[] PROGMEM = "^";
-const char C6[] PROGMEM = "^";
+const char C6[] PROGMEM = "V";
 const char C7[] PROGMEM = "V";
 const char C8[] PROGMEM = "V";
-const char C9[] PROGMEM = "V";
 
-const char *const counter_keys[] PROGMEM = {C1, C2, C3, C4, C5, C6, C7, C8, C9};
+const char *const counter_keys[] PROGMEM = {C0, C1, C2, C3, C4, C5, C6, C7, C8};
 
 // How long to wait after they let go to save the numbers to EEPROM
 #define EEPROM_DELAY_THRESHOLD 7500
 
 // Macros mode
-const char Ma1[] PROGMEM = "Compl.";
-const char Ma2[] PROGMEM = "2";
-const char Ma3[] PROGMEM = "3";
-const char Ma4[] PROGMEM = "Upload";
-const char Ma5[] PROGMEM = "5";
-const char Ma6[] PROGMEM = "6";
-const char Ma7[] PROGMEM = "PrgUp";
-const char Ma8[] PROGMEM = "8";
-const char Ma9[] PROGMEM = "9";
+const char Ma0[] PROGMEM = "Compl.";
+const char Ma1[] PROGMEM = "2";
+const char Ma2[] PROGMEM = "3";
+const char Ma3[] PROGMEM = "Upload";
+const char Ma4[] PROGMEM = "5";
+const char Ma5[] PROGMEM = "6";
+const char Ma6[] PROGMEM = "PrgUp";
+const char Ma7[] PROGMEM = "8";
+const char Ma8[] PROGMEM = "F";
 
-const char *const macro_names[] PROGMEM = {Ma1, Ma2, Ma3, Ma4, Ma5, Ma6, Ma7, Ma8, Ma9};
+const char *const macro_names[] PROGMEM = {Ma0, Ma1, Ma2, Ma3, Ma4, Ma5, Ma6, Ma7, Ma8};
 
 // Mouse mode
-const char Mo1[] PROGMEM = "Sp-";
-//const char Mo2[] PROGMEM = "M3";
-const char Mo2[] PROGMEM = "MW";
-const char Mo3[] PROGMEM = "Sp+";
-const char Mo4[] PROGMEM = "M1";
-const char Mo5[] PROGMEM = "U";
-const char Mo6[] PROGMEM = "M2";
-const char Mo7[] PROGMEM = "L";
-const char Mo8[] PROGMEM = "D";
-const char Mo9[] PROGMEM = "R";
+const char Mo0[] PROGMEM = "M1";
+//const char Mo1[] PROGMEM = "M3";
+const char Mo1[] PROGMEM = "U";
+const char Mo2[] PROGMEM = "M2";
+const char Mo3[] PROGMEM = "L";
+const char Mo4[] PROGMEM = "D";
+const char Mo5[] PROGMEM = "R";
+const char Mo6[] PROGMEM = "Sp-";
+const char Mo7[] PROGMEM = "MW";
+const char Mo8[] PROGMEM = "Sp+";
 
-const char *const mouse_keys[] PROGMEM = {Mo1, Mo2, Mo3, Mo4, Mo5, Mo6, Mo7, Mo8, Mo9};
+const char *const mouse_keys[] PROGMEM = {Mo0, Mo1, Mo2, Mo3, Mo4, Mo5, Mo6, Mo7, Mo8};
 
 const static char mouse_buttons[] = {MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT};
 
 // Also mouse mode. Was helpful for moving around buttons without dealing with memhogging arrays
-#define UP 4
-#define DOWN 7
-#define LEFT 6
-#define RIGHT 8
-#define M1 3
-#define M2 5
-#define M3 1
-#define SpeedDown 0
-#define SpeedUp 2
+#define UP 1
+#define DOWN 4
+#define LEFT 3
+#define RIGHT 5
+#define M1 0
+#define M2 2
+#define M3 7
+#define SpeedDown 6
+#define SpeedUp 8
 
 // Min and Max speeds
 #define MinSpeed -5
 #define MaxSpeed 25
+
+// PC Game Mode
+const char PCG0[] PROGMEM = "M1";
+const char PCG1[] PROGMEM = "W";
+const char PCG2[] PROGMEM = "M2";
+const char PCG3[] PROGMEM = "A";
+const char PCG4[] PROGMEM = "S";
+const char PCG5[] PROGMEM = "D";
+const char PCG6[] PROGMEM = "E";
+const char PCG7[] PROGMEM = "F";
+const char PCG8[] PROGMEM = "Spc";
+
+const char *const pcgame_keys[] PROGMEM = {PCG0, PCG1, PCG2, PCG3, PCG4, PCG5, PCG6, PCG7, PCG8};
+
+#define KeyE 6
+#define KeyF 7
+#define KeySpace 8
+// TODO: Maybe gamepad mode?
 
 // Buffer all of those PROGMEM'd buttons go into when I read them
 char button_buffer[7];
@@ -285,7 +304,7 @@ bool freeMemSet = false;
 
 void setup() {
   // put your setup code here, to run once:
-  //delay(1000);
+  delay(500);
 
   //Serial.begin(115200);
 
@@ -924,10 +943,10 @@ void loop() {
           Mouse.move(0, 0, -counters[1]);
           // Delay is because it was going too fast
           delay(50);
-        } else if (isPressed[UP] || isPressed[DOWN] || isPressed[LEFT] || isPressed[RIGHT]){
+        } else if (isPressed[UP] || isPressed[DOWN] || isPressed[LEFT] || isPressed[RIGHT]) {
           Mouse.move(counters[0], counters[1]);
         }
-        
+
         if (redraw) {
           canvas.clear();
           // Printing current speed
@@ -966,8 +985,105 @@ void loop() {
         }
         redraw = false;
       }
-
       // End Mode 7
+      // Mode 8: Basic WASD
+      else if (mode == 8) {
+
+        // Bit map for counters[2]
+        // 0 - If we're enabling the mouse for keys A and D
+        // 1 - Toggling mouse clicks (maybe change to something else)
+        // 2 - Mouse Wheel Active (haven't changed)
+
+        // Read each bit of the counter to see the options
+        bool mouse_move_enabled = bitRead(counters[2], 0);
+        bool toggle = bitRead(counters[2], 1);
+        bool mouse_wheel = bitRead(counters[2], 2);
+
+        for (int i = 0; i < 9; i++) {
+          if (wasPressed[i]) {
+            redraw = true;
+            // If a mouse button is being pressed
+            if (i == M1 || i == M2) {
+              // Send it to the function
+              // The arguments are:
+              // Actual mouse button (e.g. MOUSE_LEFT)
+              // in wasReleased
+              // mouse_wheel_enabled
+              // toggle enabled
+              // only return if its pressed/active, and don't actually touch the mouse
+              mouseButton(keyToMouseButton(i), false, false, toggle, false);
+            } else {
+              // But if it's A/D and we have the mouse on
+              if ((i == LEFT || i == RIGHT) && mouse_move_enabled) {
+                // Move the mouse
+                mouseMoving(i, false);
+              } else {
+                // Otherwise just hit the KB key
+                Keyboard.press(keyToPCGameButton(i));
+              }
+            }
+          }
+
+          if (wasReleased[i]) {
+            redraw = true;
+            if (i == M1 || i == M2 || i == M3) {
+              mouseButton(keyToMouseButton(i), true, false, toggle, false);
+            } else {
+              if ((i == LEFT || i == RIGHT) && mouse_move_enabled) {
+                mouseMoving(i, true);
+              } else {
+                Keyboard.release(keyToPCGameButton(i));
+              }
+            }
+
+          }
+
+
+          // Unused for now.
+          if (isPressed[i]) {
+
+          }
+
+          // In case we messed up (and just in general), if theres no buttons being held, don't move the mouse in the given axis
+          if (!isPressed[LEFT] && !isPressed[RIGHT]) {
+            counters[0] = 0;
+          }
+        }
+
+        if ((isPressed[LEFT] || isPressed[RIGHT]) && mouse_move_enabled) {
+          Mouse.move(counters[0], counters[1]);
+        }
+
+        if (redraw) {
+          canvas.clear();
+          // Printing current speed
+          sprintf(counter_buffer, "Speed: %d", sub_mode);
+          canvas.printFixed(20, 0, counter_buffer, STYLE_NORMAL );
+          int i = 0;
+          int budge = 3;
+          for (int y = 0; y < 3; y ++) {
+            for (int x = 0; x < 3; x ++) {
+              int xpos = 35 * x + 1;
+              int ypos = 21 * y + 1;
+              ypos = 10 + ( y * 15) + 1;
+
+              if (!isPressed[i]) {
+                strcpy_P(button_buffer, (char *)pgm_read_word(&(pcgame_keys[i])));
+                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+              } else {
+                strcpy_P(button_buffer, (char *)pgm_read_word(&(pcgame_keys[i])));
+                canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+              }
+
+              i++;
+            }
+          }
+          canvas.blt(20, 1);
+        }
+        redraw = false;
+      }
+
+      // End Mode 8
 
     }
   }
@@ -1074,6 +1190,23 @@ void modeChangeSetup(int new_mode) {
         bitSet(counters[2], 1);
       }
       delay(mode_start_delay * 3);
+      Mouse.begin();
+      break;
+
+    // WASD
+    case 8:
+      counters[0] = 0;
+      counters[1] = 0;
+      counters[2] = 0;
+      sub_mode = 3;
+      if (isPressed[6]) {
+        bitSet(counters[2], 0);
+      }
+      if (isPressed[8]) {
+        bitSet(counters[2], 1);
+      }
+      delay(mode_start_delay * 3);
+      Keyboard.begin();
       Mouse.begin();
       break;
 
@@ -1342,6 +1475,27 @@ char keyToMouseButton(int key) {
     return MOUSE_MIDDLE;
   }
   return MOUSE_LEFT;
+}
+
+
+// Ditto for PC Game keys
+char keyToPCGameButton(int key) {
+  if (key == UP) {
+    return 'w';
+  } else if (key == DOWN) {
+    return 's';
+  } else if (key == LEFT) {
+    return 'a';
+  } else if (key == RIGHT) {
+    return 'd';
+  } else if (key == KeyE) {
+    return 'e';
+  } else if (key == KeyF) {
+    return 'f';
+  } else if (key == KeySpace) {
+    return ' ';
+  }
+  return 'w';
 }
 
 // Run every loop to check the state of buttons and set them up
