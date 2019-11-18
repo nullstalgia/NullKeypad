@@ -148,7 +148,7 @@ KeyboardKeycode fkey_code[9] =
 // Arrow Keys mode
 const char Ar0[] PROGMEM = "TAB";
 const char Ar1[] PROGMEM = "ESC";
-const char Ar2[] PROGMEM = "END";
+const char Ar2[] PROGMEM = "CTL";
 const char Ar3[] PROGMEM = "LALT";
 const char Ar4[] PROGMEM = " ^";
 const char Ar5[] PROGMEM = "RET";
@@ -159,7 +159,7 @@ const char Ar8[] PROGMEM = "->";
 const char *const akeys[] PROGMEM = {Ar0, Ar1, Ar2, Ar3, Ar4, Ar5, Ar6, Ar7, Ar8};
 
 KeyboardKeycode akey_code[9] =
-{ KEY_TAB, KEY_ESC, KEY_END,
+{ KEY_TAB, KEY_ESC, KEY_LEFT_CTRL,
   KEY_LEFT_ALT, KEY_UP_ARROW, KEY_RETURN,
   KEY_LEFT_ARROW, KEY_DOWN_ARROW, KEY_RIGHT_ARROW
 };
