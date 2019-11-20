@@ -229,6 +229,19 @@ const char Mo8[] PROGMEM = "Sp+";
 
 const char *const mouse_keys[] PROGMEM = {Mo0, Mo1, Mo2, Mo3, Mo4, Mo5, Mo6, Mo7, Mo8};
 
+// Border Mouse mode
+const char BMo0[] PROGMEM = "";
+const char BMo1[] PROGMEM = " ^";
+const char BMo2[] PROGMEM = "";
+const char BMo3[] PROGMEM = "<-";
+const char BMo4[] PROGMEM = "M1";
+const char BMo5[] PROGMEM = "->";
+const char BMo6[] PROGMEM = "";
+const char BMo7[] PROGMEM = " V";
+const char BMo8[] PROGMEM = "";
+
+const char *const bmouse_keys[] PROGMEM = {BMo0, BMo1, BMo2, BMo3, BMo4, BMo5, BMo6, BMo7, BMo8};
+
 const static char mouse_buttons[] = {MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT};
 
 // Also mouse mode. Was helpful for moving around buttons without dealing with memhogging arrays
@@ -886,103 +899,187 @@ void loop() {
         // Read each bit of the counter to see the options
         bool mouse_wheel_enabled = bitRead(counters[2], 0);
         bool toggle = bitRead(counters[2], 1);
+        bool border_mouse = bitRead(counters[2], 3);
         // This is set when M3 is held/toggled when mouse_wheel_enabled is also true
         // This means the wheel is active and should spin when up/down is going
         bool mouse_wheel = bitRead(counters[2], 2);
 
-        for (int i = 0; i < 9; i++) {
-          if (wasPressed[i]) {
-            redraw = true;
-            // If a mouse button is being pressed
-            if (i == M1 || i == M2 || i == M3) {
-              // Send it to the function
-              // The arguments are:
-              // Actual mouse button (e.g. MOUSE_LEFT)
-              // in wasReleased
-              // mouse_wheel_enabled
-              // toggle enabled
-              // only return if its pressed/active, and don't actually touch the mouse
-              mouseButton(keyToMouseButton(i), false, mouse_wheel_enabled, toggle, false);
-            }
-            // Checking if we're changing speed
-            // Arg. is keypad #
-            if (i == SpeedUp || i == SpeedDown) {
-              mouseSpeed(i);
-            }
-            // Checking if we're moving mouse
-            // Args are keypad # and if in wasReleased
-            mouseMoving(i, false);
-          }
+        // Used for border mouse mode
+        bool movingUpDown = false;
+        bool movingLeftRight = false;
 
-          if (wasReleased[i]) {
-            redraw = true;
-            if (i == M1 || i == M2 || i == M3) {
-              mouseButton(keyToMouseButton(i), true, mouse_wheel_enabled, toggle, false);
-            }
-            mouseMoving(i, true);
-          }
+        if (!border_mouse) {
 
-
-          // Unused for now.
-          if (isPressed[i]) {
-
-          }
-
-          // In case we messed up (and just in general), if theres no buttons being held, don't move the mouse in the given axis
-          if (!isPressed[LEFT] && !isPressed[RIGHT]) {
-            counters[0] = 0;
-          }
-
-          if (!isPressed[UP] && !isPressed[DOWN]) {
-            counters[1] = 0;
-          }
-        }
-
-        // If the wheel is to be spun, ignore any X and Y movements and just spin the wheel
-        // But only send mouse events if needed, otherwise it messes with the whole PC (Especially on Windows)
-        if ((mouse_wheel_enabled && mouse_wheel) && (isPressed[UP] || isPressed[DOWN])) {
-          Mouse.move(0, 0, -counters[1]);
-          // Delay is because it was going too fast
-          delay(50);
-        } else if (isPressed[UP] || isPressed[DOWN] || isPressed[LEFT] || isPressed[RIGHT]) {
-          Mouse.move(counters[0], counters[1]);
-        }
-
-        if (redraw) {
-          canvas.clear();
-          // Printing current speed
-          sprintf(counter_buffer, "Speed: %d", sub_mode);
-          canvas.printFixed(20, 0, counter_buffer, STYLE_NORMAL );
-          int i = 0;
-          int budge = 3;
-          for (int y = 0; y < 3; y ++) {
-            for (int x = 0; x < 3; x ++) {
-              int xpos = 35 * x + 1;
-              int ypos = 21 * y + 1;
-              ypos = 10 + ( y * 15) + 1;
+          for (int i = 0; i < 9; i++) {
+            if (wasPressed[i]) {
+              redraw = true;
+              // If a mouse button is being pressed
               if (i == M1 || i == M2 || i == M3) {
-
-                if (!mouseButton(keyToMouseButton(i), true, mouse_wheel_enabled, toggle, true)) {
-                  strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
-                  canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
-                } else {
-                  strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
-                  canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
-                }
-
-              } else {
-                if (!isPressed[i]) {
-                  strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
-                  canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
-                } else {
-                  strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
-                  canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
-                }
+                // Send it to the function
+                // The arguments are:
+                // Actual mouse button (e.g. MOUSE_LEFT)
+                // in wasReleased
+                // mouse_wheel_enabled
+                // toggle enabled
+                // only return if its pressed/active, and don't actually touch the mouse
+                mouseButton(keyToMouseButton(i), false, mouse_wheel_enabled, toggle, false);
               }
-              i++;
+              // Checking if we're changing speed
+              // Arg. is keypad #
+              if (i == SpeedUp || i == SpeedDown) {
+                mouseSpeed(i);
+              }
+              // Checking if we're moving mouse
+              // Args are keypad # and if in wasReleased
+              mouseMoving(i, false);
+            }
+
+            if (wasReleased[i]) {
+              redraw = true;
+              if (i == M1 || i == M2 || i == M3) {
+                mouseButton(keyToMouseButton(i), true, mouse_wheel_enabled, toggle, false);
+              }
+              mouseMoving(i, true);
+            }
+
+
+            // Unused for now.
+            if (isPressed[i]) {
+
+            }
+
+            // In case we messed up (and just in general), if theres no buttons being held, don't move the mouse in the given axis
+            if (!isPressed[LEFT] && !isPressed[RIGHT]) {
+              counters[0] = 0;
+            }
+
+            if (!isPressed[UP] && !isPressed[DOWN]) {
+              counters[1] = 0;
             }
           }
-          canvas.blt(20, 1);
+
+          // If the wheel is to be spun, ignore any X and Y movements and just spin the wheel
+          // But only send mouse events if needed, otherwise it messes with the whole PC (Especially on Windows)
+          if ((mouse_wheel_enabled && mouse_wheel) && (isPressed[UP] || isPressed[DOWN])) {
+            Mouse.move(0, 0, -counters[1]);
+            // Delay is because it was going too fast
+            delay(50);
+          } else if (isPressed[UP] || isPressed[DOWN] || isPressed[LEFT] || isPressed[RIGHT]) {
+            Mouse.move(counters[0], counters[1]);
+          }
+
+          if (redraw) {
+            canvas.clear();
+            // Printing current speed
+            sprintf(counter_buffer, "Speed: %d", sub_mode);
+            canvas.printFixed(20, 0, counter_buffer, STYLE_NORMAL );
+            int i = 0;
+            int budge = 3;
+            for (int y = 0; y < 3; y ++) {
+              for (int x = 0; x < 3; x ++) {
+                int xpos = 35 * x + 1;
+                int ypos = 21 * y + 1;
+                ypos = 10 + ( y * 15) + 1;
+                if (i == M1 || i == M2 || i == M3) {
+
+                  if (!mouseButton(keyToMouseButton(i), true, mouse_wheel_enabled, toggle, true)) {
+                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
+                    canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                  } else {
+                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
+                    canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                  }
+
+                } else {
+                  if (!isPressed[i]) {
+                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
+                    canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                  } else {
+                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
+                    canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                  }
+                }
+                i++;
+              }
+            }
+            canvas.blt(20, 1);
+          }
+        } else {
+
+          for (int i = 0; i < 9; i++) {
+            if (wasPressed[i]) {
+              redraw = true;
+              // If a mouse button is being pressed
+              if (i == 4) {
+                // Send it to the function
+                // The arguments are:
+                // Actual mouse button (e.g. MOUSE_LEFT)
+                // in wasReleased
+                // mouse_wheel_enabled
+                // toggle enabled
+                // only return if its pressed/active, and don't actually touch the mouse
+                mouseButton(MOUSE_LEFT, false, false, toggle, false);
+              }
+              // Checking if we're moving mouse
+              // Args are keypad # and if in wasReleased
+              borderMouse(i, false);
+            }
+
+            if (wasReleased[i]) {
+              redraw = true;
+              if (i == 4) {
+                mouseButton(MOUSE_LEFT, true, false, toggle, false);
+              }
+              borderMouse(i, true);
+            }
+
+
+            // Checking to see if anything was pushed to see if we're allowed to move the mouse
+            if (isPressed[i]) {
+              if (i < 3) {
+                movingUpDown = true;
+              }
+              if (i > 5) {
+                movingUpDown = true;
+              }
+              if (i % 3 == 0) {
+                movingLeftRight = true;
+              }
+              if ((i + 1) % 3 == 0) {
+                movingLeftRight = true;
+              }
+            }
+          }
+
+          if (movingUpDown || movingLeftRight) {
+            Mouse.move(counters[0], counters[1]);
+          }
+
+          if (redraw) {
+            canvas.clear();
+            // Printing current speed
+            sprintf(counter_buffer, "Speed: %d", sub_mode);
+            canvas.printFixed(20, 0, counter_buffer, STYLE_NORMAL );
+            int i = 0;
+            int budge = 3;
+            for (int y = 0; y < 3; y ++) {
+              for (int x = 0; x < 3; x ++) {
+                int xpos = 15 * x + 20;
+                int ypos = 21 * y + 1;
+                ypos = 10 + ( y * 15) + 1;
+                if (!isPressed[i]) {
+                  strcpy_P(button_buffer, (char *)pgm_read_word(&(bmouse_keys[i])));
+                  canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                } else {
+                  strcpy_P(button_buffer, (char *)pgm_read_word(&(bmouse_keys[i])));
+                  canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                }
+
+                i++;
+              }
+            }
+            canvas.blt(20, 1);
+          }
         }
         redraw = false;
       }
@@ -1183,11 +1280,22 @@ void modeChangeSetup(int new_mode) {
       counters[1] = 0;
       counters[2] = 0;
       sub_mode = 1;
-      if (isPressed[6]) {
-        bitSet(counters[2], 0);
-      }
       if (isPressed[8]) {
         bitSet(counters[2], 1);
+      }
+      // If 1 isnt pushed and 7 is, set up mouse wheel mode
+      // But if 1 is pushed, set up border mouse moving mode
+      if (!isPressed[0]) {
+        if (isPressed[6]) {
+          bitSet(counters[2], 0);
+        }
+      } else {
+        sub_mode = 3;
+        bitSet(counters[2], 3);
+        // Lower speed a bit if 3 is also pressed
+        if(isPressed[2]){
+          sub_mode = 1;
+        }
       }
       delay(mode_start_delay * 3);
       Mouse.begin();
@@ -1298,6 +1406,56 @@ void mouseSpeed(int key) {
       }
     }
   }
+}
+
+void borderMouse(int key, bool release) {
+  // If it's M1, then ignore this and move on
+  if (key == 4) {
+    return;
+  }
+
+  // Just used to make it a little nicer on the eyes
+  int speed = sub_mode;
+
+  if (!release) {
+    // If we're not already moving the mouse
+    if (counters[0] == 0 && counters[1] == 0) {
+      // Keys 1 through 3 (Top edge)
+      if (key < 3) {
+        counters[1] -= speed;
+      }
+      // Keys 6 through 8 (Bottom edge)
+      if (key > 5) {
+        counters[1] += speed;
+      }
+      // Keys 0, 3, 6 (Left edge)
+      if (key % 3 == 0) {
+        counters[0] -= speed;
+      }
+      // Keys 2, 5, 8 (Right edge)
+      if ((key + 1) % 3 == 0) {
+        counters[0] += speed;
+      }
+    } else {
+      // If mouse is moving, stop it and redo this as to not re-add speed
+      counters[0] = 0;
+      counters[1] = 0;
+      borderMouse(key, false);
+    }
+  } else {
+    // Checking to see which one is being pushed and then pushing it
+    // TODO: Maybe try this on mouseMoving?
+    for (int i = 0; i < 9; i++) {
+      if (i == 4) {
+        continue;
+      }
+      if (isPressed[i]) {
+        borderMouse(i, false);
+        break;
+      }
+    }
+  }
+
 }
 
 void mouseMoving(int key, bool release) {
