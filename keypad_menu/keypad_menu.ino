@@ -1053,6 +1053,10 @@ void loop() {
 
           if (movingUpDown || movingLeftRight) {
             Mouse.move(counters[0], counters[1]);
+          } else {
+            // If we're not moving, make sure we reset as borderMouse() can sometimes let little bits of speed stay after release.
+            counters[0] = 0;
+            counters[1] = 0;
           }
 
           if (redraw) {
@@ -1293,7 +1297,7 @@ void modeChangeSetup(int new_mode) {
         sub_mode = 3;
         bitSet(counters[2], 3);
         // Lower speed a bit if 3 is also pressed
-        if(isPressed[2]){
+        if (isPressed[2]) {
           sub_mode = 1;
         }
       }
@@ -1419,7 +1423,7 @@ void borderMouse(int key, bool release) {
 
   if (!release) {
     // If we're not already moving the mouse
-    if (counters[0] == 0 && counters[1] == 0) {
+    if (true) {
       // Keys 1 through 3 (Top edge)
       if (key < 3) {
         counters[1] -= speed;
@@ -1437,12 +1441,33 @@ void borderMouse(int key, bool release) {
         counters[0] += speed;
       }
     } else {
+      // !! Now impossible state. !!
       // If mouse is moving, stop it and redo this as to not re-add speed
       counters[0] = 0;
       counters[1] = 0;
       borderMouse(key, false);
     }
   } else {
+    // Reversing the above action if a button is let go
+    // Keys 1 through 3 (Top edge)
+    if (key < 3) {
+      counters[1] += speed;
+    }
+    // Keys 6 through 8 (Bottom edge)
+    if (key > 5) {
+      counters[1] -= speed;
+    }
+    // Keys 0, 3, 6 (Left edge)
+    if (key % 3 == 0) {
+      counters[0] += speed;
+    }
+    // Keys 2, 5, 8 (Right edge)
+    if ((key + 1) % 3 == 0) {
+      counters[0] -= speed;
+    }
+
+    // Leftovers.
+    /*
     // Checking to see which one is being pushed and then pushing it
     // TODO: Maybe try this on mouseMoving?
     for (int i = 0; i < 9; i++) {
@@ -1454,6 +1479,7 @@ void borderMouse(int key, bool release) {
         break;
       }
     }
+     */
   }
 
 }
