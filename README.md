@@ -67,6 +67,8 @@ Mode 0 is Black
 - Hold 1 (index 0) to activate Border Mouse mode, all keys except 5 (index 4) move the mouse in the corresponding direction. The middle key will press Mouse 1 (left click)
     - Hold 3 (index 2) to set Speed to 1 for this mode.
 
+![Border Mouse Image](https://i.imgur.com/xKMiioW.jpg  "Border Mouse Image")
+
 #### WASD:
 - Hold 7 (index 6) to enable Horizontal Mouse mode. Pressing A and D on the Keypad will instead move the mouse in the corresponding direction.
 
