@@ -1098,7 +1098,8 @@ void loop() {
 
         // Read each bit of the counter to see the options
         bool mouse_move_enabled = bitRead(counters[2], 0);
-        bool toggle = bitRead(counters[2], 1);
+        //bool toggle = bitRead(counters[2], 1);
+        bool toggle = false;
         bool mouse_wheel = bitRead(counters[2], 2);
 
         for (int i = 0; i < 9; i++) {
@@ -1113,7 +1114,7 @@ void loop() {
               // mouse_wheel_enabled
               // toggle enabled
               // only return if its pressed/active, and don't actually touch the mouse
-              mouseButton(keyToMouseButton(i), false, false, false, false);
+              mouseButton(keyToMouseButton(i), false, false, toggle, false);
             } else {
               // But if it's A/D and we have the mouse on
               if ((i == LEFT || i == RIGHT) && mouse_move_enabled) {
@@ -1129,7 +1130,7 @@ void loop() {
           if (wasReleased[i]) {
             redraw = true;
             if (i == M1 || i == M2) {
-              mouseButton(keyToMouseButton(i), true, false, false, false);
+              mouseButton(keyToMouseButton(i), true, false, toggle, false);
             } else {
               if ((i == LEFT || i == RIGHT) && mouse_move_enabled) {
                 mouseMoving(i, true);
