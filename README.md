@@ -1,8 +1,8 @@
-#NullKeypad
+# NullKeypad
 
 An Arduino Pro Micro-based keypad made with 9 Cherry-style switches, an I2C OLED Panel, and WS2812B RGB LEDs  (3535 sized)
 
-##Modes:
+## Modes:
 In order of appearance:
 
 1. F13-21 Keys
@@ -53,39 +53,39 @@ Mode 0 is Black
 7. Rainbow (larger gradient)
 8. 8 through 10, same as 5 through 7, but the Rainbow is reversed
 
-##Secret Modes:
+## Secret Modes:
 
-####Counter:
+#### Counter:
 - Hold 7 (index 6) to activate Hex counting
 - Hold 9 (index 8) to activate Binary counting
 - In any mode, hold top button of a column and press the up/down of that column to raise/lower by a larger amount
 
-####Mouse:
+#### Mouse:
 - Hold 7 (index 6) to enable Mouse Wheel Scrolling. Hold the Mouse Wheel key and press Up or Down to scroll. More speed == More scroll
 - Hold 9 (index 8) to activate Toggling. All mouse keys (including mouse wheel enable) will be toggled upon pressing.
 
 - Hold 1 (index 0) to activate Border Mouse mode, all keys except 5 (index 4) move the mouse in the corresponding direction. The middle key will press Mouse 1 (left click)
     - Hold 3 (index 2) to set Speed to 1 for this mode.
 
-####WASD:
+#### WASD:
 - Hold 7 (index 6) to enable Horizontal Mouse mode. Pressing A and D on the Keypad will instead move the mouse in the corresponding direction.
 
-##Wiring:
+## Wiring:
 
-####I2C OLED:
+#### I2C OLED:
 
 | Name | Pin # |
 |------|-------|
 | SDA  | 2     |
 | SCL  | 3     |
 
-####RGB LEDs:
+#### RGB LEDs:
 
 | Name | Pin # |
 |------|-------|
 | Data Out  | 9     |
 
-####Buttons/Keys:
+#### Buttons/Keys:
 
 Arranged in a  3x3 grid.
 
@@ -101,7 +101,7 @@ Arranged in a  3x3 grid.
 | 8        | 7     | 5     |
 | 9        | 8     | 4     |
 
-##Required Libraries For Compilation:
+## Required Libraries For Compilation:
 [NicoHood's HID-Project](https://github.com/NicoHood/HID) 
 [lexus2k's ssd1306](https://github.com/lexus2k/ssd1306/) 
 [evert-arias's EasyButton](https://github.com/evert-arias/EasyButton) 
