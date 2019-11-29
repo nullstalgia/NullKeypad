@@ -1,3 +1,5 @@
+#include <Arduino.h> // VS Code/Platform.io funtime.
+#include <Wire.h>
 #include "HID-Project.h" // https://github.com/NicoHood/HID
 #include "ssd1306.h" // https://github.com/lexus2k/ssd1306/
 #include "nano_gfx.h" // https://github.com/lexus2k/ssd1306/
@@ -287,7 +289,7 @@ bool redraw = true;
 // Compares against mode_start_delay to see if its time to give the user control of the mode.
 unsigned long mode_start_millis = 0;
 
-int mode_start_delay = 250;
+unsigned long mode_start_delay = 250;
 
 // Used instead of millis() that is refreshed on loop() start. Makes me feel better.
 unsigned long current_millis = 0;
@@ -315,6 +317,21 @@ char counter_buffer[17];
 // If user holds button8 (9) on boot, it replaces the progress with the free memory remaining
 bool freeMemSet = false;
 
+// Need to declare functions before they are used for fun VS Code/Platform.io stuff.
+// https://bit.ly/ino2cpp
+
+void showMenu(const char *given_array[]);
+bool workMenu(bool show_prog);
+void saveRGBEEPROM();
+void modeChangeSetup(int new_mode);
+void counterButton(int counter_index, bool addition);
+void mouseSpeed(int key);
+void borderMouse(int key, bool release);
+void mouseMoving(int key, bool release);
+bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle, bool reading);
+char keyToMouseButton(int key);
+char keyToPCGameButton(int key);
+void basicButt(bool read_b);
 
 void setup() {
   // put your setup code here, to run once:
@@ -1100,7 +1117,6 @@ void loop() {
         bool mouse_move_enabled = bitRead(counters[2], 0);
         //bool toggle = bitRead(counters[2], 1);
         bool toggle = false;
-        bool mouse_wheel = bitRead(counters[2], 2);
 
         for (int i = 0; i < 9; i++) {
           if (wasPressed[i]) {
