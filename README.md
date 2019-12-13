@@ -169,7 +169,17 @@ Arranged in a  3x3 grid.
 [FastLED](https://github.com/FastLED/FastLED/) 
 [MemoryFree](https://github.com/maniacbug/MemoryFree) 
 
-## PCB Images:
+## V1 and V2 PCB Difference?
+
+All V1 code is compatible with V2, but V2 has 4 extra pushbuttons, so not everything will work.
+
+All of the Cherry MX style keys, RGB, and OLED pins are kept the same.
+
+## PCB V2 Images:
+
+Coming Soon
+
+## PCB V1 Images:
 
 ![](https://i.imgur.com/dCcjW8I.jpg) 
 
