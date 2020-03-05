@@ -1,21 +1,21 @@
-#include <Arduino.h> // VS Code/Platform.io funtime.
-#include <Wire.h>  // For I2C Devices (OLED)
+#include <Arduino.h>     // VS Code/Platform.io funtime.
 #include "HID-Project.h" // https://github.com/NicoHood/HID
-#include "ssd1306.h" // https://github.com/lexus2k/ssd1306/
-#include "nano_gfx.h" // https://github.com/lexus2k/ssd1306/
-#include <EasyButton.h> // https://github.com/evert-arias/EasyButton
-#include <FastLED.h> // https://github.com/FastLED/FastLED/
+#include "nano_gfx.h"    // https://github.com/lexus2k/ssd1306/
+#include "ssd1306.h"     // https://github.com/lexus2k/ssd1306/
 #include <EEPROM.h>
+#include <EasyButton.h> // https://github.com/evert-arias/EasyButton
+#include <FastLED.h>    // https://github.com/FastLED/FastLED/
 #include <MemoryFree.h> // https://github.com/maniacbug/MemoryFree
+#include <Wire.h>       // For I2C Devices (OLED)
 
 // Is RGB Enabled?
 // TODO
 #define RGB_ENABLED 1
 
 // Pin for RGB LED control
-#define RGB_PIN     9
-#define LED_TYPE    NEOPIXEL
-#define NUM_LEDS    9
+#define RGB_PIN 9
+#define LED_TYPE NEOPIXEL
+#define NUM_LEDS 9
 // Array which holds each LED's RGB value
 CRGB leds[NUM_LEDS];
 
@@ -46,7 +46,7 @@ EasyButton button5(7, 35, true, true);
 EasyButton button6(6, 35, true, true);
 EasyButton button7(5, 35, true, true);
 EasyButton button8(4, 35, true, true);
-//int pins[9] = {16, 14, 15, 10, 8, 7, 6, 5, 4};
+// int pins[9] = {16, 14, 15, 10, 8, 7, 6, 5, 4};
 bool isPressed[13];
 bool wasPressed[13];
 bool wasReleased[13];
@@ -63,51 +63,25 @@ EasyButton buttonR(A0, 35, true, true);
 #define L 11
 #define R 12
 
-
 // Labels for menu options
-const char *mainMenuItems[] =
-{
-  "F13-21 Keys",
-  "RGB Settings",
-  "Arrow Keys",
-  "Counter",
-  "Media Keys",
-  "Macro (wip)",
-  "Mouse",
-  "WASD"
-};
+const char *mainMenuItems[] = {"F13-21 Keys", "RGB Settings", "Arrow Keys",
+                               "Counter",     "Media Keys",   "Macro (wip)",
+                               "Mouse",       "WASD"};
 
 // Ditto for RGB Settings
-const char *rgbMenuItems[] =
-{
-  "Brightness",
-  "Mode",
-  "Push Action",
-  "Speed (reset req)",
-  "Test + Info",
+const char *rgbMenuItems[] = {
+    "Brightness", "Mode", "Push Action", "Speed (reset req)", "Test + Info",
 };
 
-// For RGB control, these are the possible "choices" given for brightness, speed, etc.
-const char *chooseMenuItems[] =
-{
-  "0",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10"
-};
+// For RGB control, these are the possible "choices" given for brightness,
+// speed, etc.
+const char *chooseMenuItems[] = {"0", "1", "2", "3", "4", "5",
+                                 "6", "7", "8", "9", "10"};
 
 // How many items in current menu
 int item_count = 0;
 // Which one is chosen
 int chosen_in_menu = 0;
-
 
 // Our struct for EEPROM storage of RGB configs.
 struct RGBConfig {
@@ -117,7 +91,6 @@ struct RGBConfig {
   byte speed;
 };
 
-
 // Modes! Oh boy
 // Mode 0: Main Menu
 // Mode 1: F13-21 Keys (keypad with the "hidden" F13, F14, F15... keys.
@@ -125,27 +98,27 @@ struct RGBConfig {
 // Mode 3: Arrow Keys (Arrow keys and Tab, Enter, etc)
 // Mode 4: Simple counter for keeping track of whatever. Saves to EEPROM.
 // Mode 5: Media Keys! Controls volume, playpause. And extra useless buttons
-// Mode 6: Beginnings of Macros. Right now, it's just hardcoded Arduino Compile, Upload, and Upload with Prog.
-// Mode 7: Mouse mode. WASD-style mouse with clicks and adjustable speed.
-// Mode 8: Basic WASD with common game keys plus optional mouse mode replacing A and D
-int mode = 0;
+// Mode 6: Beginnings of Macros. Right now, it's just hardcoded Arduino Compile,
+// Upload, and Upload with Prog. Mode 7: Mouse mode. WASD-style mouse with
+// clicks and adjustable speed. Mode 8: Basic WASD with common game keys plus
+// optional mouse mode replacing A and D
+int mode = 6;
 
 // Sub menus, mostly.
-// Also used as a custom variable for functions that need that extra variable but don't want to use the extra RAM
+// Also used as a custom variable for functions that need that extra variable
+// but don't want to use the extra RAM
 int sub_mode = 0;
 
 // Ditto
 bool mode_extension_bool = false;
 
-
 // Buffer for the X/Y on the top right of menus.
 char menu_prog[5];
 
-
-
 // The following is me squeezing as much RAM as I can out of this chip
-// Instead of having arrays of char arrays, I have several arrays of PROGMEM'd char arrays that are decoded as needed.
-// This is a bit slower it seems, but not so bad that it severely impacts the experience
+// Instead of having arrays of char arrays, I have several arrays of PROGMEM'd
+// char arrays that are decoded as needed. This is a bit slower it seems, but
+// not so bad that it severely impacts the experience
 
 // F13-21 Mode
 const char F0[] PROGMEM = "F13";
@@ -160,12 +133,8 @@ const char F8[] PROGMEM = "F21";
 
 const char *const fkeys[] PROGMEM = {F0, F1, F2, F3, F4, F5, F6, F7, F8};
 
-KeyboardKeycode fkey_code[9] =
-{ KEY_F13, KEY_F14, KEY_F15,
-  KEY_F16, KEY_F17, KEY_F18,
-  KEY_F19, KEY_F20, KEY_F21
-};
-
+KeyboardKeycode fkey_code[9] = {KEY_F13, KEY_F14, KEY_F15, KEY_F16, KEY_F17,
+                                KEY_F18, KEY_F19, KEY_F20, KEY_F21};
 
 // Arrow Keys mode
 const char Ar0[] PROGMEM = "TAB";
@@ -178,14 +147,12 @@ const char Ar6[] PROGMEM = "<-";
 const char Ar7[] PROGMEM = " V";
 const char Ar8[] PROGMEM = "->";
 
-const char *const akeys[] PROGMEM = {Ar0, Ar1, Ar2, Ar3, Ar4, Ar5, Ar6, Ar7, Ar8};
+const char *const akeys[] PROGMEM = {Ar0, Ar1, Ar2, Ar3, Ar4,
+                                     Ar5, Ar6, Ar7, Ar8};
 
-KeyboardKeycode akey_code[9] =
-{ KEY_TAB, KEY_ESC, KEY_LEFT_CTRL,
-  KEY_LEFT_ALT, KEY_UP_ARROW, KEY_RETURN,
-  KEY_LEFT_ARROW, KEY_DOWN_ARROW, KEY_RIGHT_ARROW
-};
-
+KeyboardKeycode akey_code[9] = {
+    KEY_TAB,    KEY_ESC,        KEY_LEFT_CTRL,  KEY_LEFT_ALT,   KEY_UP_ARROW,
+    KEY_RETURN, KEY_LEFT_ARROW, KEY_DOWN_ARROW, KEY_RIGHT_ARROW};
 
 // Media Keys mode
 const char Me0[] PROGMEM = "V+";
@@ -198,13 +165,13 @@ const char Me6[] PROGMEM = "Rew";
 const char Me7[] PROGMEM = "Stop";
 const char Me8[] PROGMEM = "FF";
 
-const char *const mediakeys[] PROGMEM = {Me0, Me1, Me2, Me3, Me4, Me5, Me6, Me7, Me8};
+const char *const mediakeys[] PROGMEM = {Me0, Me1, Me2, Me3, Me4,
+                                         Me5, Me6, Me7, Me8};
 
-ConsumerKeycode mediakey_code[9] =
-{ MEDIA_VOLUME_UP, MEDIA_VOLUME_MUTE, MEDIA_VOLUME_DOWN,
-  MEDIA_PREVIOUS, MEDIA_PLAY_PAUSE, MEDIA_NEXT,
-  MEDIA_REWIND, MEDIA_STOP, MEDIA_FAST_FORWARD
-};
+ConsumerKeycode mediakey_code[9] = {
+    MEDIA_VOLUME_UP, MEDIA_VOLUME_MUTE, MEDIA_VOLUME_DOWN,
+    MEDIA_PREVIOUS,  MEDIA_PLAY_PAUSE,  MEDIA_NEXT,
+    MEDIA_REWIND,    MEDIA_STOP,        MEDIA_FAST_FORWARD};
 
 // Counter mode
 // TBH I probably don't even need this
@@ -225,21 +192,22 @@ const char *const counter_keys[] PROGMEM = {C0, C1, C2, C3, C4, C5, C6, C7, C8};
 #define EEPROM_DELAY_THRESHOLD 7500
 
 // Macros mode
-const char Ma0[] PROGMEM = "Compl.";
-const char Ma1[] PROGMEM = "2";
-const char Ma2[] PROGMEM = "3";
-const char Ma3[] PROGMEM = "Upload";
-const char Ma4[] PROGMEM = "5";
-const char Ma5[] PROGMEM = "6";
-const char Ma6[] PROGMEM = "PrgUp";
-const char Ma7[] PROGMEM = "8";
-const char Ma8[] PROGMEM = "F";
+const char Ma0[] PROGMEM = "ArdC";
+const char Ma1[] PROGMEM = "PioC";
+const char Ma2[] PROGMEM = "2";
+const char Ma3[] PROGMEM = "ArdU";
+const char Ma4[] PROGMEM = "PioU";
+const char Ma5[] PROGMEM = "Bootld";
+const char Ma6[] PROGMEM = "ArdPU";
+const char Ma7[] PROGMEM = "PioPU";
+const char Ma8[] PROGMEM = "LCSC";
 
-const char *const macro_names[] PROGMEM = {Ma0, Ma1, Ma2, Ma3, Ma4, Ma5, Ma6, Ma7, Ma8};
+const char *const macro_names[] PROGMEM = {Ma0, Ma1, Ma2, Ma3, Ma4,
+                                           Ma5, Ma6, Ma7, Ma8};
 
 // Mouse mode
 const char Mo0[] PROGMEM = "M1";
-//const char Mo1[] PROGMEM = "M3";
+// const char Mo1[] PROGMEM = "M3";
 const char Mo1[] PROGMEM = "U";
 const char Mo2[] PROGMEM = "M2";
 const char Mo3[] PROGMEM = "L";
@@ -249,7 +217,8 @@ const char Mo6[] PROGMEM = "M4";
 const char Mo7[] PROGMEM = "MW";
 const char Mo8[] PROGMEM = "M5";
 
-const char *const mouse_keys[] PROGMEM = {Mo0, Mo1, Mo2, Mo3, Mo4, Mo5, Mo6, Mo7, Mo8};
+const char *const mouse_keys[] PROGMEM = {Mo0, Mo1, Mo2, Mo3, Mo4,
+                                          Mo5, Mo6, Mo7, Mo8};
 
 // Border Mouse mode
 const char BMo0[] PROGMEM = "";
@@ -262,11 +231,13 @@ const char BMo6[] PROGMEM = "";
 const char BMo7[] PROGMEM = " V";
 const char BMo8[] PROGMEM = "";
 
-const char *const bmouse_keys[] PROGMEM = {BMo0, BMo1, BMo2, BMo3, BMo4, BMo5, BMo6, BMo7, BMo8};
+const char *const bmouse_keys[] PROGMEM = {BMo0, BMo1, BMo2, BMo3, BMo4,
+                                           BMo5, BMo6, BMo7, BMo8};
 
 const static char mouse_buttons[] = {MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT};
 
-// Also mouse mode. Was helpful for moving around buttons without dealing with memhogging arrays
+// Also mouse mode. Was helpful for moving around buttons without dealing with
+// memhogging arrays
 #define UP 1
 #define DOWN 4
 #define LEFT 3
@@ -294,7 +265,8 @@ const char PCG6[] PROGMEM = "E";
 const char PCG7[] PROGMEM = "F";
 const char PCG8[] PROGMEM = "Spc";
 
-const char *const pcgame_keys[] PROGMEM = {PCG0, PCG1, PCG2, PCG3, PCG4, PCG5, PCG6, PCG7, PCG8};
+const char *const pcgame_keys[] PROGMEM = {PCG0, PCG1, PCG2, PCG3, PCG4,
+                                           PCG5, PCG6, PCG7, PCG8};
 
 #define KeyE 6
 #define KeyF 7
@@ -308,18 +280,21 @@ char button_buffer[7];
 // Since if they draw all the time, it slows down the whole operation
 bool redraw = true;
 
-// Compares against mode_start_delay to see if its time to give the user control of the mode.
+// Compares against mode_start_delay to see if its time to give the user control
+// of the mode.
 unsigned long mode_start_millis = 0;
 
 unsigned long mode_start_delay = 250;
 
-// Used instead of millis() that is refreshed on loop() start. Makes me feel better.
+// Used instead of millis() that is refreshed on loop() start. Makes me feel
+// better.
 unsigned long current_millis = 0;
 
 // Used to see if its time to cycle the RGB Effect (rainbows, etc)
 unsigned long rgb_speed_millis = 0;
 
-// Used to see if its been long enough after the user input a counter button that it's time to save to EEPROM
+// Used to see if its been long enough after the user input a counter button
+// that it's time to save to EEPROM
 unsigned long eeprom_save_delay_millis = 0;
 
 // I hate the name of this, but I couldn't think of anything better.
@@ -329,18 +304,20 @@ int reset_reset = -1;
 // Counters that count in the counting counter app
 int counters[3] = {0, 0, 0};
 
-// When user is in binary counter mode, it uses this to store the binary number as a "string" to be easily printed to the OLED
+// When user is in binary counter mode, it uses this to store the binary number
+// as a "string" to be easily printed to the OLED
 char counter_buffer[17];
 
-// When holding the top key in the counter, change the value by this when going up or down
+// When holding the top key in the counter, change the value by this when going
+// up or down
 #define modifier_factor 10
 
-
-// If user holds button8 (9) on boot, it replaces the progress with the free memory remaining
+// If user holds button8 (9) on boot, it replaces the progress with the free
+// memory remaining
 bool freeMemSet = false;
 
-// Need to declare functions before they are used for fun VS Code/Platform.io stuff.
-// https://bit.ly/ino2cpp
+// Need to declare functions before they are used for fun VS Code/Platform.io
+// stuff. https://bit.ly/ino2cpp
 
 void showMenu(const char *given_array[]);
 bool workMenu(bool show_prog);
@@ -350,7 +327,8 @@ void counterButton(int counter_index, bool addition);
 void mouseSpeed(int key);
 void borderMouse(int key, bool release);
 void mouseMoving(int key, bool release);
-bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle, bool reading);
+bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle,
+                 bool reading);
 char keyToMouseButton(int key);
 char keyToPCGameButton(int key);
 void basicButt(bool read_b);
@@ -359,7 +337,7 @@ void setup() {
   // put your setup code here, to run once:
   delay(1000);
 
-  //Serial.begin(115200);
+  // Serial.begin(115200);
 
   // Initializing button pushed array
   for (int i = 0; i < 10; i++) {
@@ -406,7 +384,6 @@ void setup() {
   FastLED.addLeds<LED_TYPE, RGB_PIN>(leds, NUM_LEDS);
   FastLED.setBrightness(RGB_BRIGHTNESS);
 
-
   /* Select the font to use with menu and all font functions */
   ssd1306_setFixedFont(ssd1306xled_font6x8);
 
@@ -429,65 +406,71 @@ void loop() {
   basicButt(true);
   current_millis = millis();
   for (int i = 0; i < 9; i++) {
-    //buttons[i]->read();
-    //pressed[i] = buttons[i]->wasPressed();
+    // buttons[i]->read();
+    // pressed[i] = buttons[i]->wasPressed();
   }
 
+  if (current_millis > 3000) {
+    // strcpy(mainMenuItems[0], "hmm");
+  }
 
   // LED Stuff to *always* run
 
-  EVERY_N_MILLISECONDS(RGB_SPEED) {
-    gHue++;
-  };
+  EVERY_N_MILLISECONDS(RGB_SPEED) { gHue++; };
 
-  switch (RGB_MODE)
-  {
-    case 0:
-      fill_solid(leds, NUM_LEDS, CRGB::Black);
-      break;
+  switch (RGB_MODE) {
+  case 0:
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    break;
 
-    case 1:
-      fill_solid(leds, NUM_LEDS, CRGB::White);
-      break;
+  case 1:
+    fill_solid(leds, NUM_LEDS, CRGB::White);
+    break;
 
-    case 2:
-      fill_solid(leds, NUM_LEDS, CRGB::Red);
-      break;
+  case 2:
+    fill_solid(leds, NUM_LEDS, CRGB::Red);
+    break;
 
-    case 3:
-      fill_solid(leds, NUM_LEDS, CRGB::Green);
-      break;
+  case 3:
+    fill_solid(leds, NUM_LEDS, CRGB::Green);
+    break;
 
-    case 4:
-      fill_solid(leds, NUM_LEDS, CRGB::Blue);
-      break;
+  case 4:
+    fill_solid(leds, NUM_LEDS, CRGB::Blue);
+    break;
 
-    case 5:
-      fill_gradient_RGB(leds, NUM_LEDS, CHSV(gHue, 255, 255), CHSV(gHue + 10, 255, 255));
-      break;
+  case 5:
+    fill_gradient_RGB(leds, NUM_LEDS, CHSV(gHue, 255, 255),
+                      CHSV(gHue + 10, 255, 255));
+    break;
 
-    case 6:
-      fill_gradient_RGB(leds, NUM_LEDS, CHSV(gHue, 255, 255), CHSV(gHue + 70, 255, 255));
-      break;
+  case 6:
+    fill_gradient_RGB(leds, NUM_LEDS, CHSV(gHue, 255, 255),
+                      CHSV(gHue + 70, 255, 255));
+    break;
 
-    case 7:
-      fill_gradient_RGB(leds, NUM_LEDS, CHSV(gHue, 255, 255), CHSV(gHue + 120, 255, 255));
-      break;
+  case 7:
+    fill_gradient_RGB(leds, NUM_LEDS, CHSV(gHue, 255, 255),
+                      CHSV(gHue + 120, 255, 255));
+    break;
 
-    case 8:
-      fill_gradient_RGB(leds, NUM_LEDS, CHSV(-gHue, 255, 255), CHSV(-gHue + 10, 255, 255));
-      break;
+  case 8:
+    fill_gradient_RGB(leds, NUM_LEDS, CHSV(-gHue, 255, 255),
+                      CHSV(-gHue + 10, 255, 255));
+    break;
 
-    case 9:
-      fill_gradient_RGB(leds, NUM_LEDS, CHSV(-gHue, 255, 255), CHSV(-gHue + 70, 255, 255));
-      break;
+  case 9:
+    fill_gradient_RGB(leds, NUM_LEDS, CHSV(-gHue, 255, 255),
+                      CHSV(-gHue + 70, 255, 255));
+    break;
 
-    case 10:
-      fill_gradient_RGB(leds, NUM_LEDS, CHSV(-gHue, 255, 255), CHSV(-gHue + 120, 255, 255));
-      break;
+  case 10:
+    fill_gradient_RGB(leds, NUM_LEDS, CHSV(-gHue, 255, 255),
+                      CHSV(-gHue + 120, 255, 255));
+    break;
 
-    default:
-      break;
+  default:
+    break;
   }
 
   // If the on_push option is enabled
@@ -524,7 +507,8 @@ void loop() {
 
   if (mode == 0) {
     // Main Menu
-    // If option is chosen, run the setup then the next loop() will run the mode's function.
+    // If option is chosen, run the setup then the next loop() will run the
+    // mode's function.
     if (workMenu(true)) {
       modeChangeSetup(chosen_in_menu);
     }
@@ -549,16 +533,17 @@ void loop() {
 
           int i = 0;
           int budge = 3;
-          for (int y = 0; y < 3; y ++) {
-            for (int x = 0; x < 3; x ++) {
+          for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
               int xpos = 30 * x + 1;
               int ypos = 20 * y + 1;
               if (!isPressed[i]) {
                 strcpy_P(button_buffer, (char *)pgm_read_word(&(fkeys[i])));
-                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL);
               } else {
                 strcpy_P(button_buffer, (char *)pgm_read_word(&(fkeys[i])));
-                canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                canvas.printFixed(xpos + budge, ypos + budge, button_buffer,
+                                  STYLE_BOLD);
               }
               i++;
             }
@@ -596,15 +581,15 @@ void loop() {
               sprintf(rgbpush, "%d", RGB_ON_PUSH);
               sprintf(rgbspeed, "%d", RGB_SPEED);
 
-              canvas.printFixed(0, 0, "Brightness:", STYLE_NORMAL );
-              canvas.printFixed(0, 8, "Mode:", STYLE_NORMAL );
-              canvas.printFixed(0, 16, "Push Action:", STYLE_NORMAL );
-              canvas.printFixed(0, 24, "RGB Speed:", STYLE_NORMAL );
+              canvas.printFixed(0, 0, "Brightness:", STYLE_NORMAL);
+              canvas.printFixed(0, 8, "Mode:", STYLE_NORMAL);
+              canvas.printFixed(0, 16, "Push Action:", STYLE_NORMAL);
+              canvas.printFixed(0, 24, "RGB Speed:", STYLE_NORMAL);
 
-              canvas.printFixed(80, 0, bright, STYLE_NORMAL );
-              canvas.printFixed(80, 8, rgbmode, STYLE_NORMAL );
-              canvas.printFixed(80, 16, rgbpush, STYLE_NORMAL );
-              canvas.printFixed(80, 24, rgbspeed, STYLE_NORMAL );
+              canvas.printFixed(80, 0, bright, STYLE_NORMAL);
+              canvas.printFixed(80, 8, rgbmode, STYLE_NORMAL);
+              canvas.printFixed(80, 16, rgbpush, STYLE_NORMAL);
+              canvas.printFixed(80, 24, rgbspeed, STYLE_NORMAL);
               ssd1306_clearScreen();
               canvas.blt(0, 0);
             }
@@ -642,8 +627,7 @@ void loop() {
             sub_mode = 0;
           }
           RGB_ON_PUSH = chosen_in_menu;
-        }
-        else if (sub_mode == 4) {
+        } else if (sub_mode == 4) {
           // RGB Rainbow Speed
           if (workMenu(false)) {
             saveRGBEEPROM();
@@ -677,16 +661,17 @@ void loop() {
 
           int i = 0;
           int budge = 3;
-          for (int y = 0; y < 3; y ++) {
-            for (int x = 0; x < 3; x ++) {
+          for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
               int xpos = 30 * x + 1;
               int ypos = 20 * y + 1;
               if (!isPressed[i]) {
                 strcpy_P(button_buffer, (char *)pgm_read_word(&(akeys[i])));
-                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL);
               } else {
                 strcpy_P(button_buffer, (char *)pgm_read_word(&(akeys[i])));
-                canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                canvas.printFixed(xpos + budge, ypos + budge, button_buffer,
+                                  STYLE_BOLD);
               }
 
               i++;
@@ -715,11 +700,13 @@ void loop() {
                 counters[i] = 0;
                 reset_reset = -1;
               } else {
-                // But if they had one chosen and they push a different top row, deselect it
+                // But if they had one chosen and they push a different top row,
+                // deselect it
                 reset_reset = -1;
               }
             } else {
-              // But if they didn't hit a top row, set it to nothing if it already wasn't
+              // But if they didn't hit a top row, set it to nothing if it
+              // already wasn't
               if (reset_reset != -1) {
                 reset_reset = -1;
               }
@@ -728,50 +715,50 @@ void loop() {
             // Seperate func for those that take into account the modifiers
 
             switch (i) {
-              case 3:
-                counterButton(0, true);
-                break;
-              case 4:
-                counterButton(1, true);
-                break;
-              case 5:
-                counterButton(2, true);
-                break;
+            case 3:
+              counterButton(0, true);
+              break;
+            case 4:
+              counterButton(1, true);
+              break;
+            case 5:
+              counterButton(2, true);
+              break;
 
-              case 6:
-                counterButton(0, false);
-                break;
-              case 7:
-                counterButton(1, false);
-                break;
-              case 8:
-                counterButton(2, false);
-                break;
+            case 6:
+              counterButton(0, false);
+              break;
+            case 7:
+              counterButton(1, false);
+              break;
+            case 8:
+              counterButton(2, false);
+              break;
             }
           }
 
           if (wasReleased[i]) {
             redraw = true;
-            // The extension bool is being used for seeing if we're going to save to EEPROM
-            // So when the button is let go, we say
-            // "Hey, we should save soon. Here's when they let go"
+            // The extension bool is being used for seeing if we're going to
+            // save to EEPROM So when the button is let go, we say "Hey, we
+            // should save soon. Here's when they let go"
             mode_extension_bool = true;
             eeprom_save_delay_millis = current_millis;
           }
-
         }
         if (redraw) {
           canvas.clear();
 
           int i = 0;
           int budge = 2;
-          // If we're gonna save soon, let the user know with a bar across the top
+          // If we're gonna save soon, let the user know with a bar across the
+          // top
           if (mode_extension_bool) {
             canvas.drawHLine(0, 0, 96);
           }
 
-          for (int y = 0; y < 3; y ++) {
-            for (int x = 0; x < 3; x ++) {
+          for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
               int xpos = 30 * x + 1;
               int ypos = 20 * y + 1;
 
@@ -779,7 +766,8 @@ void loop() {
               if (i < 3) {
                 // If we're on the hex mode
                 if (sub_mode == 1) {
-                  // (s)printf already has a int > hex function, so I just use that
+                  // (s)printf already has a int > hex function, so I just use
+                  // that
                   sprintf(counter_buffer, "%X", counters[i]);
                 } else if (sub_mode == 2) {
                   // If we're in binary mode, put it into the buffer at base 2
@@ -789,30 +777,40 @@ void loop() {
                   itoa(counters[i], counter_buffer, 10);
                 }
 
-                // If we're not in the binary mode, put the numbers on the top from left to right
-                if ( sub_mode != 2 ) {
+                // If we're not in the binary mode, put the numbers on the top
+                // from left to right
+                if (sub_mode != 2) {
                   if (reset_reset == i) {
-                    canvas.printFixed(xpos + budge, ypos, counter_buffer, STYLE_BOLD );
+                    canvas.printFixed(xpos + budge, ypos, counter_buffer,
+                                      STYLE_BOLD);
                   } else {
-                    canvas.printFixed(xpos , ypos + budge, counter_buffer, STYLE_NORMAL );
+                    canvas.printFixed(xpos, ypos + budge, counter_buffer,
+                                      STYLE_NORMAL);
                   }
                 } else {
-                  // If we are, they are placed on the left side from top to bottom
+                  // If we are, they are placed on the left side from top to
+                  // bottom
                   if (reset_reset == i) {
-                    canvas.printFixed(0 + budge, 2 + ( i * 9) + 2, counter_buffer, STYLE_BOLD );
+                    canvas.printFixed(0 + budge, 2 + (i * 9) + 2,
+                                      counter_buffer, STYLE_BOLD);
                   } else {
-                    canvas.printFixed(0 , 2 + ( i * 9) + 2 + budge, counter_buffer, STYLE_NORMAL );
+                    canvas.printFixed(0, 2 + (i * 9) + 2 + budge,
+                                      counter_buffer, STYLE_NORMAL);
                   }
                 }
               } else {
-                // This forces the buttons to go lower to give room for the binary mode, but I keep it on all the time for continuity.
-                ypos = 25 + ( y * 7 ) + 1;
+                // This forces the buttons to go lower to give room for the
+                // binary mode, but I keep it on all the time for continuity.
+                ypos = 25 + (y * 7) + 1;
                 if (!isPressed[i]) {
-                  strcpy_P(button_buffer, (char *)pgm_read_word(&(counter_keys[i])));
-                  canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                  strcpy_P(button_buffer,
+                           (char *)pgm_read_word(&(counter_keys[i])));
+                  canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL);
                 } else {
-                  strcpy_P(button_buffer, (char *)pgm_read_word(&(counter_keys[i])));
-                  canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                  strcpy_P(button_buffer,
+                           (char *)pgm_read_word(&(counter_keys[i])));
+                  canvas.printFixed(xpos + budge, ypos + budge, button_buffer,
+                                    STYLE_BOLD);
                 }
               }
               i++;
@@ -822,8 +820,11 @@ void loop() {
         }
 
         redraw = false;
-        // If it's ready to save and it's been long enough, put every number into EEPROM
-        if ((current_millis - eeprom_save_delay_millis) > EEPROM_DELAY_THRESHOLD && mode_extension_bool) {
+        // If it's ready to save and it's been long enough, put every number
+        // into EEPROM
+        if ((current_millis - eeprom_save_delay_millis) >
+                EEPROM_DELAY_THRESHOLD &&
+            mode_extension_bool) {
           EEPROM.put(12, counters[0]);
           EEPROM.put(14, counters[1]);
           EEPROM.put(16, counters[2]);
@@ -850,20 +851,20 @@ void loop() {
 
           int i = 0;
           int budge = 3;
-          for (int y = 0; y < 3; y ++) {
-            for (int x = 0; x < 3; x ++) {
+          for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
               int xpos = 30 * x + 1;
               int ypos = 20 * y + 1;
               if (!isPressed[i]) {
                 strcpy_P(button_buffer, (char *)pgm_read_word(&(mediakeys[i])));
-                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL);
               } else {
                 strcpy_P(button_buffer, (char *)pgm_read_word(&(mediakeys[i])));
-                canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                canvas.printFixed(xpos + budge, ypos + budge, button_buffer,
+                                  STYLE_BOLD);
               }
 
               i++;
-
             }
           }
           canvas.blt(drawX, drawY);
@@ -898,6 +899,77 @@ void loop() {
               Keyboard.press('u');
               Keyboard.releaseAll();
             }
+
+            // PlatformIO Compile
+            if (i == 1) {
+                Keyboard.press(KEY_LEFT_CTRL);
+                Keyboard.press(KEY_LEFT_ALT);
+                Keyboard.press('b');
+                Keyboard.releaseAll();
+            }
+
+            // Regular PlatformIO Upload
+            if (i == 4) {
+                Keyboard.press(KEY_LEFT_CTRL);
+                Keyboard.press(KEY_LEFT_ALT);
+                Keyboard.press('u');
+                Keyboard.releaseAll();
+            }
+
+            // PlatformIO Upload with Programmer
+            if (i == 7) {
+                Keyboard.press(KEY_LEFT_CTRL);
+                Keyboard.press(KEY_LEFT_SHIFT);
+                Keyboard.press('p');
+                Keyboard.releaseAll();
+                delay(350);
+                Keyboard.println("tasks");
+                delay(350);
+                Keyboard.println("programmer");
+            }
+
+            // Arduino Burn Bootloader
+            if (i == 5) {
+              Keyboard.press(KEY_LEFT_ALT);
+              Keyboard.press('t');
+              Keyboard.releaseAll();
+              Keyboard.press(KEY_UP_ARROW);
+              Keyboard.releaseAll();
+              Keyboard.press(KEY_RETURN);
+              Keyboard.releaseAll();
+            }
+
+            // KiCad LCSC Field adding
+            if (i == 8) {
+                Keyboard.print("e");
+              for (int j = 0; j < 45; j++) {
+                Mouse.move(-127, 127);
+                //delay(20);
+              }
+              //delay(2000);
+              //Mouse.move(-127, 127);
+              for (int j = 0; j < 7; j++) {
+                Mouse.move(127, -127);
+                //delay(10);
+              }
+              Mouse.move(48, -48);
+              delay(100);
+              Mouse.click();
+              delay(100);
+              //Keyboard.print("hi");
+              Keyboard.print("LCSC");
+              delay(100);
+              Keyboard.press(KEY_TAB);
+              Keyboard.release(KEY_TAB);
+              //delay(10);
+              Keyboard.press(KEY_LEFT_CTRL);
+              Keyboard.press('v');
+              Keyboard.releaseAll();
+
+              Keyboard.press(KEY_LEFT_ALT);
+              Keyboard.press('o');
+              Keyboard.releaseAll();
+            }
           }
           if (wasReleased[i]) {
             redraw = true;
@@ -907,20 +979,22 @@ void loop() {
           canvas.clear();
           int i = 0;
           int budge = 1;
-          for (int y = 0; y < 3; y ++) {
-            for (int x = 0; x < 3; x ++) {
+          for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
               int xpos = 40 * x + 1;
               int ypos = 20 * y + 1;
               if (!isPressed[i]) {
-                strcpy_P(button_buffer, (char *)pgm_read_word(&(macro_names[i])));
-                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                strcpy_P(button_buffer,
+                         (char *)pgm_read_word(&(macro_names[i])));
+                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL);
               } else {
-                strcpy_P(button_buffer, (char *)pgm_read_word(&(macro_names[i])));
-                canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                strcpy_P(button_buffer,
+                         (char *)pgm_read_word(&(macro_names[i])));
+                canvas.printFixed(xpos + budge, ypos + budge, button_buffer,
+                                  STYLE_BOLD);
               }
 
               i++;
-
             }
           }
           canvas.blt(drawX, drawY);
@@ -939,8 +1013,9 @@ void loop() {
         bool mouse_wheel_enabled = bitRead(counters[2], 0);
         bool toggle = bitRead(counters[2], 1);
         bool border_mouse = bitRead(counters[2], 3);
-        // This is set when M3 is held/toggled when mouse_wheel_enabled is also true
-        // This means the wheel is active and should spin when up/down is going
+        // This is set when M3 is held/toggled when mouse_wheel_enabled is also
+        // true This means the wheel is active and should spin when up/down is
+        // going
         bool mouse_wheel = bitRead(counters[2], 2);
 
         // Used for border mouse mode
@@ -960,8 +1035,10 @@ void loop() {
                 // in wasReleased
                 // mouse_wheel_enabled
                 // toggle enabled
-                // only return if its pressed/active, and don't actually touch the mouse
-                mouseButton(keyToMouseButton(i), false, mouse_wheel_enabled, toggle, false);
+                // only return if its pressed/active, and don't actually touch
+                // the mouse
+                mouseButton(keyToMouseButton(i), false, mouse_wheel_enabled,
+                            toggle, false);
               }
               // Checking if we're changing speed
               // Arg. is keypad #
@@ -977,18 +1054,18 @@ void loop() {
             if (wasReleased[i]) {
               redraw = true;
               if (i == M1 || i == M2 || i == M3 || i == M4 || i == M5) {
-                mouseButton(keyToMouseButton(i), true, mouse_wheel_enabled, toggle, false);
+                mouseButton(keyToMouseButton(i), true, mouse_wheel_enabled,
+                            toggle, false);
               }
               mouseMoving(i, true);
             }
 
-
             // Unused for now.
             if (isPressed[i]) {
-
             }
 
-            // In case we messed up (and just in general), if theres no buttons being held, don't move the mouse in the given axis
+            // In case we messed up (and just in general), if theres no buttons
+            // being held, don't move the mouse in the given axis
             if (!isPressed[LEFT] && !isPressed[RIGHT]) {
               counters[0] = 0;
             }
@@ -998,13 +1075,16 @@ void loop() {
             }
           }
 
-          // If the wheel is to be spun, ignore any X and Y movements and just spin the wheel
-          // But only send mouse events if needed, otherwise it messes with the whole PC (Especially on Windows)
-          if ((mouse_wheel_enabled && mouse_wheel) && (isPressed[UP] || isPressed[DOWN])) {
+          // If the wheel is to be spun, ignore any X and Y movements and just
+          // spin the wheel But only send mouse events if needed, otherwise it
+          // messes with the whole PC (Especially on Windows)
+          if ((mouse_wheel_enabled && mouse_wheel) &&
+              (isPressed[UP] || isPressed[DOWN])) {
             Mouse.move(0, 0, -counters[1]);
             // Delay is because it was going too fast
             delay(50);
-          } else if (isPressed[UP] || isPressed[DOWN] || isPressed[LEFT] || isPressed[RIGHT]) {
+          } else if (isPressed[UP] || isPressed[DOWN] || isPressed[LEFT] ||
+                     isPressed[RIGHT]) {
             Mouse.move(counters[0], counters[1]);
           }
 
@@ -1012,31 +1092,38 @@ void loop() {
             canvas.clear();
             // Printing current speed
             sprintf(counter_buffer, "Speed: %d", sub_mode);
-            canvas.printFixed(15, 0, counter_buffer, STYLE_NORMAL );
+            canvas.printFixed(15, 0, counter_buffer, STYLE_NORMAL);
             int i = 0;
             int budge = 3;
-            for (int y = 0; y < 3; y ++) {
-              for (int x = 0; x < 3; x ++) {
+            for (int y = 0; y < 3; y++) {
+              for (int x = 0; x < 3; x++) {
                 int xpos = 30 * x + 1;
                 int ypos = 21 * y + 1;
-                ypos = 10 + ( y * 15) + 1;
+                ypos = 10 + (y * 15) + 1;
                 if (i == M1 || i == M2 || i == M3 || i == M4 || i == M5) {
 
-                  if (!mouseButton(keyToMouseButton(i), true, mouse_wheel_enabled, toggle, true)) {
-                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
-                    canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                  if (!mouseButton(keyToMouseButton(i), true,
+                                   mouse_wheel_enabled, toggle, true)) {
+                    strcpy_P(button_buffer,
+                             (char *)pgm_read_word(&(mouse_keys[i])));
+                    canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL);
                   } else {
-                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
-                    canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                    strcpy_P(button_buffer,
+                             (char *)pgm_read_word(&(mouse_keys[i])));
+                    canvas.printFixed(xpos + budge, ypos + budge, button_buffer,
+                                      STYLE_BOLD);
                   }
 
                 } else {
                   if (!isPressed[i]) {
-                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
-                    canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                    strcpy_P(button_buffer,
+                             (char *)pgm_read_word(&(mouse_keys[i])));
+                    canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL);
                   } else {
-                    strcpy_P(button_buffer, (char *)pgm_read_word(&(mouse_keys[i])));
-                    canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                    strcpy_P(button_buffer,
+                             (char *)pgm_read_word(&(mouse_keys[i])));
+                    canvas.printFixed(xpos + budge, ypos + budge, button_buffer,
+                                      STYLE_BOLD);
                   }
                 }
                 i++;
@@ -1057,19 +1144,20 @@ void loop() {
                 // in wasReleased
                 // mouse_wheel_enabled
                 // toggle enabled
-                // only return if its pressed/active, and don't actually touch the mouse
+                // only return if its pressed/active, and don't actually touch
+                // the mouse
                 mouseButton(MOUSE_LEFT, false, false, toggle, false);
               }
               if (i == A) {
                 mouseButton(MOUSE_LEFT, false, false, toggle, false);
               }
-              if (i == B){
+              if (i == B) {
                 mouseButton(MOUSE_RIGHT, false, false, toggle, false);
               }
-              if(i == L){
+              if (i == L) {
                 mouseSpeed(SpeedDown);
               }
-              if (i == R){
+              if (i == R) {
                 mouseSpeed(SpeedUp);
               }
               // Checking if we're moving mouse
@@ -1084,16 +1172,16 @@ void loop() {
               }
               if (i == A) {
                 mouseButton(MOUSE_LEFT, true, false, toggle, false);
-              } 
-              if (i == B){
+              }
+              if (i == B) {
                 mouseButton(MOUSE_RIGHT, true, false, toggle, false);
               }
               borderMouse(i, true);
             }
 
-
-            // Checking to see if anything was pushed to see if we're allowed to move the mouse
-            if (isPressed[i] && !(i>=A)) {
+            // Checking to see if anything was pushed to see if we're allowed to
+            // move the mouse
+            if (isPressed[i] && !(i >= A)) {
               if (i < 3) {
                 movingUpDown = true;
               }
@@ -1109,12 +1197,11 @@ void loop() {
             }
           }
 
-
-
           if (movingUpDown || movingLeftRight) {
             Mouse.move(counters[0], counters[1]);
           } else {
-            // If we're not moving, make sure we reset as borderMouse() can sometimes let little bits of speed stay after release.
+            // If we're not moving, make sure we reset as borderMouse() can
+            // sometimes let little bits of speed stay after release.
             counters[0] = 0;
             counters[1] = 0;
           }
@@ -1123,20 +1210,23 @@ void loop() {
             canvas.clear();
             // Printing current speed
             sprintf(counter_buffer, "Speed: %d", sub_mode);
-            canvas.printFixed(15, 0, counter_buffer, STYLE_NORMAL );
+            canvas.printFixed(15, 0, counter_buffer, STYLE_NORMAL);
             int i = 0;
             int budge = 3;
-            for (int y = 0; y < 3; y ++) {
-              for (int x = 0; x < 3; x ++) {
+            for (int y = 0; y < 3; y++) {
+              for (int x = 0; x < 3; x++) {
                 int xpos = 15 * x + 20;
                 int ypos = 21 * y + 1;
-                ypos = 10 + ( y * 15) + 1;
+                ypos = 10 + (y * 15) + 1;
                 if (!isPressed[i]) {
-                  strcpy_P(button_buffer, (char *)pgm_read_word(&(bmouse_keys[i])));
-                  canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                  strcpy_P(button_buffer,
+                           (char *)pgm_read_word(&(bmouse_keys[i])));
+                  canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL);
                 } else {
-                  strcpy_P(button_buffer, (char *)pgm_read_word(&(bmouse_keys[i])));
-                  canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                  strcpy_P(button_buffer,
+                           (char *)pgm_read_word(&(bmouse_keys[i])));
+                  canvas.printFixed(xpos + budge, ypos + budge, button_buffer,
+                                    STYLE_BOLD);
                 }
 
                 i++;
@@ -1158,7 +1248,7 @@ void loop() {
 
         // Read each bit of the counter to see the options
         bool mouse_move_enabled = bitRead(counters[2], 0);
-        //bool toggle = bitRead(counters[2], 1);
+        // bool toggle = bitRead(counters[2], 1);
         bool toggle = false;
 
         for (int i = 0; i < 9; i++) {
@@ -1172,7 +1262,8 @@ void loop() {
               // in wasReleased
               // mouse_wheel_enabled
               // toggle enabled
-              // only return if its pressed/active, and don't actually touch the mouse
+              // only return if its pressed/active, and don't actually touch the
+              // mouse
               mouseButton(keyToMouseButton(i), false, false, toggle, false);
             } else {
               // But if it's A/D and we have the mouse on
@@ -1197,15 +1288,14 @@ void loop() {
                 Keyboard.release(keyToPCGameButton(i));
               }
             }
-
           }
 
           // Unused for now.
           if (isPressed[i]) {
-
           }
 
-          // In case we messed up (and just in general), if theres no buttons being held, don't move the mouse in the given axis
+          // In case we messed up (and just in general), if theres no buttons
+          // being held, don't move the mouse in the given axis
           if (!isPressed[LEFT] && !isPressed[RIGHT]) {
             counters[0] = 0;
           }
@@ -1219,21 +1309,24 @@ void loop() {
           canvas.clear();
           // Printing current speed
           sprintf(counter_buffer, "Speed: %d", sub_mode);
-          canvas.printFixed(15, 0, counter_buffer, STYLE_NORMAL );
+          canvas.printFixed(15, 0, counter_buffer, STYLE_NORMAL);
           int i = 0;
           int budge = 3;
-          for (int y = 0; y < 3; y ++) {
-            for (int x = 0; x < 3; x ++) {
+          for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
               int xpos = 30 * x + 1;
               int ypos = 21 * y + 1;
-              ypos = 10 + ( y * 15) + 1;
+              ypos = 10 + (y * 15) + 1;
 
               if (!isPressed[i]) {
-                strcpy_P(button_buffer, (char *)pgm_read_word(&(pcgame_keys[i])));
-                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL );
+                strcpy_P(button_buffer,
+                         (char *)pgm_read_word(&(pcgame_keys[i])));
+                canvas.printFixed(xpos, ypos, button_buffer, STYLE_NORMAL);
               } else {
-                strcpy_P(button_buffer, (char *)pgm_read_word(&(pcgame_keys[i])));
-                canvas.printFixed(xpos + budge, ypos + budge, button_buffer, STYLE_BOLD );
+                strcpy_P(button_buffer,
+                         (char *)pgm_read_word(&(pcgame_keys[i])));
+                canvas.printFixed(xpos + budge, ypos + budge, button_buffer,
+                                  STYLE_BOLD);
               }
 
               i++;
@@ -1245,7 +1338,6 @@ void loop() {
       }
 
       // End Mode 8
-
     }
   }
 }
@@ -1258,9 +1350,9 @@ void loop() {
 */
 void showMenu(const char *given_array[]) {
   ssd1306_clearScreen();
-  delay(mode_start_delay);
-  ssd1306_createMenu( &menu, given_array, item_count);
-  ssd1306_showMenu( &menu );
+  // delay(mode_start_delay);
+  ssd1306_createMenu(&menu, given_array, item_count);
+  ssd1306_showMenu(&menu);
 }
 
 // Run every loop when the menu is open
@@ -1274,7 +1366,7 @@ bool workMenu(bool show_prog) {
       sprintf(menu_prog, "%d/%d", chosen_in_menu, item_count);
     }
 
-    ssd1306_printFixed(99,  8, menu_prog, STYLE_NORMAL);
+    ssd1306_printFixed(99, 8, menu_prog, STYLE_NORMAL);
   }
 
   if (wasPressed[1]) {
@@ -1307,99 +1399,101 @@ void saveRGBEEPROM() {
 void modeChangeSetup(int new_mode) {
   // Special things that need to be done just once
   // Like their own setup()
-  switch (new_mode)
-  {
-    // Main Menu
-    case 0:
-      // Need to set global item_count so the "progress" is accurate and the amount of items is accurate
-      item_count = sizeof(mainMenuItems) / sizeof(char *);
-      showMenu(mainMenuItems);
-      break;
+  switch (new_mode) {
+  // Main Menu
+  case 0:
+    // Need to set global item_count so the "progress" is accurate and the
+    // amount of items is accurate
+    item_count = sizeof(mainMenuItems) / sizeof(char *);
+    showMenu(mainMenuItems);
+    break;
 
-    // F13-21
-    case 1:
-    // Arrow Keys
-    case 3:
-    // Macros
-    case 6:
-      delay(mode_start_delay * 3);
-      Keyboard.begin();
-      break;
+  // F13-21
+  case 1:
+  // Arrow Keys
+  case 3:
+  // Macros
+  case 6:
+    delay(mode_start_delay * 3);
+    Keyboard.begin();
+    Mouse.begin();
+    break;
 
-    // Media Keys
-    case 5:
-      delay(mode_start_delay * 3);
-      Consumer.begin();
-      break;
+  // Media Keys
+  case 5:
+    delay(mode_start_delay * 3);
+    Consumer.begin();
+    break;
 
-    // RGB Settings
-    case 2:
-      item_count = sizeof(rgbMenuItems) / sizeof(char *);
-      showMenu(rgbMenuItems);
-      break;
+  // RGB Settings
+  case 2:
+    item_count = sizeof(rgbMenuItems) / sizeof(char *);
+    showMenu(rgbMenuItems);
+    break;
 
-    // Mouse
-    case 7:
-      counters[0] = 0;
-      counters[1] = 0;
-      counters[2] = 0;
-      sub_mode = 1;
-      if (isPressed[8]) {
-        bitSet(counters[2], 1);
-      }
-      // If 1 isnt pushed and 7 is, set up mouse wheel mode
-      // But if 1 is pushed, set up border mouse moving mode
-      if (!isPressed[0]) {
-        if (isPressed[6]) {
-          bitSet(counters[2], 0);
-        }
-      } else {
-        sub_mode = 3;
-        bitSet(counters[2], 3);
-        // Lower speed a bit if 3 is also pressed
-        if (isPressed[2]) {
-          sub_mode = 1;
-        }
-      }
-      delay(mode_start_delay * 3);
-      Mouse.begin();
-      break;
-
-    // WASD
-    case 8:
-      counters[0] = 0;
-      counters[1] = 0;
-      counters[2] = 0;
-      sub_mode = 3;
+  // Mouse
+  case 7:
+    counters[0] = 0;
+    counters[1] = 0;
+    counters[2] = 0;
+    sub_mode = 1;
+    if (isPressed[8]) {
+      bitSet(counters[2], 1);
+    }
+    // If 1 isnt pushed and 7 is, set up mouse wheel mode
+    // But if 1 is pushed, set up border mouse moving mode
+    if (!isPressed[0]) {
       if (isPressed[6]) {
         bitSet(counters[2], 0);
       }
-      if (isPressed[8]) {
-        bitSet(counters[2], 1);
-      }
-      delay(mode_start_delay * 3);
-      Keyboard.begin();
-      Mouse.begin();
-      break;
-
-    // Counters
-    case 4:
-      ssd1306_setFixedFont(ssd1306xled_font5x7);
-      //ssd1306_setFixedFont(digital_font5x7);
-      if (isPressed[6]) {
+    } else {
+      sub_mode = 3;
+      bitSet(counters[2], 3);
+      // Lower speed a bit if 3 is also pressed
+      if (isPressed[2]) {
         sub_mode = 1;
-      } else if (isPressed[8]) {
-        sub_mode = 2;
       }
-      break;
+    }
+    delay(mode_start_delay * 3);
+    Mouse.begin();
+    break;
 
-    default:
-      break;
+  // WASD
+  case 8:
+    counters[0] = 0;
+    counters[1] = 0;
+    counters[2] = 0;
+    sub_mode = 3;
+    if (isPressed[6]) {
+      bitSet(counters[2], 0);
+    }
+    if (isPressed[8]) {
+      bitSet(counters[2], 1);
+    }
+    delay(mode_start_delay * 3);
+    Keyboard.begin();
+    Mouse.begin();
+    break;
+
+  // Counters
+  case 4:
+    ssd1306_setFixedFont(ssd1306xled_font5x7);
+    // ssd1306_setFixedFont(digital_font5x7);
+    if (isPressed[6]) {
+      sub_mode = 1;
+    } else if (isPressed[8]) {
+      sub_mode = 2;
+    }
+    break;
+
+  default:
+    break;
   }
 }
 
 void counterButton(int counter_index, bool addition) {
-  // If holding the corresponding counter top key, then change it by the factor rather than just 1
+  // If holding the corresponding counter top key, then change it by the factor
+  // rather than just 1
   if (isPressed[counter_index]) {
     if (addition) {
       counters[counter_index] += modifier_factor;
@@ -1413,7 +1507,6 @@ void counterButton(int counter_index, bool addition) {
       counters[counter_index]--;
     }
   }
-
 }
 
 void mouseSpeed(int key) {
@@ -1421,7 +1514,8 @@ void mouseSpeed(int key) {
   // Used for changing the speed mid button-hold
   bool changed = true;
 
-  // And seeing if we should turn the speed up or down if we do end up changing it mid hold
+  // And seeing if we should turn the speed up or down if we do end up changing
+  // it mid hold
   bool minus = false;
 
   // Changing the speed "modifier"
@@ -1473,7 +1567,8 @@ void mouseSpeed(int key) {
 }
 
 void borderMouse(int key, bool release) {
-  // If it's the middle key (Mouse 1), or the side keys, then ignore this and move on
+  // If it's the middle key (Mouse 1), or the side keys, then ignore this and
+  // move on
   if (key == 4 || key >= A) {
     return;
   }
@@ -1541,23 +1636,23 @@ void borderMouse(int key, bool release) {
     }
      */
   }
-
 }
 
 void mouseMoving(int key, bool release) {
-  // If it's a key we don't want, just stop here and go back to where we were called
+  // If it's a key we don't want, just stop here and go back to where we were
+  // called
   switch (key) {
-    case M1:
-    case M2:
-    case M3:
-    case M4:
-    case M5:
-    case A:
-    case B:
-    case L:
-    case R:
-      return;
-      break;
+  case M1:
+  case M2:
+  case M3:
+  case M4:
+  case M5:
+  case A:
+  case B:
+  case L:
+  case R:
+    return;
+    break;
   }
 
   // Counter 0 is X
@@ -1580,8 +1675,8 @@ void mouseMoving(int key, bool release) {
         }
       } else {
         // But if we were already moving
-        // Make it think we weren't, and rerun the function to change the direction instantly
-        // Even if the old button is still being held
+        // Make it think we weren't, and rerun the function to change the
+        // direction instantly Even if the old button is still being held
         counters[1] = 0;
         mouseMoving(key, false);
       }
@@ -1599,9 +1694,9 @@ void mouseMoving(int key, bool release) {
       }
     }
   } else {
-    // But if a key was released, we don't want to just stop the mouse moving instantly
-    // So we check to see which direction we *should* be going based on what still being held
-    // And rerun the function to keep the direction
+    // But if a key was released, we don't want to just stop the mouse moving
+    // instantly So we check to see which direction we *should* be going based
+    // on what still being held And rerun the function to keep the direction
     if (key == UP && isPressed[DOWN]) {
       counters[1] = 0;
       mouseMoving(DOWN, false);
@@ -1626,7 +1721,8 @@ void mouseMoving(int key, bool release) {
 }
 
 // Ran every time a mouse key is pressed
-bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle, bool reading) {
+bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle,
+                 bool reading) {
 
   // Bit map for counters[2]
   // 0 - Mouse Wheel Enabled
@@ -1635,7 +1731,8 @@ bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle, boo
 
   // If we're not just ignoring everything to get the current state
   if (!reading) {
-    // We check to see if we're dealing with the special Mouse 3/Middle Mouse key
+    // We check to see if we're dealing with the special Mouse 3/Middle Mouse
+    // key
     if (button == MOUSE_MIDDLE) {
       // If the wheel is enabled at all
       if (mouse_wheel) {
@@ -1666,7 +1763,6 @@ bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle, boo
             return true;
           }
         }
-
       }
     }
     // Done with middle mouse for now
@@ -1707,8 +1803,6 @@ bool mouseButton(char button, bool m_release, bool mouse_wheel, bool toggle, boo
 
     // Otherwise just say the state of the asked button
     return Mouse.isPressed(button);
-
-
   }
 
   // If nothing happened, just say false
@@ -1728,7 +1822,6 @@ char keyToMouseButton(int key) {
   }
   return MOUSE_LEFT;
 }
-
 
 // Ditto for PC Game keys
 char keyToPCGameButton(int key) {
