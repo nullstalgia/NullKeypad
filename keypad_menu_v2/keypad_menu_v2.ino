@@ -102,7 +102,7 @@ struct RGBConfig {
 // Upload, and Upload with Prog. Mode 7: Mouse mode. WASD-style mouse with
 // clicks and adjustable speed. Mode 8: Basic WASD with common game keys plus
 // optional mouse mode replacing A and D
-int mode = 6;
+int mode = 0;
 
 // Sub menus, mostly.
 // Also used as a custom variable for functions that need that extra variable
