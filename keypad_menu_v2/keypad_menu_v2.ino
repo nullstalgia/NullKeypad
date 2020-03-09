@@ -194,10 +194,10 @@ const char *const counter_keys[] PROGMEM = {C0, C1, C2, C3, C4, C5, C6, C7, C8};
 // Macros mode
 const char Ma0[] PROGMEM = "ArdC";
 const char Ma1[] PROGMEM = "PioC";
-const char Ma2[] PROGMEM = "2";
+const char Ma2[] PROGMEM = "Btl";
 const char Ma3[] PROGMEM = "ArdU";
 const char Ma4[] PROGMEM = "PioU";
-const char Ma5[] PROGMEM = "Bootld";
+const char Ma5[] PROGMEM = "Silk";
 const char Ma6[] PROGMEM = "ArdPU";
 const char Ma7[] PROGMEM = "PioPU";
 const char Ma8[] PROGMEM = "LCSC";
@@ -929,12 +929,28 @@ void loop() {
             }
 
             // Arduino Burn Bootloader
-            if (i == 5) {
+            if (i == 2) {
               Keyboard.press(KEY_LEFT_ALT);
               Keyboard.press('t');
               Keyboard.releaseAll();
               Keyboard.press(KEY_UP_ARROW);
               Keyboard.releaseAll();
+              Keyboard.press(KEY_RETURN);
+              Keyboard.releaseAll();
+            }
+
+            // KiCad choose FSilk in PCBNew
+            if (i == 5) {
+              Mouse.click();
+              delay(100);
+              Keyboard.press(KEY_PAGE_UP);
+              Keyboard.releaseAll();
+              Keyboard.press(KEY_PAGE_UP);
+              Keyboard.releaseAll();
+              for(int j = 0; j < 6; j++){
+                  Keyboard.press(KEY_DOWN_ARROW);
+                  Keyboard.releaseAll();
+              }
               Keyboard.press(KEY_RETURN);
               Keyboard.releaseAll();
             }
@@ -981,7 +997,7 @@ void loop() {
           int budge = 1;
           for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
-              int xpos = 40 * x + 1;
+              int xpos = 31 * x + 1;
               int ypos = 20 * y + 1;
               if (!isPressed[i]) {
                 strcpy_P(button_buffer,
