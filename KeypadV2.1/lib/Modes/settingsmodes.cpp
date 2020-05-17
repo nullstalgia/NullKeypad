@@ -29,8 +29,8 @@ void SettingsMode::modeLoop() {
         _mouseMode->modeSetup();
       } else if (changeMenu == 1) {
         _submenu = modeNumberSettingsKeyboard;
-        //_keyboardMode = new KeyboardSettingsMode(_menu, _Display, _Buttons);
-        //_keyboardMode->modeSetup();
+        _keyboardMode = new KeyboardSettingsMode(_menu, _Display, _Buttons);
+        _keyboardMode->modeSetup();
       } else if (changeMenu == 2) {
         _submenu = modeNumberSettingsRGB;
         _rgbMode = new RGBSettingsMode(_rgb, _menu, _Display, _Buttons);
@@ -42,7 +42,7 @@ void SettingsMode::modeLoop() {
   } else if (_submenu == modeNumberSettingsRGB) {
     _rgbMode->modeLoop();
   } else if (_submenu == modeNumberSettingsKeyboard) {
-    //_keyboardMode->modeLoop();
+    _keyboardMode->modeLoop();
   }
 }
 
@@ -54,7 +54,7 @@ void MouseSettingsMode::modeSetup() {
 }
 
 void MouseSettingsMode::modeBackToMain() {
-  _Display->positiveMode();
+  _Display->setInvertMode(false);
   _Display->clear();
   _mousesubmenu = mouseMainMenu;
   uint8_t itemCount = sizeof(_menuItems) / sizeof(char *);
@@ -85,10 +85,23 @@ void MouseSettingsMode::modeLoop() {
 
 void MouseSettingsMode::showOption(uint8_t option) {
   _Display->clear();
-  _Display->printFixed(0, 0, _menuDescriptions[option]);
-  _Display->printFixed(0, 48, "A/Bottom Row: Toggle");
-  _Display->printFixed(0, 56, "B/Middle Row: Back");
-  _Display->negativeMode();
+  _Display->setCursor(0, 0);
+  switch (option) {
+    case mouseToggleButtons:
+      printWrappingLine(_Display, _menuDescriptionToggle);
+      break;
+    case mouseMouseWheel:
+      printWrappingLine(_Display, _menuDescriptionWheel);
+      break;
+    case mouseBorderMouse:
+      printWrappingLine(_Display, _menuDescriptionBorder);
+      break;
+
+    default:
+      break;
+  }
+  printButtonPrompt(_Display);
+  _Display->setInvertMode(true);
 }
 
 void MouseSettingsMode::showOptionLoop(uint8_t option) {
@@ -102,9 +115,11 @@ void MouseSettingsMode::showOptionLoop(uint8_t option) {
     optionBool = !optionBool;
     _mouseConfig->setOption(option, optionBool);
   }
-  _Display->printFixedN(46, 32, _menuBools[optionBool], STYLE_NORMAL, 1);
+  _Display->setCursor(46, 4);
+  _Display->set2X();
+  _Display->print(_menuBools[optionBool]);
+  _Display->set1X();
 }
-
 
 void KeyboardSettingsMode::modeSetup() {
   _keyboardConfig = new KeyboardConfig();
@@ -114,7 +129,7 @@ void KeyboardSettingsMode::modeSetup() {
 }
 
 void KeyboardSettingsMode::modeBackToMain() {
-  _Display->positiveMode();
+  _Display->setInvertMode(false);
   _Display->clear();
   _keyboardsubmenu = keyboardMainMenu;
   uint8_t itemCount = sizeof(_menuItems) / sizeof(char *);
@@ -145,10 +160,19 @@ void KeyboardSettingsMode::modeLoop() {
 
 void KeyboardSettingsMode::showOption(uint8_t option) {
   _Display->clear();
-  _Display->printFixed(0, 0, _menuDescriptions[option]);
-  _Display->printFixed(0, 48, "A/Bottom Row: Toggle");
-  _Display->printFixed(0, 56, "B/Middle Row: Back");
-  _Display->negativeMode();
+  _Display->home();
+  switch (option) {
+    case keyboardToggleButtons:
+      printWrappingLine(_Display, _menuDescriptionToggle);
+      break;
+    case keyboardWASDMouse:
+      printWrappingLine(_Display, _menuDescriptionWASDMouse);
+      break;
+    default:
+      break;
+  }
+  printButtonPrompt(_Display);
+  _Display->setInvertMode(true);
 }
 
 void KeyboardSettingsMode::showOptionLoop(uint8_t option) {
@@ -162,9 +186,11 @@ void KeyboardSettingsMode::showOptionLoop(uint8_t option) {
     optionBool = !optionBool;
     _keyboardConfig->setOption(option, optionBool);
   }
-  _Display->printFixedN(46, 32, _menuBools[optionBool], STYLE_NORMAL, 1);
+  _Display->setCursor(46, 4);
+  _Display->set2X();
+  _Display->print(_menuBools[optionBool]);
+  _Display->set1X();
 }
-
 
 void RGBSettingsMode::modeSetup() {
   _goBackDownAmount = 0;
@@ -233,20 +259,22 @@ void RGBSettingsMode::modeLoop() {
         sprintf(rgbmode, "%d", _rgb->mode);
         sprintf(rgbpush, "%d", _rgb->on_push);
         sprintf(rgbspeed, "%d", _rgb->speed);
+        _Display->home();
+        printWrappingLine(
+            _Display, "Brightness:\nLighting Mode:\nPush Action:\nRGB Speed:");
 
-        _Display->printFixed(0, 0, "Brightness:", STYLE_NORMAL);
-        _Display->printFixed(0, 8, "Lighting Mode:", STYLE_NORMAL);
-        _Display->printFixed(0, 16, "Push Action:", STYLE_NORMAL);
-        _Display->printFixed(0, 24, "RGB Speed:", STYLE_NORMAL);
-
-        _Display->printFixed(80, 0, bright, STYLE_NORMAL);
-        _Display->printFixed(80, 8, rgbmode, STYLE_NORMAL);
-        _Display->printFixed(80, 16, rgbpush, STYLE_NORMAL);
-        _Display->printFixed(80, 24, rgbspeed, STYLE_NORMAL);
+        _Display->setCursor(80, 0);
+        _Display->print(bright);
+        _Display->setCursor(80, 1);
+        _Display->print(rgbmode);
+        _Display->setCursor(80, 2);
+        _Display->print(rgbpush);
+        _Display->setCursor(80, 3);
+        _Display->print(rgbspeed);
       }
     }
   } else if (_rgbsubmenu == rgbMenuBrightness) {
-    uint8_t menuHoverSelection = _Display->menuSelection(_menu);
+    uint8_t menuHoverSelection = _menu->currentSelection;
     if (menuHoverSelection != _previousMenuHoverSelection) {
       _rgb->brightness = menuHoverSelection * 10;
       _rgb->setBrightness(_rgb->brightness);
@@ -257,7 +285,7 @@ void RGBSettingsMode::modeLoop() {
       modeBackToMain();
     }
   } else if (_rgbsubmenu == rgbMenuMode) {
-    uint8_t menuHoverSelection = _Display->menuSelection(_menu);
+    uint8_t menuHoverSelection = _menu->currentSelection;
     if (menuHoverSelection != _previousMenuHoverSelection) {
       _rgb->mode = menuHoverSelection;
     }
@@ -267,7 +295,7 @@ void RGBSettingsMode::modeLoop() {
       modeBackToMain();
     }
   } else if (_rgbsubmenu == rgbMenuOnPush) {
-    uint8_t menuHoverSelection = _Display->menuSelection(_menu);
+    uint8_t menuHoverSelection = _menu->currentSelection;
     if (menuHoverSelection != _previousMenuHoverSelection) {
       _rgb->on_push = menuHoverSelection;
     }
@@ -277,7 +305,7 @@ void RGBSettingsMode::modeLoop() {
       modeBackToMain();
     }
   } else if (_rgbsubmenu == rgbMenuSpeed) {
-    uint8_t menuHoverSelection = _Display->menuSelection(_menu);
+    uint8_t menuHoverSelection = _menu->currentSelection;
     if (menuHoverSelection != _previousMenuHoverSelection) {
       _rgb->speed = (menuHoverSelection + 1) * 10;
     }
@@ -289,4 +317,27 @@ void RGBSettingsMode::modeLoop() {
   } else if (_rgbsubmenu == rgbMenuInfoTest) {
     // :)
   }
+}
+
+void printWrappingLine(SSD1306AsciiAvrI2c *_Display, const char *line) {
+  // uint8_t initColumn = _Display->col();
+  uint8_t currentLineLength = 0;
+  for (uint8_t i = 0; i < strlen(line); i++) {
+    if (line[i] == '\n') {
+      currentLineLength = 0;
+      _Display->setCursor(0, _Display->row() + 1);
+    } else {
+      _Display->print(line[i]);
+      currentLineLength++;
+      if(currentLineLength > 20){
+        currentLineLength = 0;
+        _Display->setCursor(0, _Display->row() + 1);
+      }
+    }
+  }
+}
+
+void printButtonPrompt(SSD1306AsciiAvrI2c *_Display) {
+  _Display->setCursor(0, 6);
+  printWrappingLine(_Display, "A/Bottom Row: Toggle\nB/Middle Row: Back");
 }

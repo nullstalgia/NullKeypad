@@ -19,7 +19,7 @@ typedef enum {
 
 class MouseMode : public Mode {
  public:
-  MouseMode(DisplaySSD1306_128x64_I2C *Display,
+  MouseMode(SSD1306AsciiAvrI2c *Display,
             KeypadButtons *Buttons, bool ablr_buttons = false,
             uint8_t grid_width = 6, uint8_t grid_height = 8)
       : Mode(Display, Buttons, {}, ablr_buttons, grid_width,

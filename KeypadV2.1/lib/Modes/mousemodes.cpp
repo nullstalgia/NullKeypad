@@ -1,10 +1,15 @@
 #include "mousemodes.h"
 
-const char *MouseLabels[] = {"M1", "U",  "M2", "L",  "D",   "R",  "M4",
+const char up[] = {(char)24, (char)32, '\0'};
+const char down[] = {(char)25, (char)32, '\0'};
+const char left[] = {(char)27, (char)32, '\0'};
+const char right[] = {(char)26, (char)32, '\0'};
+
+const char *MouseLabels[] = {"M1", up, "M2", left,  down,   right,  "M4",
                              "MW", "M5", "M1", "M2", "Sp-", "Sp+"};
 
-const char *BorderMouseLabels[] = {"  ", "^ ", "  ", "<-", "M1",  "->", "  ",
-                                   "V ", "  ", "M1", "M2", "Sp-", "Sp+"};
+const char *BorderMouseLabels[] = {"  ", up, "  ", left, "M1",  right, "  ",
+                                   down, "  ", "M1", "M2", "Sp-", "Sp+"};
 
 void MouseMode::modeSetup() {
   _speed = 1;
@@ -24,9 +29,10 @@ void MouseMode::modeSetup() {
 
 void MouseMode::modeMenu() {
   char buffer[12];
-  _Display->positiveMode();
+  _Display->setInvertMode(false);
   sprintf(buffer, "Speed: %02d", _speed);
-  _Display->printFixed(45, 8, buffer);
+  _Display->setCursor(45, 1);
+  _Display->print(buffer);
 
   uint8_t keyCount = NUM_ALL_BUTTONS;
   /*
@@ -39,7 +45,8 @@ void MouseMode::modeMenu() {
   for (uint8_t i = 0; i < keyCount; i++) {
     if (_mouseConfig->border_mouse == false) {
       if (i < ablrL) {
-        printInvertingButton(MouseLabels[i], i, mouseButton(i, NOT_RELEASED, ONLY_READING));
+        printInvertingButton(MouseLabels[i], i,
+                             mouseButton(i, NOT_RELEASED, ONLY_READING));
       } else {
         printInvertingButton(MouseLabels[i], i);
       }

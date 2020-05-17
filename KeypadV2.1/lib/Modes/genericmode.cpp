@@ -9,14 +9,16 @@ void Mode::printInvertingButton(uint8_t x, uint8_t y, const char *text,
 void Mode::printInvertingButton(uint8_t x, uint8_t y, const char *text,
                                 uint8_t button_index, uint8_t grid_width,
                                 uint8_t grid_height, bool force_on) {
-  _Display->positiveMode();
+  _Display->setInvertMode(false);
   if (force_on || _Buttons->isPressed[button_index]) {
-    _Display->negativeMode();
+    _Display->setInvertMode(true);
   }
   uint8_t new_x, new_y;
   new_x = x * grid_width;
-  new_y = y * grid_height;
-  _Display->printFixed(new_x, new_y, text, STYLE_NORMAL);
+  //new_y = y * grid_height;
+  new_y = y;
+  _Display->setCursor(new_x, new_y);
+  _Display->print(text);
 }
 
 void Mode::printInvertingButton(const char *text, uint8_t button_index, bool force_on) {
@@ -84,4 +86,17 @@ void Mode::printInvertingButton(const char *text, uint8_t button_index, bool for
   }
 
   printInvertingButton(new_x, new_y, text, button_index, force_on);
+}
+
+void Mode::modeMenu() {
+  uint8_t keyCount;
+  if (_ablr_buttons) {
+    keyCount = NUM_ALL_BUTTONS;
+  } else {
+    keyCount = NUM_KEYPAD_BUTTONS;
+  }
+
+  for (uint8_t i = 0; i < keyCount; i++) {
+    printInvertingButton(_keylabels[i], i);
+  }
 }

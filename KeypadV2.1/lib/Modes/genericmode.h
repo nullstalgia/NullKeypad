@@ -1,8 +1,12 @@
 #pragma once
 #include <Arduino.h>
 #include "KeypadButtons.h"
-#include "lcdgfx.h"
+//#include "lcdgfx.h"
+#include "SSD1306Ascii.h"
+#include "SSD1306AsciiAvrI2c.h"
 #include "menu.h"
+
+//void printFixed(SSD1306AsciiAvrI2c *Display, uint8_t x, uint8_t y_row, const char *line);
 
 typedef enum {
   modeNumberMainMenu = -1,
@@ -21,7 +25,7 @@ typedef enum {
 
 class Mode {
  public:
-  Mode(DisplaySSD1306_128x64_I2C *Display, KeypadButtons *Buttons, const char **KeyLabels,
+  Mode(SSD1306AsciiAvrI2c *Display, KeypadButtons *Buttons, const char **KeyLabels,
        bool ablr_buttons = false, uint8_t grid_width = 8,
        uint8_t grid_height = 8)
       : _Display(Display),
@@ -47,7 +51,7 @@ class Mode {
   */
 
  protected:
-  DisplaySSD1306_128x64_I2C *_Display;
+  SSD1306AsciiAvrI2c *_Display;
   KeypadButtons *_Buttons;
   const char **_keylabels;
   const bool _ablr_buttons;

@@ -12,10 +12,14 @@ typedef enum {
   rgbMenuInfoTest
 } rgbMenuNumbers;
 
+void printWrappingLine(SSD1306AsciiAvrI2c *_Display, const char *line);
+
+void printButtonPrompt(SSD1306AsciiAvrI2c *_Display);
+
 class RGBSettingsMode : public Mode {
  public:
-  RGBSettingsMode(RGBController *rgb, SAppMenu *menu,
-                  DisplaySSD1306_128x64_I2C *Display, KeypadButtons *Buttons)
+  RGBSettingsMode(RGBController *rgb, oledAsciiMenu *menu,
+                  SSD1306AsciiAvrI2c *Display, KeypadButtons *Buttons)
       : Mode(Display, Buttons, {}),
         _rgb(rgb),
         _menu(menu),
@@ -42,7 +46,7 @@ class RGBSettingsMode : public Mode {
 
  private:
   RGBController *_rgb;
-  SAppMenu *_menu;
+  oledAsciiMenu *_menu;
   int _rgbsubmenu;
   const char *_rgbMenuItems[5];
   const char *_rgbSpeedBrightnessMenuItems[11];
@@ -53,18 +57,19 @@ class RGBSettingsMode : public Mode {
 };
 
 
+
 class MouseSettingsMode : public Mode {
  public:
-  MouseSettingsMode(SAppMenu *menu, DisplaySSD1306_128x64_I2C *Display,
+  MouseSettingsMode(oledAsciiMenu *menu, SSD1306AsciiAvrI2c *Display,
                     KeypadButtons *Buttons)
       : Mode(Display, Buttons, {}),
         _menu(menu),
         _menuItems{"Toggle Buttons", "Scroll Wheel",
                    "Border Mouse"},
-        _menuDescriptions{ // Weird spacing is due to line-wrapping in both VSCode and in the UI
-            "When you press a     mouse btn., it will  stay held until you  press it again."  // Toggle Buttons
-            , "When holding M3, Up  and Down will act as scroll wheel instead.(Can Toggle)" // Mouse Wheel
-            , "Replaces WASD-Like layout with each side/corner of the buttons acting as directions. (L and R can quick toggle, too)"},
+        _menuDescriptionToggle{ // Weird spacing is due to line-wrapping in both VSCode and in the UI
+            "When you press a     mouse btn., it will  stay held until you  press it again."},
+        _menuDescriptionWheel{"When holding M3, Up  and Down will act as scroll wheel instead.(Toggleable)"},
+        _menuDescriptionBorder{"Replaces layout with the sides/corner buttons being directional(L + R to quickswap)"},
             // ,"Mouse will stay moving until button pressed again." // Toggle Movement Deprecated
         _menuBools{"OFF", "ON "}  // Has to be in FALSE, TRUE order
   {}
@@ -75,10 +80,12 @@ class MouseSettingsMode : public Mode {
   void showOptionLoop(uint8_t option);
 
  private:
-  SAppMenu *_menu;
+  oledAsciiMenu *_menu;
   int _mousesubmenu;
   const char *_menuItems[3];
-  const char *_menuDescriptions[3];
+  const char *_menuDescriptionToggle PROGMEM;
+  const char *_menuDescriptionWheel PROGMEM;
+  const char *_menuDescriptionBorder PROGMEM;
   const char *_menuBools[2];
   int _previousMenuHoverSelection;
   MouseConfig *_mouseConfig;
@@ -87,15 +94,13 @@ class MouseSettingsMode : public Mode {
 
 class KeyboardSettingsMode : public Mode {
  public:
-  KeyboardSettingsMode(SAppMenu *menu, DisplaySSD1306_128x64_I2C *Display,
+  KeyboardSettingsMode(oledAsciiMenu *menu, SSD1306AsciiAvrI2c *Display,
                     KeypadButtons *Buttons)
       : Mode(Display, Buttons, {}),
         _menu(menu),
         _menuItems{"Toggle Buttons", "WASD Mouse"},
-        _menuDescriptions{ // Weird spacing is due to line-wrapping in both VSCode and in the UI
-            "When you press a keyboard button, it will stay held until it is pressed again."  // Toggle Buttons
-            , "When in WASD mode, replaces A and D with Mouse Movements (L and R can quick toggle, too)"},
-            // ,"Mouse will stay moving until button pressed again." // Toggle Movement Deprecated
+        _menuDescriptionToggle{"When you press a button, it will stay held until it is pressed again."},  // Toggle Buttons
+            _menuDescriptionWASDMouse{"When in WASD mode, replaces A and D with Mouse Movements(L + R to quickswap)"},
         _menuBools{"OFF", "ON "}  // Has to be in FALSE, TRUE order
   {}
   virtual void modeSetup();
@@ -105,10 +110,11 @@ class KeyboardSettingsMode : public Mode {
   void showOptionLoop(uint8_t option);
 
  private:
-  SAppMenu *_menu;
+  oledAsciiMenu *_menu;
   int _keyboardsubmenu;
   const char *_menuItems[2];
-  const char *_menuDescriptions[2];
+  const char *_menuDescriptionToggle PROGMEM;
+  const char *_menuDescriptionWASDMouse PROGMEM;
   const char *_menuBools[2];
   int _previousMenuHoverSelection;
   KeyboardConfig *_keyboardConfig;
@@ -117,21 +123,21 @@ class KeyboardSettingsMode : public Mode {
 
 class SettingsMode : public Mode {
  public:
-  SettingsMode(RGBController *rgb, SAppMenu *menu,
-               DisplaySSD1306_128x64_I2C *Display, KeypadButtons *Buttons)
+  SettingsMode(RGBController *rgb, oledAsciiMenu *menu,
+               SSD1306AsciiAvrI2c *Display, KeypadButtons *Buttons)
       : Mode(Display, Buttons, {}),
         _rgb(rgb),
         _menu(menu),
-        _menuItems{"Mouse Settings", "", "RGB Settings"} {}
+        _menuItems{"Mouse Settings", "Keyboard Settings", "RGB Settings"} {}
   virtual void modeSetup();
   virtual void modeLoop();
 
  private:
   RGBController *_rgb;
-  SAppMenu *_menu;
+  oledAsciiMenu *_menu;
   int _submenu;
   const char *_menuItems[3];
   MouseSettingsMode *_mouseMode;
   RGBSettingsMode *_rgbMode;
-  //KeyboardSettingsMode *_keyboardMode;
+  KeyboardSettingsMode *_keyboardMode;
 };

@@ -3,14 +3,16 @@
 //#include <FastLED.h>      // https://github.com/FastLED/FastLED
 #include "KeypadButtons.h"
 #include "MemoryFree.h"
-#include "lcdgfx.h"
+//#include "lcdgfx.h"
+#include "SSD1306Ascii.h"
+#include "SSD1306AsciiAvrI2c.h"
+#include "oledAsciiMenu.h"
 #include "menu.h"
 #include "keyboardmodes.h"
 #include "mousemodes.h"
 #include "settingsmodes.h"
 
 /* This variable will hold menu state, processed by SSD1306 API functions */
-SAppMenu menu;
 
 const char* mItemF13 = "F13-21 Keys";
 const char* mItemSettings = "Settings";
@@ -24,7 +26,11 @@ int currentMode = modeNumberMainMenu;
 KeypadButtons buttons;
 RGBController rgb;
 
-DisplaySSD1306_128x64_I2C display(-1);
+#define I2C_ADDRESS 0x3C
+SSD1306AsciiAvrI2c display;
+
+oledAsciiMenu menu(&display);
+
 
 KeyboardMode *f13tof21mode = NULL;
 
@@ -34,8 +40,8 @@ ConsumerMode *mediakeymode = NULL;
 MouseMode *mousemode = NULL;
 
 void setup() {
-  display.begin();
-  display.setFixedFont(ssd1306xled_font6x8);
+  display.begin(&Adafruit128x64, I2C_ADDRESS);
+  display.setFont(Adafruit5x7);
   display.clear();
 
   rgb.init();

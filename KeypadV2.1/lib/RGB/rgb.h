@@ -4,7 +4,7 @@
 #include <FastLED.h>
 #include "genericmode.h"
 #include "KeypadButtons.h"
-#include "lcdgfx.h"
+//#include "lcdgfx.h"
 #include "menu.h"
 #include "KeypadSettings.h"
 

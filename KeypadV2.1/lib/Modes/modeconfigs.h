@@ -64,6 +64,7 @@ class KeyboardConfig {
   void init();
   void loadKeyboardEEPROM();
   void saveKeyboardEEPROM();
+  
   void setOption(uint8_t option, bool new_setting);
   bool getOption(uint8_t option);
 };
