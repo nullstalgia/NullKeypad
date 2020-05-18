@@ -142,15 +142,11 @@ void MouseMode::modeLoop() {
 
   if (_x_velocity != 0 || _y_velocity != 0 || _wheel_velocity != 0) {
     Mouse.move(_x_velocity * _speed, _y_velocity * _speed);
-    if(_wheel_velocity != 0){
-      
+    if (_wheel_velocity != 0) {
+      Mouse.move(0, 0, _wheel_velocity);
 
-       Mouse.move(0,0,_wheel_velocity);
-
-       // Prevents it from going too fast
-       if(_speed!=0)
-       delay(20/_speed);
-      
+      // Prevents it from going too fast
+      if (_speed != 0) delay(20 / _speed);
     }
   }
 }
@@ -311,7 +307,8 @@ bool MouseMode::mouseMoving(uint8_t physical_button, bool being_released,
   if (!being_released) {
     // And if we're going up or down
     if (physical_button == wasdUP || physical_button == wasdDOWN) {
-      if (_mouseConfig->mouse_wheel && mouseButton(7, NOT_RELEASED, ONLY_READING)) {
+      if (_mouseConfig->mouse_wheel &&
+          mouseButton(7, NOT_RELEASED, ONLY_READING)) {
         _y_velocity = 0;
         if (_wheel_velocity == 0) {
           if (physical_button == wasdUP) {
@@ -491,21 +488,58 @@ bool MouseMode::borderMouse(uint8_t physical_button, bool being_released,
   return false;
 }
 
-
-bool basicMouseMove(int *_x_velocity, bool toggle_movement, bool left_pressed, bool right_pressed, uint8_t physical_button, bool being_released,
-                            bool only_reading_value, bool ignore_toggle_check) {
+bool basicMouseMove(int *_x_velocity, MouseConfig *mouseConfig,
+                    bool left_pressed, bool right_pressed,
+                    uint8_t physical_button, bool being_released,
+                    bool only_reading_value, bool ignore_toggle_check) {
   // Counter 0 is X
   // Counter 1 is Y
 
-  if (!(physical_button == wasdUP || physical_button == wasdDOWN ||
-        physical_button == wasdLEFT || physical_button == wasdRIGHT)) {
+  if (!(physical_button == wasdLEFT || physical_button == wasdRIGHT ||
+        physical_button == 6 || physical_button == 8)) {
     return false;
   }
+
+  // bool toggle_movement = mouseConfig->toggle_movement;
+  bool toggle_movement = false;
 
   if (toggle_movement == false && only_reading_value) {
     return false;
   } else if (toggle_movement && only_reading_value) {
     return activeMouseButtons[physical_button];
+  }
+
+  if (physical_button == 6 || physical_button == 8) {
+    uint8_t mouseButton;
+    if (physical_button == 6) {
+      mouseButton = MOUSE_RIGHT;
+    } else {
+      mouseButton = MOUSE_LEFT;
+    }
+    bool toggle_mouse_buttons = mouseConfig->toggle_buttons;
+    if (!only_reading_value) {
+      if (toggle_mouse_buttons && !being_released) {
+        if (Mouse.isPressed(mouseButton)) {
+          Mouse.release(mouseButton);
+          return false;
+        } else {
+          Mouse.press(mouseButton);
+          return true;
+        }
+      } else if (toggle_mouse_buttons && being_released) {
+        return false;
+      }
+      if (being_released) {
+        Mouse.release(mouseButton);
+        return false;
+      } else {
+        Mouse.press(mouseButton);
+        return true;
+      }
+    } else {
+      return Mouse.isPressed(mouseButton);
+    }
+    return false;
   }
 
   if (ignore_toggle_check == false) {
@@ -515,11 +549,13 @@ bool basicMouseMove(int *_x_velocity, bool toggle_movement, bool left_pressed, b
       } else {
         if (activeMouseButtons[physical_button]) {
           activeMouseButtons[physical_button] = false;
-          basicMouseMove(_x_velocity, toggle_movement, left_pressed, right_pressed, physical_button, RELEASED, USING_BUTTON, true);
+          basicMouseMove(_x_velocity, mouseConfig, left_pressed, right_pressed,
+                         physical_button, RELEASED, USING_BUTTON, true);
           return false;
         } else {
           activeMouseButtons[physical_button] = true;
-          basicMouseMove(_x_velocity, toggle_movement, left_pressed, right_pressed, physical_button, NOT_RELEASED, USING_BUTTON, true);
+          basicMouseMove(_x_velocity, mouseConfig, left_pressed, right_pressed,
+                         physical_button, NOT_RELEASED, USING_BUTTON, true);
           return true;
         }
       }
@@ -530,17 +566,18 @@ bool basicMouseMove(int *_x_velocity, bool toggle_movement, bool left_pressed, b
   // If we weren't called in the wasReleased
   if (!being_released) {
     // And if we're going up or down
-  if (physical_button == wasdLEFT || physical_button == wasdRIGHT) {
-      if (_x_velocity == 0) {
+    if (physical_button == wasdLEFT || physical_button == wasdRIGHT) {
+      if (*_x_velocity == 0) {
         if (physical_button == wasdLEFT) {
-          _x_velocity -= 1;
+          *_x_velocity -= 1;
           return false;
         } else if (physical_button == wasdRIGHT) {
-          _x_velocity += 1;
+          *_x_velocity += 1;
         }
       } else {
-        _x_velocity = 0;
-        basicMouseMove(_x_velocity, toggle_movement, left_pressed, right_pressed,physical_button, NOT_RELEASED, USING_BUTTON);
+        *_x_velocity = 0;
+        basicMouseMove(_x_velocity, mouseConfig, left_pressed, right_pressed,
+                       physical_button, NOT_RELEASED, USING_BUTTON);
       }
     }
   } else {
@@ -548,17 +585,19 @@ bool basicMouseMove(int *_x_velocity, bool toggle_movement, bool left_pressed, b
     // instantly So we check to see which direction we *should* be going based
     // on what still being held And rerun the function to keep the direction
     if (physical_button == wasdLEFT && right_pressed) {
-      _x_velocity = 0;
-      basicMouseMove(_x_velocity, toggle_movement, left_pressed, right_pressed,wasdRIGHT, NOT_RELEASED, USING_BUTTON);
+      *_x_velocity = 0;
+      basicMouseMove(_x_velocity, mouseConfig, left_pressed, right_pressed,
+                     wasdRIGHT, NOT_RELEASED, USING_BUTTON);
       return false;
     }
     if (physical_button == wasdRIGHT && left_pressed) {
-      _x_velocity = 0;
-      basicMouseMove(_x_velocity, toggle_movement, left_pressed, right_pressed,wasdLEFT, NOT_RELEASED, USING_BUTTON);
+      *_x_velocity = 0;
+      basicMouseMove(_x_velocity, mouseConfig, left_pressed, right_pressed,
+                     wasdLEFT, NOT_RELEASED, USING_BUTTON);
       return false;
     }
     if (physical_button == wasdLEFT || physical_button == wasdRIGHT) {
-      _x_velocity = 0;
+      *_x_velocity = 0;
       return false;
     }
   }

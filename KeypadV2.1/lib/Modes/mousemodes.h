@@ -17,7 +17,7 @@ typedef enum {
   mouse5
 } mouseButtonIndex;
 
-bool basicMouseMove(int *_x_velocity, bool toggle_movement, bool left_pressed, bool right_pressed, uint8_t physical_button, bool being_released,
+bool basicMouseMove(int *_x_velocity, MouseConfig *mouseConfig, bool left_pressed, bool right_pressed, uint8_t physical_button, bool being_released,
                             bool only_reading_value, bool ignore_toggle_check = false);
 
 class MouseMode : public Mode {

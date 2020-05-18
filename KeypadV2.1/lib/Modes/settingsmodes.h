@@ -24,7 +24,7 @@ class RGBSettingsMode : public Mode {
       : Mode(Display, Buttons, {}),
         _rgb(rgb),
         _menu(menu),
-        _rgbMenuItems{"Brightness", "Lighting Mode", "Push Action",
+        _rgbMenuItems{"Back", "Brightness", "Lighting Mode", "Push Action",
                       "Speed (reset req)", "Test + Info"},
         _rgbSpeedBrightnessMenuItems{"0", "1", "2", "3", "4", "5",
                                      "6", "7", "8", "9", "10"},
@@ -43,13 +43,13 @@ class RGBSettingsMode : public Mode {
                             "White > Normal", "Black > Normal"} {}
   virtual void modeSetup();
   virtual void modeBackToMain();
-  virtual void modeLoop();
+  virtual bool modeLoop();
 
  private:
   RGBController *_rgb;
   oledAsciiMenu *_menu;
   int _rgbsubmenu;
-  const char *_rgbMenuItems[5];
+  const char *_rgbMenuItems[6];
   const char *_rgbSpeedBrightnessMenuItems[11];
   const char *_rgbModeMenuItems[11];
   const char *_rgbOnPushMenuItems[5];
@@ -65,20 +65,20 @@ class MouseSettingsMode : public Mode {
                     KeypadButtons *Buttons)
       : Mode(Display, Buttons, {}),
         _menu(menu),
-        _menuItems{"Toggle Buttons", "Toggle Movement", "Scroll Wheel",
+        _menuItems{"Back", "Toggle Buttons", "Toggle Movement", "Scroll Wheel",
                    "Border Mouse"},
         _menuBools{"OFF", "ON "}  // Has to be in FALSE, TRUE order
   {}
   virtual void modeSetup();
   virtual void modeBackToMain();
-  virtual void modeLoop();
+  virtual bool modeLoop();
   void showOption(uint8_t option);
   void showOptionLoop(uint8_t option);
 
  private:
   oledAsciiMenu *_menu;
   int _mousesubmenu;
-  const char *_menuItems[4];
+  const char *_menuItems[5];
   const char *_menuBools[2];
   int _previousMenuHoverSelection;
   MouseConfig *_mouseConfig;
@@ -91,19 +91,19 @@ class KeyboardSettingsMode : public Mode {
                     KeypadButtons *Buttons)
       : Mode(Display, Buttons, {}),
         _menu(menu),
-        _menuItems{"Toggle Buttons", "WASD Mouse", "Enable F22-F24"},
+        _menuItems{"Back", "Toggle Buttons", "WASD Mouse", "Enable F22-F24"},
         _menuBools{"OFF", "ON "}  // Has to be in FALSE, TRUE order
   {}
   virtual void modeSetup();
   virtual void modeBackToMain();
-  virtual void modeLoop();
+  virtual bool modeLoop();
   void showOption(uint8_t option);
   void showOptionLoop(uint8_t option);
 
  private:
   oledAsciiMenu *_menu;
   int _keyboardsubmenu;
-  const char *_menuItems[3];
+  const char *_menuItems[4];
   const char *_menuBools[2];
   int _previousMenuHoverSelection;
   KeyboardConfig *_keyboardConfig;

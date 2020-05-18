@@ -82,7 +82,7 @@ class WASDMode : public Mode {
   virtual void modeSetup();
   virtual void modeLoop();
   virtual void modeMenu();
-  // virtual void modeIsPressed();
+  virtual void modeIsPressed();
   virtual void modeWasPressed();
   virtual void modeWasReleased();
 
@@ -95,4 +95,5 @@ class WASDMode : public Mode {
   bool _mouse_enabled;
   int _mouse_speed;
   int _x_velocity;
+  bool _hotswapMouse;
 };

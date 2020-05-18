@@ -52,11 +52,20 @@ void SettingsMode::modeLoop() {
       }
     }
   } else if (_submenu == modeNumberSettingsMouse) {
-    _mouseMode->modeLoop();
+    if(_mouseMode->modeLoop()){
+      delete _mouseMode;
+      modeSetup();
+    }
   } else if (_submenu == modeNumberSettingsRGB) {
-    _rgbMode->modeLoop();
+    if(_rgbMode->modeLoop()){
+      delete _rgbMode;
+      modeSetup();
+    }
   } else if (_submenu == modeNumberSettingsKeyboard) {
-    _keyboardMode->modeLoop();
+    if(_keyboardMode->modeLoop()){
+      delete _keyboardMode;
+      modeSetup();
+    }
   }
 }
 
@@ -77,7 +86,7 @@ void MouseSettingsMode::modeBackToMain() {
             _goBackDownAmount);
 }
 
-void MouseSettingsMode::modeLoop() {
+bool MouseSettingsMode::modeLoop() {
   MenuKey menuButton = _Buttons->getMenuButton();
   int changeMenu;
   if (_mousesubmenu == mouseMainMenu) {
@@ -87,6 +96,10 @@ void MouseSettingsMode::modeLoop() {
   // Mouse Settings Main Menu
   if (_mousesubmenu == mouseMainMenu) {
     if (changeMenu != -1) {
+      if(changeMenu == 0){
+        return true;
+      }
+      changeMenu--;
       // If they choose an option
       _mousesubmenu = changeMenu;
       _goBackDownAmount = changeMenu;
@@ -95,6 +108,7 @@ void MouseSettingsMode::modeLoop() {
   } else {
     showOptionLoop(_mousesubmenu);
   }
+  return false;
 }
 
 void MouseSettingsMode::showOption(uint8_t option) {
@@ -155,7 +169,7 @@ void KeyboardSettingsMode::modeBackToMain() {
             _goBackDownAmount);
 }
 
-void KeyboardSettingsMode::modeLoop() {
+bool KeyboardSettingsMode::modeLoop() {
   MenuKey menuButton = _Buttons->getMenuButton();
   int changeMenu;
   if (_keyboardsubmenu == keyboardMainMenu) {
@@ -165,6 +179,10 @@ void KeyboardSettingsMode::modeLoop() {
   // Keyboard Settings Main Menu
   if (_keyboardsubmenu == keyboardMainMenu) {
     if (changeMenu != -1) {
+      if(changeMenu == 0){
+        return true;
+      }
+      changeMenu--;
       // If they choose an option
       _keyboardsubmenu = changeMenu;
       _goBackDownAmount = changeMenu;
@@ -173,6 +191,7 @@ void KeyboardSettingsMode::modeLoop() {
   } else {
     showOptionLoop(_keyboardsubmenu);
   }
+  return false;
 }
 
 void KeyboardSettingsMode::showOption(uint8_t option) {
@@ -237,7 +256,7 @@ typedef enum {
 } rgbMenuNumbers;
 */
 
-void RGBSettingsMode::modeLoop() {
+bool RGBSettingsMode::modeLoop() {
   MenuKey menuButton;
   int changeMenu;
   if (_rgbsubmenu != rgbMenuInfoTest) {
@@ -247,6 +266,10 @@ void RGBSettingsMode::modeLoop() {
   // RGB Main Menu
   if (_rgbsubmenu == rgbMainMenu) {
     if (changeMenu != -1) {
+      if(changeMenu == 0){
+        return true;
+      }
+      changeMenu--;
       // If they choose an option
       _rgbsubmenu = changeMenu;
       _goBackDownAmount = changeMenu;
@@ -337,6 +360,7 @@ void RGBSettingsMode::modeLoop() {
   } else if (_rgbsubmenu == rgbMenuInfoTest) {
     // :)
   }
+  return false;
 }
 
 void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display, const char *signMessage PROGMEM) {

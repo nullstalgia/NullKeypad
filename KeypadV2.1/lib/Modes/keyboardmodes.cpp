@@ -47,10 +47,10 @@ const KeyboardKeycode ArrowKeyButtons[] = {
     KEY_LEFT_ARROW, KEY_DOWN_ARROW, KEY_RIGHT_ARROW,  //
     KEY_ESC,        KEY_LEFT_CTRL,  KEY_RETURN};
 
-const char *WASDLabels[] = {"E",     "W", "R",  //
-                            "A",     "S", "D",  //
-                            "Shft", "X", "F",  //
-                            "Tab",   " Q", "C", " Ctrl"};
+const char *WASDLabels[] = {"E",    "W",  "R",  //
+                            "A",    "S",  "D",  //
+                            "Shft", "X",  "F",  //
+                            "Tab",  " Q", "C", " Ctrl"};
 const KeyboardKeycode WASDButtons[] = {KEY_E,          KEY_W, KEY_R,  //
                                        KEY_A,          KEY_S, KEY_D,  //
                                        KEY_LEFT_SHIFT, KEY_X, KEY_F,  //
@@ -76,7 +76,7 @@ const char *WASDMouseLabels[] = {"E",   "W", "R",    //
 const KeyboardKeycode WASDMouseButtons[] = {KEY_E,   KEY_W, KEY_R,   //
                                             KEY_F3,  KEY_S, KEY_F4,  //
                                             KEY_F2,  KEY_F, KEY_F1,  //
-                                            KEY_TAB, KEY_Q, KEY_F5, KEY_5};
+                                            KEY_TAB, KEY_Q, KEY_F5, KEY_F6};
 
 bool activeKeyboardButtons[NUM_ALL_BUTTONS] = {
     false, false, false, false, false, false, false,
@@ -108,8 +108,6 @@ void KeyboardMode::modeWasPressed() {
 }
 
 void KeyboardMode::modeWasReleased() {
-
-
   for (uint8_t i = 0; i < _keyCount; i++) {
     if (_Buttons->wasReleased[i]) {
       // Keyboard.release(_keyboardbuttons[i]);
@@ -120,7 +118,6 @@ void KeyboardMode::modeWasReleased() {
 }
 
 void KeyboardMode::modeMenu() {
-
   for (uint8_t i = 0; i < _keyCount; i++) {
     if (_keyboardConfig->toggle_buttons) {
       printInvertingButton(_keylabels[i], i,
@@ -149,7 +146,6 @@ void ConsumerMode::modeSetup() {
 }
 
 void ConsumerMode::modeWasPressed() {
-
   for (uint8_t i = 0; i < _keyCount; i++) {
     if (_Buttons->wasPressed[i]) {
       // Keyboard.release(_keyboardbuttons[i]);
@@ -160,8 +156,6 @@ void ConsumerMode::modeWasPressed() {
 }
 
 void ConsumerMode::modeWasReleased() {
-
-
   for (uint8_t i = 0; i < _keyCount; i++) {
     if (_Buttons->wasReleased[i]) {
       // Keyboard.release(_keyboardbuttons[i]);
@@ -172,8 +166,6 @@ void ConsumerMode::modeWasReleased() {
 }
 
 void ConsumerMode::modeMenu() {
-
-
   for (uint8_t i = 0; i < _keyCount; i++) {
     if (_keyboardConfig->toggle_buttons) {
       printInvertingButton(_keylabels[i], i,
@@ -309,9 +301,10 @@ void WASDMode::modeSetup() {
   _keyboardConfig->init();
   _mouseConfig = new MouseConfig();
   _mouseConfig->init();
-  _mouse_enabled = false;
+  _mouse_enabled = _keyboardConfig->wasd_mouse;
   _mouse_speed = 1;
   _x_velocity = 0;
+  _hotswapMouse = false;
   Keyboard.begin();
   Mouse.begin();
   delay(1000);
@@ -319,7 +312,21 @@ void WASDMode::modeSetup() {
 }
 
 void WASDMode::modeWasPressed() {
+      if (_Buttons->wasPressed[ablrL]) {
+    _mouse_speed -= 1;
+    if (_mouse_speed < _mouseConfig->min_speed) {
+      //_Display->printFixed(0,0,"smol");
+      _mouse_speed = _mouseConfig->min_speed;
+    }
+  }
 
+  if (_Buttons->wasPressed[ablrR]) {
+    _mouse_speed += 1;
+    if (_mouse_speed > _mouseConfig->max_speed) {
+      //_Display->printFixed(0,0,"big");
+      _mouse_speed = _mouseConfig->max_speed;
+    }
+  }
   for (uint8_t i = 0; i < _keyCount; i++) {
     if (_Buttons->wasPressed[i]) {
       if (_mouse_enabled == false) {
@@ -332,7 +339,6 @@ void WASDMode::modeWasPressed() {
 }
 
 void WASDMode::modeWasReleased() {
-
   for (uint8_t i = 0; i < _keyCount; i++) {
     if (_Buttons->wasReleased[i]) {
       if (_mouse_enabled == false) {
@@ -344,25 +350,56 @@ void WASDMode::modeWasReleased() {
   }
 }
 
-void WASDMode::modeMenu(){
-
+void WASDMode::modeMenu() {
   for (uint8_t i = 0; i < _keyCount; i++) {
+    if (_mouse_enabled == false) {
+      printInvertingButton(WASDLabels[i], i,
+                           WASDAction(WASDButtons, i, RELEASED, ONLY_READING));
 
-      if (_mouse_enabled == false) {
-        printInvertingButton(WASDLabels[i], i, WASDAction(WASDButtons, i, RELEASED, ONLY_READING));
-        
-      } else {
-        printInvertingButton(WASDMouseLabels[i], i, WASDAction(WASDMouseButtons, i, RELEASED, ONLY_READING));
-      }
-    
+    } else {
+      printInvertingButton(
+          WASDMouseLabels[i], i,
+          WASDAction(WASDMouseButtons, i, RELEASED, ONLY_READING));
+    }
   }
+  _Display->setInvertMode(false);
+  if(_mouse_enabled){
+  char buffer[12];
+  _Display->setCursor(45, 1);
+  sprintf(buffer, "Speed: %02d", _mouse_speed);
+  _Display->print(buffer);
+  }
+  //_Display->setCursor(45, 1);
+  //sprintf(buffer, "X: %02d", _x_velocity);
+  //_Display->print(buffer);
+}
+
+void WASDMode::modeIsPressed() {
+  bool current_buttons =
+      (_Buttons->isPressed[ablrL] && _Buttons->isPressed[ablrR]);
+  if (current_buttons != _hotswapMouse) {
+    if (current_buttons) {
+      _mouse_enabled = !_mouse_enabled;
+      clearactiveKeyboardButtons();
+      _x_velocity = 0;
+      Keyboard.releaseAll();
+      Mouse.releaseAll();
+      _Display->clear();
+    }
+  }
+  _hotswapMouse = current_buttons;
 }
 
 void WASDMode::modeLoop() {
   modeWasPressed();
   modeWasReleased();
+  modeIsPressed();
 
   modeMenu();
+
+  if(_x_velocity != 0){
+    Mouse.move(_x_velocity*_mouse_speed, 0);
+  }
 }
 
 bool WASDMode::WASDAction(const KeyboardKeycode *KeyboardButtons,
@@ -382,10 +419,11 @@ bool WASDMode::WASDAction(const KeyboardKeycode *KeyboardButtons,
   if (keyboardButton >= KEY_F1 && keyboardButton <= KEY_F12) {
     // Mouse action
 
-    return basicMouseMove(&_x_velocity, toggle_movement,
+    return basicMouseMove(&_x_velocity, _mouseConfig,
                           _Buttons->isPressed[wasdLEFT],
-                          _Buttons->isPressed[wasdRIGHT], physical_button,
-                          being_released, only_reading_value);
+                          _Buttons->isPressed[wasdRIGHT], physical_button, being_released, only_reading_value);
+
+    //return true;
 
   } else {
     // Keyboard action
