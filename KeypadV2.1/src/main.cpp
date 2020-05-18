@@ -6,20 +6,23 @@
 //#include "lcdgfx.h"
 #include "SSD1306Ascii.h"
 #include "SSD1306AsciiAvrI2c.h"
-#include "oledAsciiMenu.h"
-#include "menu.h"
 #include "keyboardmodes.h"
+#include "menu.h"
 #include "mousemodes.h"
+#include "oledAsciiMenu.h"
 #include "settingsmodes.h"
 
 /* This variable will hold menu state, processed by SSD1306 API functions */
 
 const char* mItemF13 = "F13-21 Keys";
+const char* mItemArrow = "Arrow Keys";
+const char* mItemWASD = "WASD";
 const char* mItemSettings = "Settings";
 const char* mItemMedia = "Media Keys";
 const char* mItemMouse = "Mouse";
 
-const char* order[] = {mItemMouse, mItemMedia, mItemF13, mItemSettings};
+const char* order[] = {mItemWASD,  mItemArrow, mItemMouse,
+                       mItemMedia, mItemF13,   mItemSettings};
 
 int currentMode = modeNumberMainMenu;
 
@@ -31,18 +34,23 @@ SSD1306AsciiAvrI2c display;
 
 oledAsciiMenu menu(&display);
 
+KeyboardMode* f13tof21mode;
 
-KeyboardMode *f13tof21mode = NULL;
+KeyboardMode* arrowkeysmode;
 
-SettingsMode *settingsmode = NULL;
+WASDMode* wasdmode;
 
-ConsumerMode *mediakeymode = NULL;
-MouseMode *mousemode = NULL;
+SettingsMode* settingsmode;
+
+ConsumerMode* mediakeymode;
+MouseMode* mousemode;
 
 void setup() {
   display.begin(&Adafruit128x64, I2C_ADDRESS);
   display.setFont(Adafruit5x7);
   display.clear();
+
+
 
   rgb.init();
   buttons.init();
@@ -66,18 +74,35 @@ void loop() {
       settingsmode->modeSetup();
     } else if (order[changeMode] == mItemF13) {
       currentMode = modeNumberF13;
-      f13tof21mode = new KeyboardMode(F13toF21Labels, F13toF21Buttons, &display, &buttons,
-                          false);
+      KeyboardConfig kbConfig;
+      kbConfig.init();
+      if (kbConfig.f24)
+      {
+        f13tof21mode = new KeyboardMode(F13toF21Labels, F13toF21Buttons, &display,
+                                      &buttons, 12);
+      } else {
+        f13tof21mode = new KeyboardMode(F13toF21Labels, F13toF21Buttons, &display,
+                                      &buttons, 9);
+      }
       f13tof21mode->modeSetup();
     } else if (order[changeMode] == mItemMedia) {
       currentMode = modeNumberMediaKeys;
-      mediakeymode = new ConsumerMode(MediaKeyLabels, MediaKeyButtons, &display, &buttons,
-                          false, 8);
+      mediakeymode = new ConsumerMode(MediaKeyLabels, MediaKeyButtons, &display,
+                                      &buttons, NUM_KEYPAD_BUTTONS, 8);
       mediakeymode->modeSetup();
-    } else if (order[changeMode] == mItemMouse){
+    } else if (order[changeMode] == mItemMouse) {
       currentMode = modeNumberMouse;
-      mousemode = new MouseMode(&display, &buttons, true);
+      mousemode = new MouseMode(&display, &buttons);
       mousemode->modeSetup();
+    } else if (order[changeMode] == mItemArrow) {
+      currentMode = modeNumberArrowKeys;
+      arrowkeysmode = new KeyboardMode(ArrowKeyLabels, ArrowKeyButtons,
+                                       &display, &buttons, NUM_KEYPAD_BUTTONS);
+      arrowkeysmode->modeSetup();
+    } else if (order[changeMode] == mItemWASD) {
+      currentMode = modeNumberWASD;
+      wasdmode = new WASDMode(&display, &buttons);
+      wasdmode->modeSetup();
     }
   } else if (currentMode == modeNumberF13) {
     f13tof21mode->modeLoop();
@@ -85,7 +110,11 @@ void loop() {
     settingsmode->modeLoop();
   } else if (currentMode == modeNumberMediaKeys) {
     mediakeymode->modeLoop();
-  } else if (currentMode == modeNumberMouse){
+  } else if (currentMode == modeNumberMouse) {
     mousemode->modeLoop();
+  } else if (currentMode == modeNumberArrowKeys) {
+    arrowkeysmode->modeLoop();
+  } else if (currentMode == modeNumberWASD) {
+    wasdmode->modeLoop();
   }
 }

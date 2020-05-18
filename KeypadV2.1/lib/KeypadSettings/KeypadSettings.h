@@ -31,13 +31,18 @@
 #define EEPROM_OFFSET_COUNT_Y 14
 #define EEPROM_OFFSET_COUNT_Z 16
 
-#define EEPROM_OFFSET_MOUSE 18
-#define EEPROM_TEST_VAL 69
+#define EEPROM_OFFSET_MOUSE 20
+#define EEPROM_OFFSET_KEYBOARD 40
 
-#define EEPROM_OFFSET_KEYBOARD 24
+#define EEPROM_TEST_VAL 69
 
 #define RELEASED true
 #define NOT_RELEASED false
 
 #define ONLY_READING true
 #define USING_BUTTON false
+
+const char up[] = {(char)24, (char)32, '\0'};
+const char down[] = {(char)25, (char)32, '\0'};
+const char left[] = {(char)27, (char)32, '\0'};
+const char right[] = {(char)26, (char)32, '\0'};

@@ -3,6 +3,10 @@
 void MouseConfig::init() {
   min_speed = 0;
   max_speed = 25;
+  toggle_buttons = false;
+  toggle_movement = false;
+  mouse_wheel = false;
+  border_mouse = false;
   loadMouseEEPROM();
 }
 
@@ -15,14 +19,14 @@ void MouseConfig::loadMouseEEPROM() {
   // In case it was a new device or an invalid config.
   if (mouseConfig.test_for_new != EEPROM_TEST_VAL) {
     toggle_buttons = false;
-    // toggle_movement = false;
+    toggle_movement = false;
     mouse_wheel = false;
     border_mouse = false;
     saveMouseEEPROM();
   } else {
     // Proper config.
     toggle_buttons = mouseConfig.toggle_buttons;
-    // toggle_movement = mouseConfig.toggle_movement;
+    toggle_movement = mouseConfig.toggle_movement;
     mouse_wheel = mouseConfig.mouse_wheel;
     border_mouse = mouseConfig.border_mouse;
   }
@@ -31,7 +35,7 @@ void MouseConfig::loadMouseEEPROM() {
 void MouseConfig::saveMouseEEPROM() {
   MouseConfigStruct mouseConfig;
   mouseConfig.toggle_buttons = toggle_buttons;
-  // mouseConfig.toggle_movement = toggle_movement;
+  mouseConfig.toggle_movement = toggle_movement;
   mouseConfig.mouse_wheel = mouse_wheel;
   mouseConfig.border_mouse = border_mouse;
   mouseConfig.test_for_new = EEPROM_TEST_VAL;
@@ -44,9 +48,9 @@ void MouseConfig::setOption(uint8_t option, bool new_setting) {
     case mouseToggleButtons:
       toggle_buttons = new_setting;
       break;
-    // case mouseToggleMovement:
-    // toggle_movement = new_setting;
-    // break;
+    case mouseToggleMovement:
+      toggle_movement = new_setting;
+      break;
     case mouseMouseWheel:
       mouse_wheel = new_setting;
       break;
@@ -64,9 +68,9 @@ bool MouseConfig::getOption(uint8_t option) {
     case mouseToggleButtons:
       return toggle_buttons;
       break;
-    // case mouseToggleMovement:
-    // return toggle_movement;
-    // break;
+    case mouseToggleMovement:
+      return toggle_movement;
+      break;
     case mouseMouseWheel:
       return mouse_wheel;
       break;
@@ -85,6 +89,9 @@ bool MouseConfig::getOption(uint8_t option) {
 void KeyboardConfig::init() {
   min_speed = 0;
   max_speed = 25;
+  toggle_buttons = false;
+    wasd_mouse = false;
+    f24 = false;
   loadKeyboardEEPROM();
 }
 
@@ -98,11 +105,13 @@ void KeyboardConfig::loadKeyboardEEPROM() {
   if (keyboardConfig.test_for_new != EEPROM_TEST_VAL) {
     toggle_buttons = false;
     wasd_mouse = false;
+    f24 = false;
     saveKeyboardEEPROM();
   } else {
     // Proper config.
     toggle_buttons = keyboardConfig.toggle_buttons;
     wasd_mouse = keyboardConfig.wasd_mouse;
+    f24 = keyboardConfig.f24;
   }
 }
 
@@ -110,6 +119,7 @@ void KeyboardConfig::saveKeyboardEEPROM() {
   KeyboardConfigStruct keyboardConfig;
   keyboardConfig.toggle_buttons = toggle_buttons;
   keyboardConfig.wasd_mouse = wasd_mouse;
+  keyboardConfig.f24 = f24;
   keyboardConfig.test_for_new = EEPROM_TEST_VAL;
 
   EEPROM.put(EEPROM_OFFSET_KEYBOARD, keyboardConfig);
@@ -122,6 +132,9 @@ void KeyboardConfig::setOption(uint8_t option, bool new_setting) {
       break;
     case keyboardWASDMouse:
       wasd_mouse = new_setting;
+      break;
+      case keyboardF24:
+      f24 = new_setting;
       break;
 
     default:
@@ -136,6 +149,9 @@ bool KeyboardConfig::getOption(uint8_t option) {
       break;
     case keyboardWASDMouse:
       return wasd_mouse;
+      break;
+      case keyboardF24:
+      return f24;
       break;
 
     default:

@@ -1,5 +1,19 @@
 #include "settingsmodes.h"
 
+const char _menuDescriptionToggleMouseButton[] PROGMEM = { // Weird spacing is due to line-wrapping in both VSCode and in the UI
+            "When you press a     mouse btn., it will  stay held until you  press it again."};
+const char _menuDescriptionToggleMovement[] PROGMEM = {"Mouse will stay moving until button pressed again."};
+const char _menuDescriptionWheel[] PROGMEM = {"When holding M3, Up  and Down will act as scroll wheel instead.(Toggleable)"};
+const char _menuDescriptionBorder[] PROGMEM = {"Replaces layout with the sides/corner buttons being directional(L + R to quickswap)"};
+
+const char        _menuDescriptionToggleKBButton[] PROGMEM = {"When you press a button, it will stay held until it is pressed again."};  // Toggle Buttons
+  const char          _menuDescriptionWASDMouse[] PROGMEM = {"When in WASD mode, replaces A and D with Mouse Movements(L + R to quickswap)"};
+  const char          _menuDescriptionF24[] PROGMEM = {"Enable extra Function keys in F13+ mode"};
+
+
+
+const char _buttonPrompt[] PROGMEM = {"A/Middle Row: Toggle\nB/Bottom Row: Back"};
+
 void SettingsMode::modeSetup() {
   _Display->clear();
   _submenu = modeNumberSettings;
@@ -88,13 +102,16 @@ void MouseSettingsMode::showOption(uint8_t option) {
   _Display->setCursor(0, 0);
   switch (option) {
     case mouseToggleButtons:
-      printWrappingLine(_Display, _menuDescriptionToggle);
+      printWrappingLineProgmem(_Display, _menuDescriptionToggleMouseButton);
+      break;
+    case mouseToggleMovement:
+      printWrappingLineProgmem(_Display, _menuDescriptionToggleMovement);
       break;
     case mouseMouseWheel:
-      printWrappingLine(_Display, _menuDescriptionWheel);
+      printWrappingLineProgmem(_Display, _menuDescriptionWheel);
       break;
     case mouseBorderMouse:
-      printWrappingLine(_Display, _menuDescriptionBorder);
+      printWrappingLineProgmem(_Display, _menuDescriptionBorder);
       break;
 
     default:
@@ -163,10 +180,13 @@ void KeyboardSettingsMode::showOption(uint8_t option) {
   _Display->home();
   switch (option) {
     case keyboardToggleButtons:
-      printWrappingLine(_Display, _menuDescriptionToggle);
+      printWrappingLineProgmem(_Display, _menuDescriptionToggleKBButton);
       break;
     case keyboardWASDMouse:
-      printWrappingLine(_Display, _menuDescriptionWASDMouse);
+      printWrappingLineProgmem(_Display, _menuDescriptionWASDMouse);
+      break;
+    case keyboardF24:
+      printWrappingLineProgmem(_Display, _menuDescriptionF24);
       break;
     default:
       break;
@@ -319,6 +339,28 @@ void RGBSettingsMode::modeLoop() {
   }
 }
 
+void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display, const char *signMessage PROGMEM) {
+  // uint8_t initColumn = _Display->col();
+  uint8_t currentLineLength = 0;
+  // read back a char
+  char myChar;
+  for (byte k = 0; k < strlen_P(signMessage); k++) {
+    myChar = pgm_read_byte_near(signMessage + k);
+    // Serial.print(myChar);
+    if (myChar == '\n') {
+      currentLineLength = 0;
+      _Display->setCursor(0, _Display->row() + 1);
+    } else {
+      _Display->print(myChar);
+      currentLineLength++;
+      if(currentLineLength > 20){
+        currentLineLength = 0;
+        _Display->setCursor(0, _Display->row() + 1);
+      }
+    }
+  }
+}
+
 void printWrappingLine(SSD1306AsciiAvrI2c *_Display, const char *line) {
   // uint8_t initColumn = _Display->col();
   uint8_t currentLineLength = 0;
@@ -339,5 +381,5 @@ void printWrappingLine(SSD1306AsciiAvrI2c *_Display, const char *line) {
 
 void printButtonPrompt(SSD1306AsciiAvrI2c *_Display) {
   _Display->setCursor(0, 6);
-  printWrappingLine(_Display, "A/Bottom Row: Toggle\nB/Middle Row: Back");
+  printWrappingLineProgmem(_Display,_buttonPrompt);
 }

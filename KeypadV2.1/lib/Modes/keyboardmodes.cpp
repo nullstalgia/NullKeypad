@@ -9,7 +9,7 @@ void KeyboardMode::modeIsPressed() {
     keyCount = NUM_KEYPAD_BUTTONS;
   }
 
-  for (uint8_t i = 0; i < keyCount; i++) {
+  for (uint8_t i = 0; i < _keyCount; i++) {
     if(_Buttons->wasPressed[i]){
       Keyboard.press(_keyboardbuttons[i]);
     }
@@ -17,15 +17,16 @@ void KeyboardMode::modeIsPressed() {
 }
 */
 
-
 const char *F13toF21Labels[] = {"F13", "F14", "F15",  //
                                 "F16", "F17", "F18",  //
-                                "F19", "F20", "F21"};
+                                "F19", "F20", "F21",  //
+                                "F22", "F23", "F24"};
 const KeyboardKeycode F13toF21Buttons[] = {KEY_F13, KEY_F14, KEY_F15,  //
                                            KEY_F16, KEY_F17, KEY_F18,  //
-                                           KEY_F19, KEY_F20, KEY_F21};
+                                           KEY_F19, KEY_F20, KEY_F21,  //
+                                           KEY_F22, KEY_F23, KEY_F24};
 
-const char pause[] = {(char)32,(char)16, (char)186, '\0'};
+const char pause[] = {(char)32, (char)16, (char)186, '\0'};
 const char *MediaKeyLabels[] = {
     "V+",   "Mute", "V-",    //
     "Prev", pause,  "Next",  //
@@ -38,31 +39,66 @@ const ConsumerKeycode MediaKeyButtons[] = {
     MEDIA_REWIND,    MEDIA_STOP,        MEDIA_FAST_FORWARD,  //
 };
 
+const char *ArrowKeyLabels[] = {"Tab", up,     "LAlt",  //
+                                left,  down,   right,   //
+                                "ESC", "Ctrl", "Enter"};
+const KeyboardKeycode ArrowKeyButtons[] = {
+    KEY_TAB,        KEY_UP_ARROW,   KEY_LEFT_ALT,     //
+    KEY_LEFT_ARROW, KEY_DOWN_ARROW, KEY_RIGHT_ARROW,  //
+    KEY_ESC,        KEY_LEFT_CTRL,  KEY_RETURN};
 
+const char *WASDLabels[] = {"E",     "W", "R",  //
+                            "A",     "S", "D",  //
+                            "Shft", "X", "F",  //
+                            "Tab",   " Q", "C", " Ctrl"};
+const KeyboardKeycode WASDButtons[] = {KEY_E,          KEY_W, KEY_R,  //
+                                       KEY_A,          KEY_S, KEY_D,  //
+                                       KEY_LEFT_SHIFT, KEY_X, KEY_F,  //
+                                       KEY_TAB,        KEY_Q, KEY_C,
+                                       KEY_LEFT_CTRL};
 
+const char *WASDMouseLabels[] = {"E",   "W", "R",    //
+                                 left,  "S", right,  //
+                                 "M2",  "F", "M1",   //
+                                 "Tab", "Q", "Sp-", "Sp+"};
 
+// Function keys are acting as mouse keys.
 
-bool activeButtons[13] = {false, false, false, false, false, false, false,
-                          false, false, false, false, false, false};
+// F1 - Mouse 1
+// F2 - Mouse 2
+
+// F3 - Move Mouse Left
+// F4 - Move Mouse Right
+
+// F5 - Speed Minus
+// F6 - Speed Plus
+
+const KeyboardKeycode WASDMouseButtons[] = {KEY_E,   KEY_W, KEY_R,   //
+                                            KEY_F3,  KEY_S, KEY_F4,  //
+                                            KEY_F2,  KEY_F, KEY_F1,  //
+                                            KEY_TAB, KEY_Q, KEY_F5, KEY_5};
+
+bool activeKeyboardButtons[NUM_ALL_BUTTONS] = {
+    false, false, false, false, false, false, false,
+    false, false, false, false, false, false};
+
+void clearactiveKeyboardButtons() {
+  for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
+    activeKeyboardButtons[i] = false;
+  }
+}
 
 void KeyboardMode::modeSetup() {
   _Display->clear();
   _keyboardConfig = new KeyboardConfig();
   _keyboardConfig->init();
+  Keyboard.begin();
   delay(500);
   //_Buttons->runThroughButtons();
-  Keyboard.begin();
 }
 
 void KeyboardMode::modeWasPressed() {
-  uint8_t keyCount;
-  if (_ablr_buttons) {
-    keyCount = NUM_ALL_BUTTONS;
-  } else {
-    keyCount = NUM_KEYPAD_BUTTONS;
-  }
-
-  for (uint8_t i = 0; i < keyCount; i++) {
+  for (uint8_t i = 0; i < _keyCount; i++) {
     if (_Buttons->wasPressed[i]) {
       // Keyboard.press(_keyboardbuttons[i]);
       keyboardAction(_keyboardbuttons, _keyboardConfig, i, NOT_RELEASED,
@@ -72,14 +108,9 @@ void KeyboardMode::modeWasPressed() {
 }
 
 void KeyboardMode::modeWasReleased() {
-  uint8_t keyCount;
-  if (_ablr_buttons) {
-    keyCount = NUM_ALL_BUTTONS;
-  } else {
-    keyCount = NUM_KEYPAD_BUTTONS;
-  }
 
-  for (uint8_t i = 0; i < keyCount; i++) {
+
+  for (uint8_t i = 0; i < _keyCount; i++) {
     if (_Buttons->wasReleased[i]) {
       // Keyboard.release(_keyboardbuttons[i]);
       keyboardAction(_keyboardbuttons, _keyboardConfig, i, RELEASED,
@@ -89,14 +120,8 @@ void KeyboardMode::modeWasReleased() {
 }
 
 void KeyboardMode::modeMenu() {
-  uint8_t keyCount;
-  if (_ablr_buttons) {
-    keyCount = NUM_ALL_BUTTONS;
-  } else {
-    keyCount = NUM_KEYPAD_BUTTONS;
-  }
 
-  for (uint8_t i = 0; i < keyCount; i++) {
+  for (uint8_t i = 0; i < _keyCount; i++) {
     if (_keyboardConfig->toggle_buttons) {
       printInvertingButton(_keylabels[i], i,
                            keyboardAction(_keyboardbuttons, _keyboardConfig, i,
@@ -118,20 +143,14 @@ void ConsumerMode::modeSetup() {
   _Display->clear();
   _keyboardConfig = new KeyboardConfig();
   _keyboardConfig->init();
+  Consumer.begin();
   delay(500);
   //_Buttons->runThroughButtons();
-  Consumer.begin();
 }
 
 void ConsumerMode::modeWasPressed() {
-  uint8_t keyCount;
-  if (_ablr_buttons) {
-    keyCount = NUM_ALL_BUTTONS;
-  } else {
-    keyCount = NUM_KEYPAD_BUTTONS;
-  }
 
-  for (uint8_t i = 0; i < keyCount; i++) {
+  for (uint8_t i = 0; i < _keyCount; i++) {
     if (_Buttons->wasPressed[i]) {
       // Keyboard.release(_keyboardbuttons[i]);
       keyboardAction(_consumerbuttons, _keyboardConfig, i, NOT_RELEASED,
@@ -141,14 +160,9 @@ void ConsumerMode::modeWasPressed() {
 }
 
 void ConsumerMode::modeWasReleased() {
-  uint8_t keyCount;
-  if (_ablr_buttons) {
-    keyCount = NUM_ALL_BUTTONS;
-  } else {
-    keyCount = NUM_KEYPAD_BUTTONS;
-  }
 
-  for (uint8_t i = 0; i < keyCount; i++) {
+
+  for (uint8_t i = 0; i < _keyCount; i++) {
     if (_Buttons->wasReleased[i]) {
       // Keyboard.release(_keyboardbuttons[i]);
       keyboardAction(_consumerbuttons, _keyboardConfig, i, RELEASED,
@@ -158,14 +172,9 @@ void ConsumerMode::modeWasReleased() {
 }
 
 void ConsumerMode::modeMenu() {
-  uint8_t keyCount;
-  if (_ablr_buttons) {
-    keyCount = NUM_ALL_BUTTONS;
-  } else {
-    keyCount = NUM_KEYPAD_BUTTONS;
-  }
 
-  for (uint8_t i = 0; i < keyCount; i++) {
+
+  for (uint8_t i = 0; i < _keyCount; i++) {
     if (_keyboardConfig->toggle_buttons) {
       printInvertingButton(_keylabels[i], i,
                            keyboardAction(_consumerbuttons, _keyboardConfig, i,
@@ -186,20 +195,12 @@ void ConsumerMode::modeLoop() {
 bool keyboardAction(const KeyboardKeycode *KeyboardButtons,
                     KeyboardConfig *kbConfig, uint8_t physical_button,
                     bool being_released, bool only_reading_value) {
-  uint8_t mouseButton = 254;
-  KeyboardKeycode keyboardButton = KEY_ERROR_UNDEFINED;
+  KeyboardKeycode keyboardButton = KeyboardButtons[physical_button];
 
-  if (kbConfig->wasd_mouse == false) {
-    keyboardButton = KeyboardButtons[physical_button];
-  } else {
+  if (keyboardButton == KEY_ERROR_UNDEFINED) {
     return false;
   }
 
-  if (mouseButton == 254 && keyboardButton == KEY_ERROR_UNDEFINED) {
-    return false;
-  }
-
-  bool mouse_enabled = kbConfig->wasd_mouse;
   bool toggle_buttons = kbConfig->toggle_buttons;
 
   // If we're not just ignoring everything to get the current state
@@ -207,27 +208,27 @@ bool keyboardAction(const KeyboardKeycode *KeyboardButtons,
     // Basic toggling. Turns on when being pressed, and will not toggle it off
     // when the button is being released
     if (toggle_buttons && !being_released) {
-      if (activeButtons[physical_button]) {
-        activeButtons[physical_button] = false;
+      if (activeKeyboardButtons[physical_button]) {
+        activeKeyboardButtons[physical_button] = false;
         Keyboard.release(keyboardButton);
         return false;
       } else {
-        activeButtons[physical_button] = true;
+        activeKeyboardButtons[physical_button] = true;
         Keyboard.press(keyboardButton);
         return true;
       }
     } else if (toggle_buttons && being_released) {
-      // activeButtons[physical_button] = false;
+      // activeKeyboardButtons[physical_button] = false;
       return false;
     }
 
-    // And just a proper button making a mouse button turn on or off
+    // And just a proper button making a kb button turn on or off
     if (being_released) {
-      activeButtons[physical_button] = false;
+      activeKeyboardButtons[physical_button] = false;
       Keyboard.release(keyboardButton);
       return false;
     } else {
-      activeButtons[physical_button] = true;
+      activeKeyboardButtons[physical_button] = true;
       Keyboard.press(keyboardButton);
       return true;
     }
@@ -236,7 +237,7 @@ bool keyboardAction(const KeyboardKeycode *KeyboardButtons,
     // Return the state of the wheel if that's what we're here for
 
     // Otherwise just say the state of the asked button
-    return activeButtons[physical_button];
+    return activeKeyboardButtons[physical_button];
   }
 
   // If nothing happened, just say false
@@ -246,17 +247,7 @@ bool keyboardAction(const KeyboardKeycode *KeyboardButtons,
 bool keyboardAction(const ConsumerKeycode *KeyboardButtons,
                     KeyboardConfig *kbConfig, uint8_t physical_button,
                     bool being_released, bool only_reading_value) {
-  ConsumerKeycode consumerButton = CONSUMER_BROWSER_BACK;
-
-  if (kbConfig->wasd_mouse == false) {
-    consumerButton = KeyboardButtons[physical_button];
-  } else {
-    return false;
-  }
-
-  if (consumerButton == CONSUMER_BROWSER_BACK) {
-    return false;
-  }
+  ConsumerKeycode consumerButton = KeyboardButtons[physical_button];
 
   bool toggle_buttons = kbConfig->toggle_buttons;
 
@@ -265,27 +256,27 @@ bool keyboardAction(const ConsumerKeycode *KeyboardButtons,
     // Basic toggling. Turns on when being pressed, and will not toggle it off
     // when the button is being released
     if (toggle_buttons && !being_released) {
-      if (activeButtons[physical_button]) {
-        activeButtons[physical_button] = false;
+      if (activeKeyboardButtons[physical_button]) {
+        activeKeyboardButtons[physical_button] = false;
         Consumer.release(consumerButton);
         return false;
       } else {
-        activeButtons[physical_button] = true;
+        activeKeyboardButtons[physical_button] = true;
         Consumer.press(consumerButton);
         return true;
       }
     } else if (toggle_buttons && being_released) {
-      // activeButtons[physical_button] = false;
+      // activeKeyboardButtons[physical_button] = false;
       return false;
     }
 
     // And just a proper button making a mouse button turn on or off
     if (being_released) {
-      activeButtons[physical_button] = false;
+      activeKeyboardButtons[physical_button] = false;
       Consumer.release(consumerButton);
       return false;
     } else {
-      activeButtons[physical_button] = true;
+      activeKeyboardButtons[physical_button] = true;
       Consumer.press(consumerButton);
       return true;
     }
@@ -294,7 +285,147 @@ bool keyboardAction(const ConsumerKeycode *KeyboardButtons,
     // Return the state of the wheel if that's what we're here for
 
     // Otherwise just say the state of the asked button
-    return activeButtons[physical_button];
+    return activeKeyboardButtons[physical_button];
+  }
+
+  // If nothing happened, just say false
+  return false;
+}
+
+// Function keys are acting as mouse keys.
+
+// F1 - Mouse 1
+// F2 - Mouse 2
+
+// F3 - Move Mouse Left
+// F4 - Move Mouse Right
+
+// F5 - Speed Minus
+// F6 - Speed Plus
+
+void WASDMode::modeSetup() {
+  _Display->clear();
+  _keyboardConfig = new KeyboardConfig();
+  _keyboardConfig->init();
+  _mouseConfig = new MouseConfig();
+  _mouseConfig->init();
+  _mouse_enabled = false;
+  _mouse_speed = 1;
+  _x_velocity = 0;
+  Keyboard.begin();
+  Mouse.begin();
+  delay(1000);
+  //_Buttons->runThroughButtons();
+}
+
+void WASDMode::modeWasPressed() {
+
+  for (uint8_t i = 0; i < _keyCount; i++) {
+    if (_Buttons->wasPressed[i]) {
+      if (_mouse_enabled == false) {
+        WASDAction(WASDButtons, i, NOT_RELEASED, USING_BUTTON);
+      } else {
+        WASDAction(WASDMouseButtons, i, NOT_RELEASED, USING_BUTTON);
+      }
+    }
+  }
+}
+
+void WASDMode::modeWasReleased() {
+
+  for (uint8_t i = 0; i < _keyCount; i++) {
+    if (_Buttons->wasReleased[i]) {
+      if (_mouse_enabled == false) {
+        WASDAction(WASDButtons, i, RELEASED, USING_BUTTON);
+      } else {
+        WASDAction(WASDMouseButtons, i, RELEASED, USING_BUTTON);
+      }
+    }
+  }
+}
+
+void WASDMode::modeMenu(){
+
+  for (uint8_t i = 0; i < _keyCount; i++) {
+
+      if (_mouse_enabled == false) {
+        printInvertingButton(WASDLabels[i], i, WASDAction(WASDButtons, i, RELEASED, ONLY_READING));
+        
+      } else {
+        printInvertingButton(WASDMouseLabels[i], i, WASDAction(WASDMouseButtons, i, RELEASED, ONLY_READING));
+      }
+    
+  }
+}
+
+void WASDMode::modeLoop() {
+  modeWasPressed();
+  modeWasReleased();
+
+  modeMenu();
+}
+
+bool WASDMode::WASDAction(const KeyboardKeycode *KeyboardButtons,
+                          uint8_t physical_button, bool being_released,
+                          bool only_reading_value) {
+  KeyboardKeycode keyboardButton = KeyboardButtons[physical_button];
+
+  // Just in case
+  if (_mouse_enabled == false && keyboardButton >= KEY_F1 &&
+      keyboardButton <= KEY_F12) {
+    return false;
+  }
+
+  bool toggle_buttons = _keyboardConfig->toggle_buttons;
+  bool toggle_movement = _mouseConfig->toggle_movement;
+
+  if (keyboardButton >= KEY_F1 && keyboardButton <= KEY_F12) {
+    // Mouse action
+
+    return basicMouseMove(&_x_velocity, toggle_movement,
+                          _Buttons->isPressed[wasdLEFT],
+                          _Buttons->isPressed[wasdRIGHT], physical_button,
+                          being_released, only_reading_value);
+
+  } else {
+    // Keyboard action
+
+    // If we're not just ignoring everything to get the current state
+    if (!only_reading_value) {
+      // Basic toggling. Turns on when being pressed, and will not toggle it off
+      // when the button is being released
+      if (toggle_buttons && !being_released) {
+        if (activeKeyboardButtons[physical_button]) {
+          activeKeyboardButtons[physical_button] = false;
+          Keyboard.release(keyboardButton);
+          return false;
+        } else {
+          activeKeyboardButtons[physical_button] = true;
+          Keyboard.press(keyboardButton);
+          return true;
+        }
+      } else if (toggle_buttons && being_released) {
+        // activeKeyboardButtons[physical_button] = false;
+        return false;
+      }
+
+      // And just a proper button making a mouse button turn on or off
+      if (being_released) {
+        activeKeyboardButtons[physical_button] = false;
+        Keyboard.release(keyboardButton);
+        return false;
+      } else {
+        activeKeyboardButtons[physical_button] = true;
+        Keyboard.press(keyboardButton);
+        return true;
+      }
+    } else {
+      // But if we're just reading this and not changing anything...
+      // Return the state of the wheel if that's what we're here for
+
+      // Otherwise just say the state of the asked button
+      return activeKeyboardButtons[physical_button];
+    }
   }
 
   // If nothing happened, just say false

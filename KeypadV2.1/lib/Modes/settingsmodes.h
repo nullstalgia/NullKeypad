@@ -12,6 +12,7 @@ typedef enum {
   rgbMenuInfoTest
 } rgbMenuNumbers;
 
+void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display, const char *signMessage PROGMEM);
 void printWrappingLine(SSD1306AsciiAvrI2c *_Display, const char *line);
 
 void printButtonPrompt(SSD1306AsciiAvrI2c *_Display);
@@ -64,13 +65,8 @@ class MouseSettingsMode : public Mode {
                     KeypadButtons *Buttons)
       : Mode(Display, Buttons, {}),
         _menu(menu),
-        _menuItems{"Toggle Buttons", "Scroll Wheel",
+        _menuItems{"Toggle Buttons", "Toggle Movement", "Scroll Wheel",
                    "Border Mouse"},
-        _menuDescriptionToggle{ // Weird spacing is due to line-wrapping in both VSCode and in the UI
-            "When you press a     mouse btn., it will  stay held until you  press it again."},
-        _menuDescriptionWheel{"When holding M3, Up  and Down will act as scroll wheel instead.(Toggleable)"},
-        _menuDescriptionBorder{"Replaces layout with the sides/corner buttons being directional(L + R to quickswap)"},
-            // ,"Mouse will stay moving until button pressed again." // Toggle Movement Deprecated
         _menuBools{"OFF", "ON "}  // Has to be in FALSE, TRUE order
   {}
   virtual void modeSetup();
@@ -82,10 +78,7 @@ class MouseSettingsMode : public Mode {
  private:
   oledAsciiMenu *_menu;
   int _mousesubmenu;
-  const char *_menuItems[3];
-  const char *_menuDescriptionToggle PROGMEM;
-  const char *_menuDescriptionWheel PROGMEM;
-  const char *_menuDescriptionBorder PROGMEM;
+  const char *_menuItems[4];
   const char *_menuBools[2];
   int _previousMenuHoverSelection;
   MouseConfig *_mouseConfig;
@@ -98,9 +91,7 @@ class KeyboardSettingsMode : public Mode {
                     KeypadButtons *Buttons)
       : Mode(Display, Buttons, {}),
         _menu(menu),
-        _menuItems{"Toggle Buttons", "WASD Mouse"},
-        _menuDescriptionToggle{"When you press a button, it will stay held until it is pressed again."},  // Toggle Buttons
-            _menuDescriptionWASDMouse{"When in WASD mode, replaces A and D with Mouse Movements(L + R to quickswap)"},
+        _menuItems{"Toggle Buttons", "WASD Mouse", "Enable F22-F24"},
         _menuBools{"OFF", "ON "}  // Has to be in FALSE, TRUE order
   {}
   virtual void modeSetup();
@@ -112,9 +103,7 @@ class KeyboardSettingsMode : public Mode {
  private:
   oledAsciiMenu *_menu;
   int _keyboardsubmenu;
-  const char *_menuItems[2];
-  const char *_menuDescriptionToggle PROGMEM;
-  const char *_menuDescriptionWASDMouse PROGMEM;
+  const char *_menuItems[3];
   const char *_menuBools[2];
   int _previousMenuHoverSelection;
   KeyboardConfig *_keyboardConfig;

@@ -6,7 +6,7 @@
 typedef enum {
   mouseMainMenu = -1,
   mouseToggleButtons,
-  //mouseToggleMovement,
+  mouseToggleMovement,
   mouseMouseWheel,
   mouseBorderMouse
 } mouseOptionNumbers;
@@ -14,7 +14,7 @@ typedef enum {
 // The struct for EEPROM storage of RGB configs.
 struct MouseConfigStruct {
   bool toggle_buttons;
-  //bool toggle_movement;
+  bool toggle_movement;
   bool mouse_wheel;
   bool border_mouse;
   byte test_for_new;
@@ -27,7 +27,7 @@ class MouseConfig {
   int min_speed;
   int max_speed;
   bool toggle_buttons;
-  //bool toggle_movement;
+  bool toggle_movement;
   bool mouse_wheel;
   bool border_mouse;
 
@@ -44,13 +44,15 @@ class MouseConfig {
 typedef enum {
   keyboardMainMenu = -1,
   keyboardToggleButtons,
-  keyboardWASDMouse
+  keyboardWASDMouse,
+  keyboardF24
 } keyboardOptionNumbers;
 
 // The struct for EEPROM storage of RGB configs.
 struct KeyboardConfigStruct {
   bool toggle_buttons;
   bool wasd_mouse;
+  bool f24;
   byte test_for_new;
 };
 
@@ -60,6 +62,7 @@ class KeyboardConfig {
   int max_speed;
   bool toggle_buttons;
   bool wasd_mouse;
+  bool f24;
 
   void init();
   void loadKeyboardEEPROM();

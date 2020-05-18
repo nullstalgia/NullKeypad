@@ -26,14 +26,15 @@ typedef enum {
 class Mode {
  public:
   Mode(SSD1306AsciiAvrI2c *Display, KeypadButtons *Buttons, const char **KeyLabels,
-       bool ablr_buttons = false, uint8_t grid_width = 8,
+       uint8_t keyCount = NUM_KEYPAD_BUTTONS, uint8_t grid_width = 8,
        uint8_t grid_height = 8)
       : _Display(Display),
         _Buttons(Buttons),
         _keylabels(KeyLabels),
-        _ablr_buttons(ablr_buttons),
+        _keyCount(keyCount),
         _grid_width(grid_width),
-        _grid_height(grid_height) {}
+        _grid_height(grid_height),
+        _redraw_menu(true) {}
   void printInvertingButton(uint8_t x, uint8_t y, const char *text,
                             uint8_t button_index, bool force_on = false);
   void printInvertingButton(uint8_t x, uint8_t y, const char *text,
@@ -54,8 +55,11 @@ class Mode {
   SSD1306AsciiAvrI2c *_Display;
   KeypadButtons *_Buttons;
   const char **_keylabels;
-  const bool _ablr_buttons;
+  const uint8_t _keyCount;
   uint8_t _grid_width;
   uint8_t _grid_height;
+  bool _redraw_menu;
+  bool activeButtons[NUM_ALL_BUTTONS];
+  void clearActiveButtons();
   
 };

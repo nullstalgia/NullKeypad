@@ -1,9 +1,17 @@
 #include "genericmode.h"
 
 
+
+void Mode::clearActiveButtons() {
+  for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
+    activeButtons[i] = false;
+  }
+}
+
 void Mode::printInvertingButton(uint8_t x, uint8_t y, const char *text,
                                 uint8_t button_index, bool force_on) {
-  printInvertingButton(x, y, text, button_index, _grid_width, _grid_height, force_on);
+  printInvertingButton(x, y, text, button_index, _grid_width, _grid_height,
+                       force_on);
 }
 
 void Mode::printInvertingButton(uint8_t x, uint8_t y, const char *text,
@@ -15,15 +23,16 @@ void Mode::printInvertingButton(uint8_t x, uint8_t y, const char *text,
   }
   uint8_t new_x, new_y;
   new_x = x * grid_width;
-  //new_y = y * grid_height;
+  // new_y = y * grid_height;
   new_y = y;
   _Display->setCursor(new_x, new_y);
   _Display->print(text);
 }
 
-void Mode::printInvertingButton(const char *text, uint8_t button_index, bool force_on) {
+void Mode::printInvertingButton(const char *text, uint8_t button_index,
+                                bool force_on) {
   uint8_t new_x, new_y;
-  if (!_ablr_buttons) {
+  if (_keyCount <= NUM_KEYPAD_BUTTONS) {
     if (button_index <= 8) {
       // Assuming 3x3 grid without ABLR buttons
 
@@ -52,7 +61,7 @@ void Mode::printInvertingButton(const char *text, uint8_t button_index, bool for
 
       new_x += 4;
 
-      if(_grid_width < 8){
+      if (_grid_width < 8) {
         new_x += 2;
       }
 
@@ -89,14 +98,9 @@ void Mode::printInvertingButton(const char *text, uint8_t button_index, bool for
 }
 
 void Mode::modeMenu() {
-  uint8_t keyCount;
-  if (_ablr_buttons) {
-    keyCount = NUM_ALL_BUTTONS;
-  } else {
-    keyCount = NUM_KEYPAD_BUTTONS;
-  }
-
-  for (uint8_t i = 0; i < keyCount; i++) {
-    printInvertingButton(_keylabels[i], i);
+  if (_redraw_menu) {
+    for (uint8_t i = 0; i < _keyCount; i++) {
+      printInvertingButton(_keylabels[i], i);
+    }
   }
 }
