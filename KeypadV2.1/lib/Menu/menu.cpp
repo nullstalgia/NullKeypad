@@ -4,8 +4,7 @@ static MenuKey menuButton;
 
 // -1 == Nothing chosen
 // Otherwise, index of item.
-int workMenu(oledAsciiMenu *menu, MenuKey button,
-             SSD1306AsciiAvrI2c *display) {
+int workMenu(oledAsciiMenu *menu, MenuKey button, SSD1306AsciiAvrI2c *display) {
   uint8_t currentSelection = menu->currentSelection;
   if (button != menuButton) {
     menuButton = button;
@@ -29,18 +28,17 @@ int workMenu(oledAsciiMenu *menu, MenuKey button,
 }
 
 void setupMenu(oledAsciiMenu *menu, SSD1306AsciiAvrI2c *display,
-               const char *items[], uint8_t count, MenuKey currentButton, uint8_t autoDownAmount) {
+               const char *items[], uint8_t count, MenuKey currentButton,
+               uint8_t autoDownAmount) {
   /* Initialize main menu state */
   menu->setupMenu(items, count);
   /* show menu on the display */
   // delay(100);
-  for (uint8_t i = 0; i < autoDownAmount; i++)
-  {
+  for (uint8_t i = 0; i < autoDownAmount; i++) {
     menu->moveDown();
   }
 
-    menu->showMenu(true);
-
+  menu->showMenu(true);
 
   // display.menuDown(&menu);
   // display->updateMenuSmooth(menu);

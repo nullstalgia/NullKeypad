@@ -90,8 +90,8 @@ void KeyboardConfig::init() {
   min_speed = 0;
   max_speed = 25;
   toggle_buttons = false;
-    wasd_mouse = false;
-    f24 = false;
+  wasd_mouse = false;
+  f24 = false;
   loadKeyboardEEPROM();
 }
 
@@ -133,7 +133,7 @@ void KeyboardConfig::setOption(uint8_t option, bool new_setting) {
     case keyboardWASDMouse:
       wasd_mouse = new_setting;
       break;
-      case keyboardF24:
+    case keyboardF24:
       f24 = new_setting;
       break;
 
@@ -150,7 +150,7 @@ bool KeyboardConfig::getOption(uint8_t option) {
     case keyboardWASDMouse:
       return wasd_mouse;
       break;
-      case keyboardF24:
+    case keyboardF24:
       return f24;
       break;
 

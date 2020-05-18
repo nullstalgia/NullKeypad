@@ -1,5 +1,6 @@
 #pragma once
 #include <Arduino.h>
+
 #include "mousemodes.h"
 #include "rgb.h"
 
@@ -12,7 +13,8 @@ typedef enum {
   rgbMenuInfoTest
 } rgbMenuNumbers;
 
-void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display, const char *signMessage PROGMEM);
+void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display,
+                              const char *signMessage PROGMEM);
 void printWrappingLine(SSD1306AsciiAvrI2c *_Display, const char *line);
 
 void printButtonPrompt(SSD1306AsciiAvrI2c *_Display);
@@ -24,8 +26,8 @@ class RGBSettingsMode : public Mode {
       : Mode(Display, Buttons, {}),
         _rgb(rgb),
         _menu(menu),
-        _rgbMenuItems{"Back", "Brightness", "Lighting Mode", "Push Action",
-                      "Speed (reset req)", "Test + Info"},
+        _rgbMenuItems{"Back",        "Brightness",        "Lighting Mode",
+                      "Push Action", "Speed (reset req)", "Test + Info"},
         _rgbSpeedBrightnessMenuItems{"0", "1", "2", "3", "4", "5",
                                      "6", "7", "8", "9", "10"},
         _rgbModeMenuItems{"None",
@@ -57,8 +59,6 @@ class RGBSettingsMode : public Mode {
   uint8_t _goBackDownAmount;
 };
 
-
-
 class MouseSettingsMode : public Mode {
  public:
   MouseSettingsMode(oledAsciiMenu *menu, SSD1306AsciiAvrI2c *Display,
@@ -88,7 +88,7 @@ class MouseSettingsMode : public Mode {
 class KeyboardSettingsMode : public Mode {
  public:
   KeyboardSettingsMode(oledAsciiMenu *menu, SSD1306AsciiAvrI2c *Display,
-                    KeypadButtons *Buttons)
+                       KeypadButtons *Buttons)
       : Mode(Display, Buttons, {}),
         _menu(menu),
         _menuItems{"Back", "Toggle Buttons", "WASD Mouse", "Enable F22-F24"},

@@ -14,8 +14,8 @@ void oledAsciiMenu::setupMenu(const char **menuItems, uint8_t count) {
 void oledAsciiMenu::showMenu(bool force_border_redraw) {
   if (_previousStartMenuAt != menuStartAt || force_border_redraw) {
     _oled->clear();
-    #if SHOW_BORDER
-  printBorder();
+#if SHOW_BORDER
+    printBorder();
 #endif
   }
   for (int i = menuStartAt; i < (menuStartAt + MAX_MENU_ITEMS); i++) {
@@ -34,32 +34,33 @@ void oledAsciiMenu::showMenu(bool force_border_redraw) {
       */
       _oled->setCursor(MENU_ITEM_X_OFFSET, markerY);
       _oled->print((char)219);
-      _oled->setCursor(MENU_ITEM_X_OFFSET+1, markerY);
+      _oled->setCursor(MENU_ITEM_X_OFFSET + 1, markerY);
       _oled->setInvertMode(true);
       _oled->print(_menuItems[i]);
       _oled->setInvertMode(false);
     } else {
       _oled->setCursor(MENU_ITEM_X_OFFSET, markerY);
       _oled->print(" ");
-      _oled->setCursor(MENU_ITEM_X_OFFSET+1, markerY);
+      _oled->setCursor(MENU_ITEM_X_OFFSET + 1, markerY);
       // _oled->clear(0,1,markerY,markerY);
       // _oled->setCursor(0, markerY);
       _oled->print(_menuItems[i]);
     }
   }
-  #if SHOW_PROGRESS
+#if SHOW_PROGRESS
   char menuProgress[7];
   sprintf(menuProgress, "%d/%d", currentSelection + 1, _count);
-  uint8_t XPosition = 122; // Base is 120 for a 6x8 font. 6 is the important number
+  uint8_t XPosition =
+      122;  // Base is 120 for a 6x8 font. 6 is the important number
   uint8_t YPosition = 0;
-  XPosition -= strlen(menuProgress)*5;
-  #if SHOW_BORDER
+  XPosition -= strlen(menuProgress) * 5;
+#if SHOW_BORDER
   XPosition -= 5;
   YPosition++;
-  #endif
+#endif
   _oled->setCursor(XPosition, YPosition);
   _oled->print(menuProgress);
-  #endif
+#endif
 }
 
 void oledAsciiMenu::moveDown() {
@@ -99,16 +100,14 @@ void oledAsciiMenu::moveUp() {
 }
 
 void oledAsciiMenu::printHorizontalBarAtCursor() {
-    for (uint8_t i = 0; i < 23; i++)
-  {
-      _oled->print((char)205);
+  for (uint8_t i = 0; i < 23; i++) {
+    _oled->print((char)205);
   }
 }
 
 void oledAsciiMenu::printBorder() {
   _oled->setLetterSpacing(0);
-  
-  
+
   _oled->setCursor(0, 0);
   _oled->print((char)201);
   printHorizontalBarAtCursor();

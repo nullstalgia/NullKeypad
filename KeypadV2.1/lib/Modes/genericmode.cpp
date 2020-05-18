@@ -1,7 +1,5 @@
 #include "genericmode.h"
 
-
-
 void Mode::clearActiveButtons() {
   for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
     activeButtons[i] = false;

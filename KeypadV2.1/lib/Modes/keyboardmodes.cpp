@@ -312,7 +312,7 @@ void WASDMode::modeSetup() {
 }
 
 void WASDMode::modeWasPressed() {
-      if (_Buttons->wasPressed[ablrL]) {
+  if (_Buttons->wasPressed[ablrL]) {
     _mouse_speed -= 1;
     if (_mouse_speed < _mouseConfig->min_speed) {
       //_Display->printFixed(0,0,"smol");
@@ -363,14 +363,14 @@ void WASDMode::modeMenu() {
     }
   }
   _Display->setInvertMode(false);
-  if(_mouse_enabled){
-  char buffer[12];
-  _Display->setCursor(45, 1);
-  sprintf(buffer, "Speed: %02d", _mouse_speed);
-  _Display->print(buffer);
+  if (_mouse_enabled) {
+    char buffer[12];
+    _Display->setCursor(45, 1);
+    sprintf(buffer, "Speed: %02d", _mouse_speed);
+    _Display->print(buffer);
   }
   //_Display->setCursor(45, 1);
-  //sprintf(buffer, "X: %02d", _x_velocity);
+  // sprintf(buffer, "X: %02d", _x_velocity);
   //_Display->print(buffer);
 }
 
@@ -397,8 +397,8 @@ void WASDMode::modeLoop() {
 
   modeMenu();
 
-  if(_x_velocity != 0){
-    Mouse.move(_x_velocity*_mouse_speed, 0);
+  if (_x_velocity != 0) {
+    Mouse.move(_x_velocity * _mouse_speed, 0);
   }
 }
 
@@ -421,9 +421,10 @@ bool WASDMode::WASDAction(const KeyboardKeycode *KeyboardButtons,
 
     return basicMouseMove(&_x_velocity, _mouseConfig,
                           _Buttons->isPressed[wasdLEFT],
-                          _Buttons->isPressed[wasdRIGHT], physical_button, being_released, only_reading_value);
+                          _Buttons->isPressed[wasdRIGHT], physical_button,
+                          being_released, only_reading_value);
 
-    //return true;
+    // return true;
 
   } else {
     // Keyboard action

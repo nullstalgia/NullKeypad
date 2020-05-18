@@ -17,13 +17,13 @@ void RGBController::loadRGBEEPROM() {
   RGBConfig rgbConfig;
 
   EEPROM.get(EEPROM_OFFSET_RGB, rgbConfig);
-  
+
   brightness = rgbConfig.brightness;
   mode = rgbConfig.mode;
   on_push = rgbConfig.on_push;
   speed = rgbConfig.speed;
 
-  /* 
+  /*
   // Good for debugging
   brightness = 10;
   mode = 2;

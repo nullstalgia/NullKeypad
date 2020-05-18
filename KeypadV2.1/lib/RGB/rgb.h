@@ -2,11 +2,12 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <FastLED.h>
-#include "genericmode.h"
+
 #include "KeypadButtons.h"
+#include "genericmode.h"
 //#include "lcdgfx.h"
-#include "menu.h"
 #include "KeypadSettings.h"
+#include "menu.h"
 
 #define NUM_LEDS 9
 #define DATA_PIN 9

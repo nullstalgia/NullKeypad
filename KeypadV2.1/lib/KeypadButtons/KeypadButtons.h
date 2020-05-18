@@ -5,14 +5,13 @@
 
 #include "KeypadSettings.h"
 
-enum class MenuKey: uint8_t
-{
-    BT_NONE   = 0,
-    BT_RIGHT  = 1,
-    BT_UP     = 2,
-    BT_DOWN   = 3,
-    BT_LEFT   = 4,
-    BT_SELECT = 5,
+enum class MenuKey : uint8_t {
+  BT_NONE = 0,
+  BT_RIGHT = 1,
+  BT_UP = 2,
+  BT_DOWN = 3,
+  BT_LEFT = 4,
+  BT_SELECT = 5,
 };
 
 class KeypadButtons {

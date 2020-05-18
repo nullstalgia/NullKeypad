@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <EEPROM.h>
+
 #include "KeypadSettings.h"
 
 typedef enum {
@@ -40,7 +41,6 @@ class MouseConfig {
 
 ////////////
 
-
 typedef enum {
   keyboardMainMenu = -1,
   keyboardToggleButtons,
@@ -67,7 +67,7 @@ class KeyboardConfig {
   void init();
   void loadKeyboardEEPROM();
   void saveKeyboardEEPROM();
-  
+
   void setOption(uint8_t option, bool new_setting);
   bool getOption(uint8_t option);
 };

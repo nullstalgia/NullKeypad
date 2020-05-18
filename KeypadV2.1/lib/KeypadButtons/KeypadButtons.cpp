@@ -16,13 +16,14 @@ void KeypadButtons::initalizeButtons() {
       pinMode(i, INPUT_PULLUP);
   }*/
 
-  uint8_t pins[NUM_ALL_BUTTONS] = {16, 14, 15,
+  uint8_t pins[NUM_ALL_BUTTONS] = {
+      16, 14, 15,
 
-                               10, 8,  7,
+      10, 8,  7,
 
-                               6,  5,  4, // B2, B3, B1, B6, B4, E6, D7, C6, D4
+      6,  5,  4,  // B2, B3, B1, B6, B4, E6, D7, C6, D4
 
-                               A3, A2, A1, A0}; // F4, F5, F6, F7
+      A3, A2, A1, A0};  // F4, F5, F6, F7
 
   for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
     Buttons[i] = new Button(pins[i], DEBOUNCE_TIME);
@@ -57,7 +58,8 @@ MenuKey KeypadButtons::getMenuButton() {
 MenuKey KeypadButtons::getToggleButton() {
   if (wasPressed[6] || wasPressed[7] || wasPressed[8] || wasPressed[ablrB]) {
     return MenuKey::BT_DOWN;
-  } else if (wasPressed[3] || wasPressed[4] || wasPressed[5] || wasPressed[ablrA]) {
+  } else if (wasPressed[3] || wasPressed[4] || wasPressed[5] ||
+             wasPressed[ablrA]) {
     return MenuKey::BT_SELECT;
   }
   return MenuKey::BT_NONE;

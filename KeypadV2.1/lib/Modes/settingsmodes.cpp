@@ -1,18 +1,30 @@
 #include "settingsmodes.h"
 
-const char _menuDescriptionToggleMouseButton[] PROGMEM = { // Weird spacing is due to line-wrapping in both VSCode and in the UI
-            "When you press a     mouse btn., it will  stay held until you  press it again."};
-const char _menuDescriptionToggleMovement[] PROGMEM = {"Mouse will stay moving until button pressed again."};
-const char _menuDescriptionWheel[] PROGMEM = {"When holding M3, Up  and Down will act as scroll wheel instead.(Toggleable)"};
-const char _menuDescriptionBorder[] PROGMEM = {"Replaces layout with the sides/corner buttons being directional(L + R to quickswap)"};
+const char _menuDescriptionToggleMouseButton[] PROGMEM =
+    {  // Weird spacing is due to line-wrapping in both VSCode and in the UI
+        "When you press a     mouse btn., it will  stay held until you  press "
+        "it again."};
+const char _menuDescriptionToggleMovement[] PROGMEM = {
+    "Mouse will stay moving until button pressed again."};
+const char _menuDescriptionWheel[] PROGMEM = {
+    "When holding M3, Up  and Down will act as scroll wheel "
+    "instead.(Toggleable)"};
+const char _menuDescriptionBorder[] PROGMEM = {
+    "Replaces layout with the sides/corner buttons being directional(L + R to "
+    "quickswap)"};
 
-const char        _menuDescriptionToggleKBButton[] PROGMEM = {"When you press a button, it will stay held until it is pressed again."};  // Toggle Buttons
-  const char          _menuDescriptionWASDMouse[] PROGMEM = {"When in WASD mode, replaces A and D with Mouse Movements(L + R to quickswap)"};
-  const char          _menuDescriptionF24[] PROGMEM = {"Enable extra Function keys in F13+ mode"};
+const char _menuDescriptionToggleKBButton[] PROGMEM =
+    {
+        "When you press a button, it will stay held until it is pressed "
+        "again."};  // Toggle Buttons
+const char _menuDescriptionWASDMouse[] PROGMEM = {
+    "When in WASD mode, replaces A and D with Mouse Movements(L + R to "
+    "quickswap)"};
+const char _menuDescriptionF24[] PROGMEM = {
+    "Enable extra Function keys in F13+ mode"};
 
-
-
-const char _buttonPrompt[] PROGMEM = {"A/Middle Row: Toggle\nB/Bottom Row: Back"};
+const char _buttonPrompt[] PROGMEM = {
+    "A/Middle Row: Toggle\nB/Bottom Row: Back"};
 
 void SettingsMode::modeSetup() {
   _Display->clear();
@@ -52,17 +64,17 @@ void SettingsMode::modeLoop() {
       }
     }
   } else if (_submenu == modeNumberSettingsMouse) {
-    if(_mouseMode->modeLoop()){
+    if (_mouseMode->modeLoop()) {
       delete _mouseMode;
       modeSetup();
     }
   } else if (_submenu == modeNumberSettingsRGB) {
-    if(_rgbMode->modeLoop()){
+    if (_rgbMode->modeLoop()) {
       delete _rgbMode;
       modeSetup();
     }
   } else if (_submenu == modeNumberSettingsKeyboard) {
-    if(_keyboardMode->modeLoop()){
+    if (_keyboardMode->modeLoop()) {
       delete _keyboardMode;
       modeSetup();
     }
@@ -96,7 +108,7 @@ bool MouseSettingsMode::modeLoop() {
   // Mouse Settings Main Menu
   if (_mousesubmenu == mouseMainMenu) {
     if (changeMenu != -1) {
-      if(changeMenu == 0){
+      if (changeMenu == 0) {
         return true;
       }
       changeMenu--;
@@ -179,7 +191,7 @@ bool KeyboardSettingsMode::modeLoop() {
   // Keyboard Settings Main Menu
   if (_keyboardsubmenu == keyboardMainMenu) {
     if (changeMenu != -1) {
-      if(changeMenu == 0){
+      if (changeMenu == 0) {
         return true;
       }
       changeMenu--;
@@ -266,7 +278,7 @@ bool RGBSettingsMode::modeLoop() {
   // RGB Main Menu
   if (_rgbsubmenu == rgbMainMenu) {
     if (changeMenu != -1) {
-      if(changeMenu == 0){
+      if (changeMenu == 0) {
         return true;
       }
       changeMenu--;
@@ -363,7 +375,8 @@ bool RGBSettingsMode::modeLoop() {
   return false;
 }
 
-void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display, const char *signMessage PROGMEM) {
+void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display,
+                              const char *signMessage PROGMEM) {
   // uint8_t initColumn = _Display->col();
   uint8_t currentLineLength = 0;
   // read back a char
@@ -377,7 +390,7 @@ void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display, const char *signMess
     } else {
       _Display->print(myChar);
       currentLineLength++;
-      if(currentLineLength > 20){
+      if (currentLineLength > 20) {
         currentLineLength = 0;
         _Display->setCursor(0, _Display->row() + 1);
       }
@@ -395,7 +408,7 @@ void printWrappingLine(SSD1306AsciiAvrI2c *_Display, const char *line) {
     } else {
       _Display->print(line[i]);
       currentLineLength++;
-      if(currentLineLength > 20){
+      if (currentLineLength > 20) {
         currentLineLength = 0;
         _Display->setCursor(0, _Display->row() + 1);
       }
@@ -405,5 +418,5 @@ void printWrappingLine(SSD1306AsciiAvrI2c *_Display, const char *line) {
 
 void printButtonPrompt(SSD1306AsciiAvrI2c *_Display) {
   _Display->setCursor(0, 6);
-  printWrappingLineProgmem(_Display,_buttonPrompt);
+  printWrappingLineProgmem(_Display, _buttonPrompt);
 }
