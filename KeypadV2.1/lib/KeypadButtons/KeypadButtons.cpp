@@ -16,7 +16,7 @@ void KeypadButtons::initalizeButtons() {
       pinMode(i, INPUT_PULLUP);
   }*/
 
-  uint8_t pins[NUM_ALL_BUTTONS] = {
+  const uint8_t pins[NUM_ALL_BUTTONS] = {
       16, 14, 15,
 
       10, 8,  7,

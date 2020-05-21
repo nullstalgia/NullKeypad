@@ -6,11 +6,13 @@
 //#include "lcdgfx.h"
 #include "SSD1306Ascii.h"
 #include "SSD1306AsciiAvrI2c.h"
+#include "SimpleMacros.h"
 #include "keyboardmodes.h"
 #include "menu.h"
 #include "mousemodes.h"
 #include "oledAsciiMenu.h"
 #include "settingsmodes.h"
+#include "Adafruit5x7_slim.h"
 
 /* This variable will hold menu state, processed by SSD1306 API functions */
 
@@ -20,9 +22,10 @@ const char* mItemWASD = "WASD";
 const char* mItemSettings = "Settings";
 const char* mItemMedia = "Media Keys";
 const char* mItemMouse = "Mouse";
+const char* mItemMacros = "Simple Macros";
 
-const char* order[] = {mItemWASD,  mItemArrow, mItemMouse,
-                       mItemMedia, mItemF13,   mItemSettings};
+const char* order[7] = {mItemF13,  mItemArrow,  mItemMouse,   mItemMedia,
+                        mItemWASD, mItemMacros, mItemSettings};
 
 int currentMode = modeNumberMainMenu;
 
@@ -45,12 +48,12 @@ SettingsMode* settingsmode;
 ConsumerMode* mediakeymode;
 MouseMode* mousemode;
 
+SimpleMacros* macros;
+
 void setup() {
   display.begin(&Adafruit128x64, I2C_ADDRESS);
-  display.setFont(Adafruit5x7);
+  display.setFont(Adafruit5x7_slim);
   display.clear();
-
-
 
   rgb.init();
   buttons.init();
@@ -76,13 +79,12 @@ void loop() {
       currentMode = modeNumberF13;
       KeyboardConfig kbConfig;
       kbConfig.init();
-      if (kbConfig.f24)
-      {
-        f13tof21mode = new KeyboardMode(F13toF21Labels, F13toF21Buttons, &display,
-                                      &buttons, 12);
+      if (kbConfig.f24) {
+        f13tof21mode = new KeyboardMode(F13toF21Labels, F13toF21Buttons,
+                                        &display, &buttons, 12);
       } else {
-        f13tof21mode = new KeyboardMode(F13toF21Labels, F13toF21Buttons, &display,
-                                      &buttons, 9);
+        f13tof21mode = new KeyboardMode(F13toF21Labels, F13toF21Buttons,
+                                        &display, &buttons, 9);
       }
       f13tof21mode->modeSetup();
     } else if (order[changeMode] == mItemMedia) {
@@ -103,6 +105,10 @@ void loop() {
       currentMode = modeNumberWASD;
       wasdmode = new WASDMode(&display, &buttons);
       wasdmode->modeSetup();
+    } else if (order[changeMode] == mItemMacros){
+      currentMode = modeNumberMacros;
+      macros = new SimpleMacros(&display, &buttons, 12);
+      macros->modeSetup();
     }
   } else if (currentMode == modeNumberF13) {
     f13tof21mode->modeLoop();
@@ -116,5 +122,7 @@ void loop() {
     arrowkeysmode->modeLoop();
   } else if (currentMode == modeNumberWASD) {
     wasdmode->modeLoop();
+  } else if (currentMode == modeNumberMacros){
+    macros->modeLoop();
   }
 }

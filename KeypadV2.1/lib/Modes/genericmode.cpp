@@ -1,10 +1,10 @@
 #include "genericmode.h"
 
-void Mode::clearActiveButtons() {
-  for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
-    activeButtons[i] = false;
-  }
-}
+//void Mode::clearActiveButtons() {
+  //for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
+    //activeButtons[i] = false;
+//  }
+//}
 
 void Mode::printInvertingButton(uint8_t x, uint8_t y, const char *text,
                                 uint8_t button_index, bool force_on) {
@@ -61,8 +61,6 @@ void Mode::printInvertingButton(const char *text, uint8_t button_index,
 
       if (_grid_width < 8) {
         new_x += 2;
-      } else if (_grid_width > 8) {
-        new_x -= 2;
       }
 
       // Getting Y

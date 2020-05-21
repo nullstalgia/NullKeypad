@@ -3,8 +3,8 @@
 
 #include "KeypadButtons.h"
 //#include "lcdgfx.h"
-#include "SSD1306Ascii.h"
-#include "SSD1306AsciiAvrI2c.h"
+//#include "SSD1306Ascii.h"
+//#include "SSD1306AsciiAvrI2c.h"
 #include "oledAsciiMenu.h"
 
 int workMenu(oledAsciiMenu *menu, MenuKey button, SSD1306AsciiAvrI2c *display);

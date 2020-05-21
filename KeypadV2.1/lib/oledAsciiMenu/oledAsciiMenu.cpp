@@ -40,7 +40,7 @@ void oledAsciiMenu::showMenu(bool force_border_redraw) {
       }
       */
       _oled->setCursor(MENU_ITEM_X_OFFSET, markerY);
-      _oled->print((char)219);
+      _oled->print((char)138);
       _oled->setCursor(MENU_ITEM_X_OFFSET + 1, markerY);
       _oled->setInvertMode(true);
       _oled->print(_menuItems[menuItemToDisplay]);
@@ -108,7 +108,7 @@ void oledAsciiMenu::moveUp() {
 
 void oledAsciiMenu::printHorizontalBarAtCursor() {
   for (uint8_t i = 0; i < 23; i++) {
-    _oled->print((char)205);
+    _oled->print((char)137);
   }
 }
 
@@ -116,18 +116,18 @@ void oledAsciiMenu::printBorder() {
   _oled->setLetterSpacing(0);
 
   _oled->setCursor(0, 0);
-  _oled->print((char)201);
+  _oled->print((char)136);
   printHorizontalBarAtCursor();
-  _oled->print((char)187);
+  _oled->print((char)133);
   _oled->setCursor(0, 7);
-  _oled->print((char)200);
+  _oled->print((char)135);
   printHorizontalBarAtCursor();
-  _oled->print((char)188);
+  _oled->print((char)134);
   for (uint8_t i = 1; i < 7; i++) {
     _oled->setCursor(0, i);
-    _oled->print((char)186);
+    _oled->print((char)132);
     _oled->setCursor(128 - 8, i);
-    _oled->print((char)186);
+    _oled->print((char)132);
   }
   _oled->setLetterSpacing(1);
 }

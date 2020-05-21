@@ -211,7 +211,7 @@ bool KeyboardSettingsMode::modeLoop() {
 
 void KeyboardSettingsMode::showOption(uint8_t option) {
   _Display->clear();
-  _Display->home();
+  _Display->setCursor(0,0);
   switch (option) {
     case keyboardToggleButtons:
       printWrappingLineProgmem(_Display, _menuDescriptionToggleKBButton);
@@ -317,7 +317,7 @@ bool RGBSettingsMode::modeLoop() {
         sprintf(rgbmode, "%d", _rgb->mode);
         sprintf(rgbpush, "%d", _rgb->on_push);
         sprintf(rgbspeed, "%d", _rgb->speed);
-        _Display->home();
+        _Display->setCursor(0,0);
         printWrappingLineProgmem(
             _Display, _rgbInfoTest);
         _Display->setCursor(0, 5);

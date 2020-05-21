@@ -1,5 +1,5 @@
 #pragma once
-#include <Arduino.h>
+//#include <Arduino.h>
 #define DEBOUNCE_TIME 35  // Milliseconds
 
 #define NUM_KEYPAD_BUTTONS 9
@@ -42,7 +42,7 @@
 #define ONLY_READING true
 #define USING_BUTTON false
 
-const char up[] = {(char)24, (char)32, '\0'};
-const char down[] = {(char)25, (char)32, '\0'};
-const char left[] = {(char)27, (char)32, '\0'};
-const char right[] = {(char)26, (char)32, '\0'};
+const char up[] = {(char)128, (char)32, '\0'};
+const char down[] = {(char)129, (char)32, '\0'};
+const char left[] = {(char)131, (char)32, '\0'};
+const char right[] = {(char)130, (char)32, '\0'};

@@ -39,8 +39,6 @@ void MouseMode::modeMenu() {
   _Display->setCursor(45, 1);
   _Display->print(buffer);
 
-  uint8_t keyCount = NUM_ALL_BUTTONS;
-
   for (uint8_t i = 0; i < _keyCount; i++) {
     if (_mouseConfig->border_mouse == false) {
       if (i < ablrL) {

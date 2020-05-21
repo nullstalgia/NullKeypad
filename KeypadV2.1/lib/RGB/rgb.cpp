@@ -32,19 +32,10 @@ void RGBController::loadRGBEEPROM() {
   */
 
   // In case it was a new device or an invalid config.
-  if (brightness == 255) {
+  if (brightness == 255 || mode == 255 || on_push == 255 || speed == 255) {
     brightness = 0;
-  }
-
-  if (mode == 255) {
     mode = 0;
-  }
-
-  if (on_push == 255) {
     on_push = 0;
-  }
-
-  if (speed == 255) {
     speed = 20;
   }
 }

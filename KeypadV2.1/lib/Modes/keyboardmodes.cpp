@@ -26,7 +26,7 @@ const KeyboardKeycode F13toF21Buttons[] = {KEY_F13, KEY_F14, KEY_F15,  //
                                            KEY_F19, KEY_F20, KEY_F21,  //
                                            KEY_F22, KEY_F23, KEY_F24};
 
-const char pause[] = {(char)32, (char)16, (char)186, '\0'};
+const char pause[] = {(char)32, (char)139, (char)132, '\0'};
 const char *MediaKeyLabels[] = {
     "V+",   "Mute", "V-",    //
     "Prev", pause,  "Next",  //
@@ -424,7 +424,6 @@ bool WASDMode::WASDAction(const KeyboardKeycode *KeyboardButtons,
   }
 
   bool toggle_buttons = _keyboardConfig->toggle_buttons;
-  bool toggle_movement = _mouseConfig->toggle_movement;
 
   if (keyboardButton >= KEY_F1 && keyboardButton <= KEY_F12) {
     // Mouse action

@@ -62,6 +62,6 @@ class Mode {
   uint8_t _grid_width;
   uint8_t _grid_height;
   bool _redraw_menu;
-  bool activeButtons[NUM_ALL_BUTTONS];
-  void clearActiveButtons();
+  //bool activeButtons[NUM_ALL_BUTTONS];
+  //void clearActiveButtons();
 };
