@@ -23,6 +23,9 @@ const char _menuDescriptionWASDMouse[] PROGMEM = {
 const char _menuDescriptionF24[] PROGMEM = {
     "Enable extra Function keys in F13+ mode"};
 
+const char _rgbInfoTest[] PROGMEM = {"Brightness:\nLighting Mode:\nPush Action:\nRGB Speed:"};
+const char _rgbInfoSpeed[] PROGMEM = {"A higher \"Speed value\" means a slower moving rainbow"};
+
 const char _buttonPrompt[] PROGMEM = {
     "A/Middle Row: Toggle\nB/Bottom Row: Back"};
 
@@ -84,7 +87,7 @@ void SettingsMode::modeLoop() {
 void MouseSettingsMode::modeSetup() {
   _mouseConfig = new MouseConfig();
   _mouseConfig->init();
-  _goBackDownAmount = 0;
+  _goBackDownAmount = 1;
   modeBackToMain();
 }
 
@@ -114,7 +117,7 @@ bool MouseSettingsMode::modeLoop() {
       changeMenu--;
       // If they choose an option
       _mousesubmenu = changeMenu;
-      _goBackDownAmount = changeMenu;
+      _goBackDownAmount = changeMenu+1;
       showOption(changeMenu);
     }
   } else {
@@ -167,7 +170,7 @@ void MouseSettingsMode::showOptionLoop(uint8_t option) {
 void KeyboardSettingsMode::modeSetup() {
   _keyboardConfig = new KeyboardConfig();
   _keyboardConfig->init();
-  _goBackDownAmount = 0;
+  _goBackDownAmount = 1;
   modeBackToMain();
 }
 
@@ -197,7 +200,7 @@ bool KeyboardSettingsMode::modeLoop() {
       changeMenu--;
       // If they choose an option
       _keyboardsubmenu = changeMenu;
-      _goBackDownAmount = changeMenu;
+      _goBackDownAmount = changeMenu+1;
       showOption(changeMenu);
     }
   } else {
@@ -244,7 +247,7 @@ void KeyboardSettingsMode::showOptionLoop(uint8_t option) {
 }
 
 void RGBSettingsMode::modeSetup() {
-  _goBackDownAmount = 0;
+  _goBackDownAmount = 1;
   modeBackToMain();
 }
 
@@ -284,7 +287,7 @@ bool RGBSettingsMode::modeLoop() {
       changeMenu--;
       // If they choose an option
       _rgbsubmenu = changeMenu;
-      _goBackDownAmount = changeMenu;
+      _goBackDownAmount = changeMenu+1;
       _previousMenuHoverSelection = -1;
       if (changeMenu == rgbMenuBrightness) {
         uint8_t itemCount =
@@ -303,7 +306,7 @@ bool RGBSettingsMode::modeLoop() {
         uint8_t itemCount =
             sizeof(_rgbSpeedBrightnessMenuItems) / sizeof(char *);
         setupMenu(_menu, _Display, _rgbSpeedBrightnessMenuItems, itemCount,
-                  menuButton);
+                  menuButton, 0, true);
       } else if (changeMenu == rgbMenuInfoTest) {
         _Display->clear();
         char bright[4];
@@ -315,8 +318,11 @@ bool RGBSettingsMode::modeLoop() {
         sprintf(rgbpush, "%d", _rgb->on_push);
         sprintf(rgbspeed, "%d", _rgb->speed);
         _Display->home();
-        printWrappingLine(
-            _Display, "Brightness:\nLighting Mode:\nPush Action:\nRGB Speed:");
+        printWrappingLineProgmem(
+            _Display, _rgbInfoTest);
+        _Display->setCursor(0, 5);
+        printWrappingLineProgmem(
+            _Display, _rgbInfoSpeed);
 
         _Display->setCursor(80, 0);
         _Display->print(bright);

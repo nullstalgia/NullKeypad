@@ -25,6 +25,9 @@ void KeypadButtons::initalizeButtons() {
 
       A3, A2, A1, A0};  // F4, F5, F6, F7
 
+      // RGB Led (pin 9) 
+      // B5
+
   for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
     Buttons[i] = new Button(pins[i], DEBOUNCE_TIME);
     Buttons[i]->begin();

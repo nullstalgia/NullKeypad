@@ -4,6 +4,20 @@
 B2, B3, B1, B6, B4, E6, D7, C6, D4
 `
 
+3x3 layout
+
+`
+B2, B3, B1
+`
+
+`
+B6, B4, E6
+`
+
+`
+D7, C6, D4
+`
+
 A, B, L, R on V2
 
 `

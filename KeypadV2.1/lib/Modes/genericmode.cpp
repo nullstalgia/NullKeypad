@@ -31,7 +31,7 @@ void Mode::printInvertingButton(const char *text, uint8_t button_index,
                                 bool force_on) {
   uint8_t new_x, new_y;
   if (_keyCount <= NUM_KEYPAD_BUTTONS) {
-    if (button_index <= 8) {
+    if (button_index < 9) {
       // Assuming 3x3 grid without ABLR buttons
 
       // Getting X
@@ -61,6 +61,8 @@ void Mode::printInvertingButton(const char *text, uint8_t button_index,
 
       if (_grid_width < 8) {
         new_x += 2;
+      } else if (_grid_width > 8) {
+        new_x -= 2;
       }
 
       // Getting Y

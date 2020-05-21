@@ -11,4 +11,4 @@ int workMenu(oledAsciiMenu *menu, MenuKey button, SSD1306AsciiAvrI2c *display);
 
 void setupMenu(oledAsciiMenu *menu, SSD1306AsciiAvrI2c *display,
                const char *items[], uint8_t count, MenuKey currentButton,
-               uint8_t autoDownAmount = 0);
+               uint8_t autoDownAmount = 0, bool flipItemOrder = false);

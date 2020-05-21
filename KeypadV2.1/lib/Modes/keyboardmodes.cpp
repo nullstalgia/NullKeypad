@@ -103,6 +103,7 @@ void KeyboardMode::modeWasPressed() {
       // Keyboard.press(_keyboardbuttons[i]);
       keyboardAction(_keyboardbuttons, _keyboardConfig, i, NOT_RELEASED,
                      USING_BUTTON);
+                     _redraw_menu = true;
     }
   }
 }
@@ -113,6 +114,7 @@ void KeyboardMode::modeWasReleased() {
       // Keyboard.release(_keyboardbuttons[i]);
       keyboardAction(_keyboardbuttons, _keyboardConfig, i, RELEASED,
                      USING_BUTTON);
+                     _redraw_menu = true;
     }
   }
 }
@@ -130,9 +132,10 @@ void KeyboardMode::modeMenu() {
 }
 
 void KeyboardMode::modeLoop() {
+  _redraw_menu = false;
   modeWasPressed();
   modeWasReleased();
-
+  if(_redraw_menu)
   modeMenu();
 }
 
@@ -151,6 +154,7 @@ void ConsumerMode::modeWasPressed() {
       // Keyboard.release(_keyboardbuttons[i]);
       keyboardAction(_consumerbuttons, _keyboardConfig, i, NOT_RELEASED,
                      USING_BUTTON);
+                    _redraw_menu = true;
     }
   }
 }
@@ -161,6 +165,7 @@ void ConsumerMode::modeWasReleased() {
       // Keyboard.release(_keyboardbuttons[i]);
       keyboardAction(_consumerbuttons, _keyboardConfig, i, RELEASED,
                      USING_BUTTON);
+                     _redraw_menu = true;
     }
   }
 }
@@ -178,9 +183,11 @@ void ConsumerMode::modeMenu() {
 }
 
 void ConsumerMode::modeLoop() {
+  _redraw_menu = false;
   modeWasPressed();
   modeWasReleased();
 
+  if(_redraw_menu)
   modeMenu();
 }
 
@@ -334,6 +341,7 @@ void WASDMode::modeWasPressed() {
       } else {
         WASDAction(WASDMouseButtons, i, NOT_RELEASED, USING_BUTTON);
       }
+      _redraw_menu = true;
     }
   }
 }
@@ -346,6 +354,7 @@ void WASDMode::modeWasReleased() {
       } else {
         WASDAction(WASDMouseButtons, i, RELEASED, USING_BUTTON);
       }
+      _redraw_menu = true;
     }
   }
 }
@@ -385,17 +394,18 @@ void WASDMode::modeIsPressed() {
       Keyboard.releaseAll();
       Mouse.releaseAll();
       _Display->clear();
+      _redraw_menu = true;
     }
   }
   _hotswapMouse = current_buttons;
 }
 
 void WASDMode::modeLoop() {
+  _redraw_menu = false;
   modeWasPressed();
   modeWasReleased();
   modeIsPressed();
-
-  modeMenu();
+  if (_redraw_menu) modeMenu();
 
   if (_x_velocity != 0) {
     Mouse.move(_x_velocity * _mouse_speed, 0);

@@ -1,6 +1,6 @@
 #include "oledAsciiMenu.h"
 
-void oledAsciiMenu::setupMenu(const char **menuItems, uint8_t count) {
+void oledAsciiMenu::setupMenu(const char **menuItems, uint8_t count, bool flipItemOrder) {
   _count = count;
   _menuItems = menuItems;
   currentSelection = 0;
@@ -8,6 +8,7 @@ void oledAsciiMenu::setupMenu(const char **menuItems, uint8_t count) {
   markerPos = 0;
   menuStartAt = 0;
   _previousStartMenuAt = 1;
+  _flipItemOrder = flipItemOrder;
   //_count = sizeof(menuItems) / sizeof(char *);
 }
 
@@ -20,7 +21,13 @@ void oledAsciiMenu::showMenu(bool force_border_redraw) {
   }
   for (int i = menuStartAt; i < (menuStartAt + MAX_MENU_ITEMS); i++) {
     int markerY = (i - menuStartAt) + MENU_ITEM_Y_OFFSET;
-
+    uint8_t menuItemToDisplay;
+    if(_flipItemOrder == false){
+      menuItemToDisplay = i;
+    } else {
+      menuItemToDisplay = map(i, 0, _count-1, _count-1, 0);
+    }
+    
     if (i >= _count) {
       continue;
     }
@@ -36,7 +43,7 @@ void oledAsciiMenu::showMenu(bool force_border_redraw) {
       _oled->print((char)219);
       _oled->setCursor(MENU_ITEM_X_OFFSET + 1, markerY);
       _oled->setInvertMode(true);
-      _oled->print(_menuItems[i]);
+      _oled->print(_menuItems[menuItemToDisplay]);
       _oled->setInvertMode(false);
     } else {
       _oled->setCursor(MENU_ITEM_X_OFFSET, markerY);
@@ -44,7 +51,7 @@ void oledAsciiMenu::showMenu(bool force_border_redraw) {
       _oled->setCursor(MENU_ITEM_X_OFFSET + 1, markerY);
       // _oled->clear(0,1,markerY,markerY);
       // _oled->setCursor(0, markerY);
-      _oled->print(_menuItems[i]);
+      _oled->print(_menuItems[menuItemToDisplay]);
     }
   }
 #if SHOW_PROGRESS

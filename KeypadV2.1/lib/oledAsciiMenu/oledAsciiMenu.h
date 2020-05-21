@@ -31,9 +31,11 @@ class oledAsciiMenu {
   void moveUp();
   void moveDown();
   void showMenu(bool force_border_redraw = false);
-  void setupMenu(const char **menuItems, uint8_t count);
+  void setupMenu(const char **menuItems, uint8_t count, bool flipItemOrder = false);
   void printBorder();
   int currentSelection;
   int menuScreen;
   int markerPos;
+  private:
+  bool _flipItemOrder;
 };
