@@ -54,7 +54,6 @@ void SimpleMacros::modeWasPressed() {
     if (_macroPage < 0) {
       //_Display->printFixed(0,0,"smol");
       _macroPage = _numPages - 1;
-      
     }
   }
 
@@ -76,6 +75,9 @@ void SimpleMacros::modeWasPressed() {
     if (_Buttons->wasPressed[4]) {
       _mWiggle = !_mWiggle;
     }
+    if (_Buttons->wasPressed[7]) {
+      // Keyboard.print("(っಠ‿ಠ)っ");
+    }
   } else if (_macroPage == 1) {     // Arduino
     if (_Buttons->wasPressed[1]) {  // Prog
       Keyboard.press(KEY_LEFT_CTRL);
@@ -89,6 +91,28 @@ void SimpleMacros::modeWasPressed() {
     } else if (_Buttons->wasPressed[7]) {  // Build
       Keyboard.press(KEY_LEFT_CTRL);
       Keyboard.press('r');
+      Keyboard.releaseAll();
+    } else if (_Buttons->wasPressed[5]) {  // Flash Bootloader
+      Keyboard.press(KEY_LEFT_ALT);
+      Keyboard.press('t');
+      Keyboard.releaseAll();
+      Keyboard.press(KEY_UP_ARROW);
+      Keyboard.releaseAll();
+      Keyboard.press(KEY_RETURN);
+      Keyboard.releaseAll();
+    } else if (_Buttons->wasPressed[6]) {  // Build and export binary (hex, actually)
+      Keyboard.press(KEY_LEFT_ALT);
+      Keyboard.press('s');
+      Keyboard.releaseAll();
+      Keyboard.press(KEY_DOWN_ARROW);
+      Keyboard.releaseAll();
+      Keyboard.press(KEY_DOWN_ARROW);
+      Keyboard.releaseAll();
+      Keyboard.press(KEY_DOWN_ARROW);
+      Keyboard.releaseAll();
+      Keyboard.press(KEY_DOWN_ARROW);
+      Keyboard.releaseAll();
+      Keyboard.press(KEY_RETURN);
       Keyboard.releaseAll();
     }
   } else if (_macroPage == 2) {     // Platform IO
@@ -123,10 +147,15 @@ void SimpleMacros::modeMenu() {
   if (_macroPage == 0) {
     printInvertingButton(4, 3, "KB Wake", 1, _kbWiggle);
     printInvertingButton(4, 5, "M Wake", 4, _mWiggle);
+    printInvertingButton(4, 7, "Test", 7, _mWiggle);
   } else if (_macroPage == 1 || _macroPage == 2) {
     printInvertingButton(2, 3, "Upload w/ Prog", 1);
     printInvertingButton(4, 5, "Upload", 4);
     printInvertingButton(4, 7, "Build", 7);
+    if (_macroPage == 1) {
+      printInvertingButton(8, 5, "Bootl", 5);
+      printInvertingButton(1, 7, "Bin", 6);
+    }
     _Display->setInvertMode(false);
     _Display->setCursor(105, 0);
     if (_macroPage == 1) {

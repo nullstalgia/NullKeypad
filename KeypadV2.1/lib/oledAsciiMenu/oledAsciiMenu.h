@@ -25,6 +25,7 @@ class oledAsciiMenu {
   SSD1306AsciiAvrI2c *_oled;
   void printHorizontalBarAtCursor();
   const char **_menuItems;
+  void clear();
 
  public:
   oledAsciiMenu(SSD1306AsciiAvrI2c *oled) : _oled(oled) {}

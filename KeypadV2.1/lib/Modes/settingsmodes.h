@@ -3,7 +3,8 @@
 
 #include "mousemodes.h"
 #include "rgb.h"
-
+#include <avr/wdt.h>
+#define WDTO_250MS 4
 typedef enum {
   rgbMainMenu = -1,
   rgbMenuBrightness,
@@ -38,11 +39,11 @@ class RGBSettingsMode : public Mode {
                           "Rainbow",
                           "Rainb. Ribbon",
                           "Rainb. Long Ribbon",
-                          "Rainbow Reverse",
-                          "Rainb. Ribbon Rev",
+                          "Rainb. Reverse",
+                          "Rainb. Rib. Rev",
                           "Rainb. LongRib. Rev"},
-        _rgbOnPushMenuItems{"None", "Normal > White", "Normal > Black",
-                            "White > Normal", "Black > Normal"} {}
+        _rgbOnPushMenuItems{"None", "Usr > White", "Usr > Black",
+                            "White > Usr", "Black > Usr"} {}
   virtual void modeSetup();
   virtual void modeBackToMain();
   virtual bool modeLoop();
@@ -117,7 +118,7 @@ class SettingsMode : public Mode {
       : Mode(Display, Buttons, {}),
         _rgb(rgb),
         _menu(menu),
-        _menuItems{"Mouse Settings", "Keyboard Settings", "RGB Settings"} {}
+        _menuItems{"Back", "Mouse Settings", "Keyboard ", "RGB "} {}
   virtual void modeSetup();
   virtual void modeLoop();
 
@@ -125,7 +126,7 @@ class SettingsMode : public Mode {
   RGBController *_rgb;
   oledAsciiMenu *_menu;
   int _submenu;
-  const char *_menuItems[3];
+  const char *_menuItems[4];
   MouseSettingsMode *_mouseMode;
   RGBSettingsMode *_rgbMode;
   KeyboardSettingsMode *_keyboardMode;

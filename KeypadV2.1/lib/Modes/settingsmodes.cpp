@@ -52,15 +52,18 @@ void SettingsMode::modeLoop() {
   if (_submenu == modeNumberSettings) {
     if (changeMenu != -1) {
       // If they choose an option
-      if (changeMenu == 0) {
+      if (changeMenu == 0){
+        wdt_enable(WDTO_250MS);
+        while(true);
+      } else if (changeMenu == 1) {
         _submenu = modeNumberSettingsMouse;
         _mouseMode = new MouseSettingsMode(_menu, _Display, _Buttons);
         _mouseMode->modeSetup();
-      } else if (changeMenu == 1) {
+      } else if (changeMenu == 2) {
         _submenu = modeNumberSettingsKeyboard;
         _keyboardMode = new KeyboardSettingsMode(_menu, _Display, _Buttons);
         _keyboardMode->modeSetup();
-      } else if (changeMenu == 2) {
+      } else if (changeMenu == 3) {
         _submenu = modeNumberSettingsRGB;
         _rgbMode = new RGBSettingsMode(_rgb, _menu, _Display, _Buttons);
         _rgbMode->modeSetup();

@@ -1,6 +1,7 @@
 #include "oledAsciiMenu.h"
 
-void oledAsciiMenu::setupMenu(const char **menuItems, uint8_t count, bool flipItemOrder) {
+void oledAsciiMenu::setupMenu(const char **menuItems, uint8_t count,
+                              bool flipItemOrder) {
   _count = count;
   _menuItems = menuItems;
   currentSelection = 0;
@@ -12,22 +13,26 @@ void oledAsciiMenu::setupMenu(const char **menuItems, uint8_t count, bool flipIt
   //_count = sizeof(menuItems) / sizeof(char *);
 }
 
+void oledAsciiMenu::clear() { _oled->clear(5, 120, 1, 6); }
+
 void oledAsciiMenu::showMenu(bool force_border_redraw) {
   if (_previousStartMenuAt != menuStartAt || force_border_redraw) {
-    _oled->clear();
 #if SHOW_BORDER
+    clear();
     printBorder();
+#else
+    _oled->clear();
 #endif
   }
   for (int i = menuStartAt; i < (menuStartAt + MAX_MENU_ITEMS); i++) {
     int markerY = (i - menuStartAt) + MENU_ITEM_Y_OFFSET;
     uint8_t menuItemToDisplay;
-    if(_flipItemOrder == false){
+    if (_flipItemOrder == false) {
       menuItemToDisplay = i;
     } else {
-      menuItemToDisplay = map(i, 0, _count-1, _count-1, 0);
+      menuItemToDisplay = map(i, 0, _count - 1, _count - 1, 0);
     }
-    
+
     if (i >= _count) {
       continue;
     }
