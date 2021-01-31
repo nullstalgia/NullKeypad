@@ -101,18 +101,9 @@ void SimpleMacros::modeWasPressed() {
       Keyboard.press(KEY_RETURN);
       Keyboard.releaseAll();
     } else if (_Buttons->wasPressed[6]) {  // Build and export binary (hex, actually)
+      Keyboard.press(KEY_LEFT_CTRL);
       Keyboard.press(KEY_LEFT_ALT);
       Keyboard.press('s');
-      Keyboard.releaseAll();
-      Keyboard.press(KEY_DOWN_ARROW);
-      Keyboard.releaseAll();
-      Keyboard.press(KEY_DOWN_ARROW);
-      Keyboard.releaseAll();
-      Keyboard.press(KEY_DOWN_ARROW);
-      Keyboard.releaseAll();
-      Keyboard.press(KEY_DOWN_ARROW);
-      Keyboard.releaseAll();
-      Keyboard.press(KEY_RETURN);
       Keyboard.releaseAll();
     }
   } else if (_macroPage == 2) {     // Platform IO
