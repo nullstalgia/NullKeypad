@@ -76,7 +76,7 @@ void SimpleMacros::modeWasPressed() {
       _mWiggle = !_mWiggle;
     }
     if (_Buttons->wasPressed[7]) {
-      // Keyboard.print("(っಠ‿ಠ)っ");
+      // Keyboard.print("(っಠ‿ಠ)っ"); didn't work
     }
   } else if (_macroPage == 1) {     // Arduino
     if (_Buttons->wasPressed[1]) {  // Prog
@@ -147,7 +147,7 @@ void SimpleMacros::modeMenu() {
   if (_macroPage == 0) {
     printInvertingButton(4, 3, "KB Wake", 1, _kbWiggle);
     printInvertingButton(4, 5, "M Wake", 4, _mWiggle);
-    printInvertingButton(4, 7, "Test", 7, _mWiggle);
+    //printInvertingButton(4, 7, "Test", 7, _mWiggle);
   } else if (_macroPage == 1 || _macroPage == 2) {
     printInvertingButton(2, 3, "Upload w/ Prog", 1);
     printInvertingButton(4, 5, "Upload", 4);

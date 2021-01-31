@@ -62,6 +62,10 @@ const char *WASDMouseLabels[] = {"E",   "W", "R",    //
                                  "M2",  "F", "M1",   //
                                  "Tab", "Q", "Sp-", "Sp+"};
 
+#define QUICK_TOGGLE_ENABLE ablrB
+#define QUICK_TOGGLE_ON ablrR
+#define QUICK_TOGGLE_OFF ablrL
+
 // Function keys are acting as mouse keys.
 
 // F1 - Mouse 1
@@ -103,7 +107,7 @@ void KeyboardMode::modeWasPressed() {
       // Keyboard.press(_keyboardbuttons[i]);
       keyboardAction(_keyboardbuttons, _keyboardConfig, i, NOT_RELEASED,
                      USING_BUTTON);
-                     _redraw_menu = true;
+      _redraw_menu = true;
     }
   }
 }
@@ -114,7 +118,7 @@ void KeyboardMode::modeWasReleased() {
       // Keyboard.release(_keyboardbuttons[i]);
       keyboardAction(_keyboardbuttons, _keyboardConfig, i, RELEASED,
                      USING_BUTTON);
-                     _redraw_menu = true;
+      _redraw_menu = true;
     }
   }
 }
@@ -133,10 +137,24 @@ void KeyboardMode::modeMenu() {
 
 void KeyboardMode::modeLoop() {
   _redraw_menu = false;
+if ((_Buttons->wasPressed[QUICK_TOGGLE_OFF] ||
+       _Buttons->wasPressed[QUICK_TOGGLE_ON]) &&
+      _Buttons->isPressed[QUICK_TOGGLE_ENABLE]) {
+    _keyboardConfig->setOption(keyboardToggleButtons, false);
+    for (uint8_t i = 0; i < _keyCount; i++) {
+      activeKeyboardButtons[i] = true;
+      keyboardAction(_keyboardbuttons, _keyboardConfig, i, RELEASED,
+                     USING_BUTTON);
+    }
+    _keyboardConfig->setOption(keyboardToggleButtons,
+                               _Buttons->wasPressed[QUICK_TOGGLE_ON]);
+    _Buttons->clearAction(1);
+    _Buttons->clearAction(2);
+    _redraw_menu = true;
+  }
   modeWasPressed();
   modeWasReleased();
-  if(_redraw_menu)
-  modeMenu();
+  if (_redraw_menu) modeMenu();
 }
 
 void ConsumerMode::modeSetup() {
@@ -154,7 +172,7 @@ void ConsumerMode::modeWasPressed() {
       // Keyboard.release(_keyboardbuttons[i]);
       keyboardAction(_consumerbuttons, _keyboardConfig, i, NOT_RELEASED,
                      USING_BUTTON);
-                    _redraw_menu = true;
+      _redraw_menu = true;
     }
   }
 }
@@ -165,7 +183,7 @@ void ConsumerMode::modeWasReleased() {
       // Keyboard.release(_keyboardbuttons[i]);
       keyboardAction(_consumerbuttons, _keyboardConfig, i, RELEASED,
                      USING_BUTTON);
-                     _redraw_menu = true;
+      _redraw_menu = true;
     }
   }
 }
@@ -184,11 +202,24 @@ void ConsumerMode::modeMenu() {
 
 void ConsumerMode::modeLoop() {
   _redraw_menu = false;
+  if ((_Buttons->wasPressed[QUICK_TOGGLE_OFF] ||
+       _Buttons->wasPressed[QUICK_TOGGLE_ON]) &&
+      _Buttons->isPressed[QUICK_TOGGLE_ENABLE]) {
+    _keyboardConfig->setOption(keyboardToggleButtons, false);
+    for (uint8_t i = 0; i < _keyCount; i++) {
+      activeKeyboardButtons[i] = true;
+      keyboardAction(_consumerbuttons, _keyboardConfig, i, RELEASED,
+                     USING_BUTTON);
+    }
+    _keyboardConfig->setOption(keyboardToggleButtons,
+                               _Buttons->wasPressed[QUICK_TOGGLE_ON]);
+    _Buttons->clearAction(1);
+    _Buttons->clearAction(2);
+    _redraw_menu = true;
+  }
   modeWasPressed();
   modeWasReleased();
-
-  if(_redraw_menu)
-  modeMenu();
+  if (_redraw_menu) modeMenu();
 }
 
 bool keyboardAction(const KeyboardKeycode *KeyboardButtons,
@@ -402,6 +433,20 @@ void WASDMode::modeIsPressed() {
 
 void WASDMode::modeLoop() {
   _redraw_menu = false;
+  if ((_Buttons->wasPressed[QUICK_TOGGLE_OFF] ||
+       _Buttons->wasPressed[QUICK_TOGGLE_ON]) &&
+      _Buttons->isPressed[QUICK_TOGGLE_ENABLE]) {
+    _keyboardConfig->setOption(keyboardToggleButtons, false);
+    for (uint8_t i = 0; i < _keyCount; i++) {
+      activeKeyboardButtons[i] = true;
+      WASDAction(WASDButtons, i, RELEASED, USING_BUTTON);
+    }
+    _keyboardConfig->setOption(keyboardToggleButtons,
+                               _Buttons->wasPressed[QUICK_TOGGLE_ON]);
+    _Buttons->clearAction(1);
+    _Buttons->clearAction(2);
+    _redraw_menu = true;
+  }
   modeWasPressed();
   modeWasReleased();
   modeIsPressed();

@@ -192,6 +192,9 @@ bool MouseMode::mouseButton(uint8_t physical_button, bool being_released,
         if (toggle_buttons && !being_released) {
           // Just toggle it and move on.
           _mouse3_active = !_mouse3_active;
+          if(_mouse3_active == false){
+            _wheel_velocity = 0;
+          }
           return _mouse3_active;
         } else if (toggle_buttons && being_released) {
           // If we're in the release and we're toggling, ignore this as to not
@@ -202,6 +205,7 @@ bool MouseMode::mouseButton(uint8_t physical_button, bool being_released,
           // Disactivate if releasing, activate if not releasing
           if (being_released) {
             _mouse3_active = false;
+            _wheel_velocity = 0;
           } else {
             _mouse3_active = true;
           }

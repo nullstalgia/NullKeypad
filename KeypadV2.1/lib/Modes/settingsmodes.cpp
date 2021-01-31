@@ -13,18 +13,19 @@ const char _menuDescriptionBorder[] PROGMEM = {
     "Replaces layout with the sides/corner buttons being directional(L + R to "
     "quickswap)"};
 
-const char _menuDescriptionToggleKBButton[] PROGMEM =
-    {
-        "When you press a button, it will stay held until it is pressed "
-        "again."};  // Toggle Buttons
+const char _menuDescriptionToggleKBButton[] PROGMEM = {
+    "When you press a button, it will stay held until it is pressed "
+    "again. Try B + < or >"};  // Toggle Buttons
 const char _menuDescriptionWASDMouse[] PROGMEM = {
     "When in WASD mode, replaces A and D with Mouse Movements(L + R to "
     "quickswap)"};
 const char _menuDescriptionF24[] PROGMEM = {
     "Enable extra Function keys in F13+ mode"};
 
-const char _rgbInfoTest[] PROGMEM = {"Brightness:\nLighting Mode:\nPush Action:\nRGB Speed:"};
-const char _rgbInfoSpeed[] PROGMEM = {"A higher \"Speed value\" means a slower moving rainbow"};
+const char _rgbInfoTest[] PROGMEM = {
+    "Brightness:\nLighting Mode:\nPush Action:\nRGB Speed:"};
+const char _rgbInfoSpeed[] PROGMEM = {
+    "A higher \"Speed value\" means a slower moving rainbow"};
 
 const char _buttonPrompt[] PROGMEM = {
     "A/Middle Row: Toggle\nB/Bottom Row: Back"};
@@ -52,17 +53,18 @@ void SettingsMode::modeLoop() {
   if (_submenu == modeNumberSettings) {
     if (changeMenu != -1) {
       // If they choose an option
-      if (changeMenu == 0){
-        wdt_enable(WDTO_250MS);
-        while(true);
+      if (changeMenu == 0) {
+        wdt_enable(WDTO_15MS);
+        while (true)
+          ;
       } else if (changeMenu == 1) {
-        _submenu = modeNumberSettingsMouse;
-        _mouseMode = new MouseSettingsMode(_menu, _Display, _Buttons);
-        _mouseMode->modeSetup();
-      } else if (changeMenu == 2) {
         _submenu = modeNumberSettingsKeyboard;
         _keyboardMode = new KeyboardSettingsMode(_menu, _Display, _Buttons);
         _keyboardMode->modeSetup();
+      } else if (changeMenu == 2) {
+        _submenu = modeNumberSettingsMouse;
+        _mouseMode = new MouseSettingsMode(_menu, _Display, _Buttons);
+        _mouseMode->modeSetup();
       } else if (changeMenu == 3) {
         _submenu = modeNumberSettingsRGB;
         _rgbMode = new RGBSettingsMode(_rgb, _menu, _Display, _Buttons);
@@ -120,7 +122,7 @@ bool MouseSettingsMode::modeLoop() {
       changeMenu--;
       // If they choose an option
       _mousesubmenu = changeMenu;
-      _goBackDownAmount = changeMenu+1;
+      _goBackDownAmount = changeMenu + 1;
       showOption(changeMenu);
     }
   } else {
@@ -203,7 +205,7 @@ bool KeyboardSettingsMode::modeLoop() {
       changeMenu--;
       // If they choose an option
       _keyboardsubmenu = changeMenu;
-      _goBackDownAmount = changeMenu+1;
+      _goBackDownAmount = changeMenu + 1;
       showOption(changeMenu);
     }
   } else {
@@ -214,7 +216,7 @@ bool KeyboardSettingsMode::modeLoop() {
 
 void KeyboardSettingsMode::showOption(uint8_t option) {
   _Display->clear();
-  _Display->setCursor(0,0);
+  _Display->setCursor(0, 0);
   switch (option) {
     case keyboardToggleButtons:
       printWrappingLineProgmem(_Display, _menuDescriptionToggleKBButton);
@@ -290,7 +292,7 @@ bool RGBSettingsMode::modeLoop() {
       changeMenu--;
       // If they choose an option
       _rgbsubmenu = changeMenu;
-      _goBackDownAmount = changeMenu+1;
+      _goBackDownAmount = changeMenu + 1;
       _previousMenuHoverSelection = -1;
       if (changeMenu == rgbMenuBrightness) {
         uint8_t itemCount =
@@ -320,12 +322,10 @@ bool RGBSettingsMode::modeLoop() {
         sprintf(rgbmode, "%d", _rgb->mode);
         sprintf(rgbpush, "%d", _rgb->on_push);
         sprintf(rgbspeed, "%d", _rgb->speed);
-        _Display->setCursor(0,0);
-        printWrappingLineProgmem(
-            _Display, _rgbInfoTest);
+        _Display->setCursor(0, 0);
+        printWrappingLineProgmem(_Display, _rgbInfoTest);
         _Display->setCursor(0, 5);
-        printWrappingLineProgmem(
-            _Display, _rgbInfoSpeed);
+        printWrappingLineProgmem(_Display, _rgbInfoSpeed);
 
         _Display->setCursor(80, 0);
         _Display->print(bright);

@@ -20,6 +20,8 @@ class KeypadButtons {
   void init();
   void initalizeButtons();
   void runThroughButtons();
+  void clearAction(uint8_t type);
+  void clearActions();
   bool isPressed[NUM_ALL_BUTTONS];
   bool wasPressed[NUM_ALL_BUTTONS];
   bool wasReleased[NUM_ALL_BUTTONS];

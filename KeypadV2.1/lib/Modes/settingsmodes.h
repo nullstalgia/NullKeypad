@@ -118,7 +118,7 @@ class SettingsMode : public Mode {
       : Mode(Display, Buttons, {}),
         _rgb(rgb),
         _menu(menu),
-        _menuItems{"Back", "Mouse Settings", "Keyboard ", "RGB "} {}
+        _menuItems{"Back", "Keyboard Settings", "Mouse ", "RGB "} {}
   virtual void modeSetup();
   virtual void modeLoop();
 

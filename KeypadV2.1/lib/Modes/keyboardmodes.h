@@ -93,4 +93,5 @@ class WASDMode : public Mode {
   int _mouse_speed;
   int _x_velocity;
   bool _hotswapMouse;
+  void _checkForToggleCombo();
 };

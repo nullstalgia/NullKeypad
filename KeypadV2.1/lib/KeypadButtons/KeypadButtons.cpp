@@ -25,8 +25,8 @@ void KeypadButtons::initalizeButtons() {
 
       A3, A2, A1, A0};  // F4, F5, F6, F7
 
-      // RGB Led (pin 9) 
-      // B5
+  // RGB Led (pin 9)
+  // B5
 
   for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
     Buttons[i] = new Button(pins[i], DEBOUNCE_TIME);
@@ -41,6 +41,43 @@ void KeypadButtons::runThroughButtons() {
     wasPressed[i] = Buttons[i]->wasPressed();
     wasReleased[i] = Buttons[i]->wasReleased();
   }
+}
+
+// 0 - isPressed
+// 1 - wasPressed
+// 2 - wasReleased
+// 3 - wasPressed all False, wasReleased all True
+void KeypadButtons::clearAction(uint8_t type) {
+  for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
+    switch (type) {
+      case 0:
+        isPressed[i] = false;
+        break;
+
+      case 1:
+        wasPressed[i] = false;
+        break;
+
+      case 2:
+        wasReleased[i] = false;
+        break;
+
+      case 3:
+        //isPressed[i] = false;
+        wasPressed[i] = false;
+        wasReleased[i] = true;
+        break;
+
+      default:
+        break;
+    }
+  }
+}
+
+void KeypadButtons::clearActions() {
+  clearAction(0);
+  clearAction(1);
+  clearAction(2);
 }
 
 MenuKey KeypadButtons::getMenuButton() {
