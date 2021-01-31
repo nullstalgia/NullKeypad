@@ -195,9 +195,16 @@ Main Settings Menu, same controls as the Main Menu.
  - Test + Info
 	 - A sandbox for you to push all buttons (except Reset) without messing anything up and looking at the pretty RGB.
 
+## Secret Functions
+
+- When in a keyboard-using mode, if you Hold **B** and press R (`>`), it will enable keyboard button toggling. Holding **B** and pressing L (`<`) will disable.\
+- When in the Mouse mode, pressing L (`<`) and R (`>`) together will toggle the Border Mouse mode.
+
 ## Firmware Update
 
-Pushing **Reset** twice quickly (but not TOO quickly) will put the device into LUFA DFU Update mode. Pushing it again once or power-cycling the keypad should take it out of that mode. If not, you might have a corrupted firmware ~~(if so, how???)~~. Clearing the EEPROM and reflashing it with your compiled version/my provided .hex should clear that up.
+Pushing **Reset** twice quickly (but not TOO quickly) will put the device into LUFA DFU Update mode. You'll know for sure if the two red LEDs on the Arduino board are flashing alternately. 
+
+Pushing it again once or power-cycling the keypad should take it out of that mode. If not, you might have a corrupted firmware ~~(if so, how???)~~. Clearing the EEPROM and reflashing it with your compiled version/my provided .hex should clear that up.
 
 Device info:
 
@@ -240,7 +247,6 @@ You can use also some tools for updating custom mechanical keyboards, as they us
 Example:
 
 https://github.com/qmk/qmk_toolbox (Should be easy to use for Windows users! Recommended with the Auto Flash checkboxes!)
-
 
 # Compiling
 
