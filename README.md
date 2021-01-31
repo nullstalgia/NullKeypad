@@ -1,186 +1,258 @@
-# NullKeypad
+# NullKeypad V2.1
+### ~~For gamers, by gamers~~
 
-An Arduino Pro Micro-based keypad made with 9 Cherry-style switches, an I2C OLED Panel, and WS2812B RGB LEDs  (3535 sized)
+Keypad layout:
 
-RGB Control Menu:
 
-![](https://i.imgur.com/RUK60wB.jpg) 
+|   |   |   |   |   |
+|---|---|---|---|---|
+| A | B |   |   |   |
+| L | R |   |   |   |
+|   |   | 1 | 2 | 3 |
+|   |   | 4 | 5 | 6 |
+|   |   | 7 | 8 | 9 |
 
-## Modes:
-In order of appearance:
+This layout will be used to show what buttons do what. Check Main Menu for example.
 
-1. F13-21 Keys
+## Main Menu
+![Main Menu](https://i.imgur.com/Fli39si.jpg)Pretty self explanatory.
 
-	a. Each key is hooked up to the extra Function keys in sequential order
+After choosing an option, you can always return to this menu by pressing **Reset**  once on the top left of the unit.
 
-![](https://i.imgur.com/YTGj252.jpg) 
+Navigation through this menu (and in Settings, the only other navigable menu) is done with:
 
-2. RGB Settings
 
-	a. Brightness Adjust
 
-	b. RGB "Mode" (what kind of LED Effect, shown below)
+|     |     |     |      |     |
+|-----|-----|-----|------|-----|
+| Sel | N/A |     |      |     |
+| N/A | N/A |     |      |     |
+|     |     | N/A | Up   | N/A |
+|     |     | N/A | Sel  | N/A |
+|     |     | N/A | Down | N/A |
 
-	c. Push Action (what happens when button is pressed)
 
-	d. Speed (how fast the Rainbow effect cycles, higher option is slower)
+## F13-21 Keys
 
-	e. Test + Info (Shows current settings and ignores inputs so you can test without affecting PC)
+![F13 through F21 menu](https://i.imgur.com/yeboOYA.jpg)
+**Important Note:** The control information in this section is applicable to every other mode!
 
-![](https://i.imgur.com/vA60KZu.jpg ) 
+Most standard keyboards have F1 through F12 keys. However, the F keys go up to F24 (and I have seen this on some Apple keyboards).
 
-3. Arrow Keys
+This is an easy way to get access to those!
 
-	a. WASD-style arrow keys with extra keys
+This mode is very simple, pushing a button on the keypad will light up the pushed button on screen and send the button command to your computer. Top left button is the top left text (F13) on the screen. The same applies to pretty much every mode on the keypad. So if you forget what button does what, look at the screen!
 
-	b. Extra keys: TAB, ESC, Left Control, Left Alt, Return/Enter
 
-![](https://i.imgur.com/16QXEe1.jpg) 
 
-4. Counter
 
-	a. Is used as a basic counter that saves to EEPROM
+([F22-24 can be enabled](https://i.imgur.com/sLxJfZK.jpg). See below in Settings)
 
-	b. Secret functions are listed below
+## Arrow Keys
+![Arrow Keys menu](https://i.imgur.com/a8PC4KJ.jpg)
 
-![](https://i.imgur.com/C6YQLYD.jpg) 
+Useful for navigating a PC BIOS while on the floor looking up at the monitor.
 
-5. Media Keys
+## Mouse
 
-	a. Volume +/-
+![Mouse Mode Menu](https://i.imgur.com/Ka9kbcS.jpg)
+This mode moves your mouse around by pressing the shown arrow keys. 
 
-	b. Mute
+Pushing L (`<`) or R (`>`) on the top left button cluster will lower and raise the mouse speed, respectively.
 
-	c. Previous/Next
+|    |                          |
+|----|--------------------------|
+| M1 | Left Click               |
+| M2 | Right Click              |
+| MW | Mouse Wheel/Middle Click |
+| M4 | "Back" or Mouse 4        |
+| M5 | "Forward" or Mouse 5     |
 
-	d. Play/Pause
+MW has multiple functions. Normally, pressing it will do a normal mouse Middle Click (Mouse 3). When the Scroll Wheel option is enabled under the Mouse Settings, its functionality is replaced to scroll the mouse wheel up and down when the Up and Down directions are pressed. Speed of the scroll is dependent on set mouse speed. The mouse cursor does not move when scrolling the wheel.
 
-	e. Rewind/Fast Forward
+There is also "Border Mouse" mode, enabled by pressing L (`<`) and R (`>`) at the same time. It can also be toggled in the Mouse Settings. 
 
-	f. Stop
+![Border Mouse Mode](https://i.imgur.com/CNT4Bs4.jpg)
+When in this mode, to go down, you push the lower-most button(s). To go left, push left-most. Up and right, push the top-right button. Middle of the keypad will Left Click.
 
-![](https://i.imgur.com/4AAPE3a.jpg) 
+## Media Keys
 
-6. Macros
+![Media Keys Menu](https://i.imgur.com/kmYC5IK.jpg)
+|     |     |                |            |              |
+|-----|-----|----------------|------------|--------------|
+| N/A | N/A |                |            |              |
+| N/A | N/A |                |            |              |
+|     |     | Volume Up      | Mute       | Volume Down  |
+|     |     | Previous Track | Play/Pause | Next Track   |
+|     |     | Rewind         | Stop       | Fast Forward |
 
-	a. Are pre-programmed macros that I add/use as I see fit. Such as...
+## WASD
 
-	b. Arduino Compile
+![WASD Mode](https://i.imgur.com/D5TpE7E.jpg)
+This mode is meant to act as a simple WASD replacement. It won't work for all games, but I built it with Rainbow 6: Siege in mind, namely the Attack's Drone stage (best in combination with WASD Mouse)
 
-	c. Arduino Upload
+### WASD Mouse
 
-	d. Arduino Upload via Programmer
+![WASD Mouse](https://i.imgur.com/zBrIKUY.jpg)
 
-	e. "F"
+If WASD Mouse is enabled in the Keyboard Settings, A and D will instead move the mouse Left and Right, and C and CTRL are replaced in favor of mouse speed controls.
 
-![](https://i.imgur.com/rywaGZF.jpg) 
+## Simple Macros
 
-7. Mouse
+Pushing L (`<`) and R (`>`) will change pages.
+
+### PC Keep-Awake Macros
+
+![PC Keep-Awake Macros](https://i.imgur.com/vSLQM5U.jpeg)
+Pushing the Top Middle button will enable the Keyboard Keep-Awake. That keep-awake alternates between pushing the Left and Right arrow keys (as of writing, as fast as it can).
 
-	a. Acts as a USB mouse. Default mode is WASD style.
-	
-	b. Has Left, Right, and Middle click functions
-	
-	c. Adjustable speed
-	
-	d. Secret functions listed below
+Pushing the Middle keypad button will enable the Mouse Keep-Awake. This one quickly wiggles the mouse up and down in a tight area. Tight enough that you might not need to turn it off if you need to adjust something on the host device.
 
-![](https://i.imgur.com/IaQaNMY.jpg) 
+### Arduino IDE Upload Macros
 
-8. WASD/PC Game Mode
+![Arduino IDE Upload Macros](https://i.imgur.com/4mVajiB.jpeg)
+Macros for the Arduino IDE:
 
-	a. Mouse 1/2
-	
-	b. W, A, S, D
-	
-	c. E, F, Space
+| Label          | Keyboard Shortcut      | Explanation                                 |
+|----------------|------------------------|---------------------------------------------|
+| Upload W/ Prog | Ctrl+Shift+U           | Uploads to AVR with set Programmer in Tools |
+| Upload         | Ctrl+U                 | Upload with Arduino IDE                     |
+| Build          | Ctrl+R                 | Verify/Compile                              |
+| Bootl          | Alt+T, Up Arrow, Enter | Flashes bootloader and fuses to AVR         |
+| Bin            | Ctrl+Alt+S             | Export binary (.hex) to Sketch folder       |
 
-![](https://i.imgur.com/Uq4xCJy.jpg) 
+### PlatformIO Macros
 
-9. TODO? Gamepad/XInput Mode
+![PlatformIO Macros](https://i.imgur.com/jAZss94.jpeg)
+| Label          | Keyboard Shortcut                   | Explanation                                          |
+|----------------|-------------------------------------|------------------------------------------------------|
+| Upload W/ Prog | Ctrl+Shift+P, "tasks", "programmer" | Uploads to AVR with set Programmer in platformio.ini |
+| Upload         | Ctrl+Alt+U                          | Upload with PlatformIO                               |
+| Build          | Ctrl+Alt+B                          | Verify/Compile                                       |
+
+## Settings
+
+![Main Settings Menu](https://i.imgur.com/7LlMP3t.jpeg)
+
+Main Settings Menu, same controls as the Main Menu.
+
+### Keyboard Settings
 
-## RGB Modes:
-Mode 0 is Black
-1. White
-2. Red
-3. Green
-4. Blue
-5. Rainbow (all keys same color, very small gradient)
-6. Rainbow (slight gradient)
-7. Rainbow (larger gradient)
-8. 8 through 10, same as 5 through 7, but the Rainbow is reversed
+![Keyboard Settings Menu](https://i.imgur.com/k9BEK7f.jpeg)
 
-## Secret Modes:
+ - Toggle Buttons
+	 - If enabled, When you push a keyboard button on the keypad with this enabled, it will be held down until you either push the same keypad key again, or push and release that same button on another keyboard.
+ - WASD Mouse
+	 - If enabled, A and D will instead move the mouse Left and Right, and C and CTRL are replaced in favor of mouse speed controls.
+- Enable F22-F24 
+	- Enables the 3 remaining buttons on the left button cluster.
+	- https://i.imgur.com/sLxJfZK.jpeg
 
-#### Counter:
-- Hold 7 (index 6) to activate Hex counting
-- Hold 9 (index 8) to activate Binary counting
-- In any mode, hold top button of a column and press the up/down of that column to raise/lower by a larger amount
+### Mouse Settings
 
-![](https://i.imgur.com/kDiVZ4S.jpg) 
+![Mouse Settings Menu](https://i.imgur.com/1IZiLmj.jpeg)
 
-#### Mouse:
-- Hold 7 (index 6) to enable Mouse Wheel Scrolling. Hold the Mouse Wheel key and press Up or Down to scroll. More speed == More scroll
-- Hold 9 (index 8) to activate Toggling. All mouse keys (including mouse wheel enable) will be toggled upon pressing.
+ - Toggle Buttons
+	 - Same as on the Keyboard, but it also will toggle the functionality of the Mouse Wheel enable.
+ - Toggle Movement
+	 - When you push a direction, it will be held down until you push that same direction again.
+ - Scroll Wheel
+	 - When enabled, MW's function is replaced to instead scroll the mouse wheel up and down when the Up and Down directions are pressed. Speed of the scroll is dependent on set mouse speed. The mouse cursor does not move when scrolling the wheel.
+ - Border Mouse
+	 - When enabled, the keypad will go into Border Mouse mode by default when opening the Mouse.
 
-- Hold 1 (index 0) to activate Border Mouse mode, all keys except 5 (index 4) move the mouse in the corresponding direction. The middle key will press Mouse 1 (left click)
-    - Hold 3 (index 2) to set Speed to 1 for this mode.
+### RGB Settings
 
-![](https://i.imgur.com/l4nUslG.jpg)
+![RGB Settings](https://i.imgur.com/ERg98wm.jpeg)
 
-#### WASD:
-- Hold 7 (index 6) to enable Horizontal Mouse mode. Pressing A and D on the Keypad will instead move the mouse in the corresponding direction.
+ - Brightness
+	 - From 0 (off) to 10.
+ - Lighting Modes:
+	 - None ("Black")
+	 - White
+	 - Red
+	 - Green
+	 - Blue
+	 - Rainbow
+		 - All keys change to the same, shifting, color
+	 - Rainbow Ribbon
+		 - Colors gradually move from bottom to top
+	 - Rainbow Long Ribbon
+		 - Same as the ribbon, but the distance between hues is larger between keys.
+	 - The last 3 repeated, but from top to bottom.
+ - Push Action: How the LED under the button reacts when you press it
+	 - User -> White
+		 - Normally, button is your set color, pressing sets it to White.
+	- User -> Black
+		 - Normally, button is your set color, pressing sets it to Black (off).
+	 - White -> User
+		 - Normally, button is White, pressing it sets it to your set color.
+	 - Black -> User
+		 - Normally, button is Black, pressing it sets it to your set color.
+ - Speed (of the rainbow)
+	 - Reset is required to see the change!
+	 - From 10 to 0 (0 is not off, just quite slow)
+ - Test + Info
+	 - A sandbox for you to push all buttons (except Reset) without messing anything up and looking at the pretty RGB.
 
-## Wiring:
+## Firmware Update
 
-#### I2C OLED:
+Pushing **Reset** twice quickly (but not TOO quickly) will put the device into LUFA DFU Update mode. Pushing it again once or power-cycling the keypad should take it out of that mode. If not, you might have a corrupted firmware ~~(if so, how???)~~. Clearing the EEPROM and reflashing it with your compiled version/my provided .hex should clear that up.
 
-| Name | Pin # |
-|------|-------|
-| SDA  | 2     |
-| SCL  | 3     |
+Device info:
 
-#### RGB LEDs:
+atmega32u4 @ 16MHZ External Crystal, 5V, 2048 word bootloader
 
-| Name | Pin # |
-|------|-------|
-| Data Out  | 9     |
+Some tools you can use are:
 
-#### Buttons/Keys:
+https://github.com/dfu-programmer/dfu-programmer
 
-Arranged in a  3x3 grid.
+https://github.com/nullstalgia/dfu-progui (A GUI I wrote for the above)
 
-| Button # | Index | Pin # |
-|----------|:-----:|------:|
-| 1        | 0     | 16    |
-| 2        | 1     | 14    |
-| 3        | 2     | 15    |
-| 4        | 3     | 10    |
-| 5        | 4     | 8     |
-| 6        | 5     | 7     |
-| 7        | 6     | 6     |
-| 8        | 7     | 5     |
-| 9        | 8     | 4     |
+Note for Linux users: You might need a udev rule (example below) or to run the flasher as root if it doesn't work.
 
-## Required Libraries For Compilation:
-[NicoHood's HID-Project](https://github.com/NicoHood/HID) 
-[lexus2k's ssd1306](https://github.com/lexus2k/ssd1306/) 
-[evert-arias's EasyButton](https://github.com/evert-arias/EasyButton) 
-[FastLED](https://github.com/FastLED/FastLED/) 
-[MemoryFree](https://github.com/maniacbug/MemoryFree) 
+`/etc/udev/rules.d/50-atmel-dfu.rules`
 
-## V1 and V2 PCB Difference?
+```
+# Atmel ATMega32U4
+# SUBSYSTEMS=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2ff4", MODE:="0666"
+# Atmel USBKEY AT90USB1287
+# SUBSYSTEMS=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2ffb", MODE:="0666"
+# Atmel ATMega32U2
+# SUBSYSTEMS=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2ff0", MODE:="0666"
+# Atmel ATMega16U2
+# SUBSYSTEMS=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2fef", MODE:="0666"
 
-All V1 code is compatible with V2, but V2 has 4 extra pushbuttons, so not everything will work.
+# Atmel DFU Vendor
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="03eb", MODE:="0666"
+# HORI Vendor
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0f0d", MODE:="0666"
+# Maple Leaf Vendor
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1eaf", MODE:="0666"
+# STM32 HID Bootloader
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2019", ATTRS{idProduct}=="beba", MODE:="0666"
+```
 
-All of the Cherry MX style keys, RGB, and OLED pins are kept the same.
+(This does not set it to a specific group or user, and leaves those USB devices open to *everyone* on your machine.)
 
-## PCB V2 Images:
+You can use also some tools for updating custom mechanical keyboards, as they use the same chip and very similar bootloaders!
 
-Coming Soon
+Example:
 
-## PCB V1 Images:
+https://github.com/qmk/qmk_toolbox (Should be easy to use for Windows users! Recommended with the Auto Flash checkboxes!)
 
-![](https://i.imgur.com/dCcjW8I.jpg) 
 
-![](https://i.imgur.com/m2erbym.jpg) 
+# Compiling
+
+Ok so, this is an issue for a couple reasons.
+
+When compiling normally with PlatformIO, I get this
+
+![Program size greater than max error](https://i.imgur.com/CrDiOdp.png)
+Also, when using this as a keypad during development, having the extra Serial port dangling can be an issue (especially if writing for the same Arduino variant, but for a different project).
+
+The Arduino IDE was able to give me smaller compiled binaries, and I was able to strip out the Serial/CDC port. no_serial_micro in [this repository here](https://github.com/nullstalgia/arduino-hardware-profiles).
+
+I will always provide a .hex when I update code, so you do not need to compile it yourself. You also don't *need* the same bootloaders I use (however, I highly recommend it for reliability and speed purposes).
+
+> Written with [StackEdit](https://stackedit.io/).
