@@ -37,7 +37,7 @@ class KeyboardMode : public Mode {
                uint8_t keyCount = NUM_KEYPAD_BUTTONS, uint8_t grid_width = 8,
                uint8_t grid_height = 8)
       : Mode(Display, Buttons, KeyLabels, keyCount, grid_width, grid_height),
-        _keyboardbuttons(KeyboardButtons) {}
+        _keyboardbuttons(KeyboardButtons), _modeIsF13(false) {}
   virtual void modeSetup();
   virtual void modeLoop();
   virtual void modeMenu();
@@ -48,6 +48,7 @@ class KeyboardMode : public Mode {
  private:
   const KeyboardKeycode *_keyboardbuttons;
   KeyboardConfig *_keyboardConfig;
+  bool _modeIsF13;
 };
 
 class ConsumerMode : public Mode {

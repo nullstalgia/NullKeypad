@@ -4,15 +4,16 @@
 #include "KeypadButtons.h"
 #include "MemoryFree.h"
 //#include "lcdgfx.h"
+#include "Adafruit5x7_slim.h"
 #include "SSD1306Ascii.h"
 #include "SSD1306AsciiAvrI2c.h"
 #include "SimpleMacros.h"
+#include "USBAPI.h"
 #include "keyboardmodes.h"
 #include "menu.h"
 #include "mousemodes.h"
 #include "oledAsciiMenu.h"
 #include "settingsmodes.h"
-#include "Adafruit5x7_slim.h"
 
 /* This variable will hold menu state, processed by SSD1306 API functions */
 
@@ -49,6 +50,11 @@ ConsumerMode* mediakeymode;
 MouseMode* mousemode;
 
 SimpleMacros* macros;
+
+bool usbDisconnected = false;
+bool beenConfigured = false;
+uint8_t prevUDF = 0;
+uint8_t sameUDFCount = 0;
 
 void setup() {
   display.begin(&Adafruit128x64, I2C_ADDRESS);
@@ -105,7 +111,7 @@ void loop() {
       currentMode = modeNumberWASD;
       wasdmode = new WASDMode(&display, &buttons);
       wasdmode->modeSetup();
-    } else if (order[changeMode] == mItemMacros){
+    } else if (order[changeMode] == mItemMacros) {
       currentMode = modeNumberMacros;
       macros = new SimpleMacros(&display, &buttons, 12);
       macros->modeSetup();
@@ -122,7 +128,45 @@ void loop() {
     arrowkeysmode->modeLoop();
   } else if (currentMode == modeNumberWASD) {
     wasdmode->modeLoop();
-  } else if (currentMode == modeNumberMacros){
+  } else if (currentMode == modeNumberMacros) {
     macros->modeLoop();
   }
+
+  // Versions without auto RGB shut-off have these last bits removed/commented out.
+
+  if (beenConfigured && usbDisconnected) {
+    if (UDFNUML != prevUDF) {
+      usbDisconnected = false;
+      sameUDFCount = 0;
+      rgb.setBrightness(rgb.brightness);
+    }
+  }
+  if (beenConfigured) {
+    if (prevUDF == UDFNUML) {
+      sameUDFCount++;
+      if (sameUDFCount == UDFTIMEOUT_STRIKES) {
+        usbDisconnected = true;
+        rgb.setBrightness(0);
+      }
+    }
+  } else if (!beenConfigured) {
+    beenConfigured = USBDevice.configured();
+  }
+  /*
+    if (beenConfigured) {
+      if (prevUDF == UDFNUML) {
+        if (!usbDisconnected) {
+          sameUDFCount++;
+          if (sameUDFCount == UDFTIMEOUT_STRIKES) usbDisconnected = true;
+        }
+      } else {
+        usbDisconnected = false;
+        sameUDFCount = 0;
+      }
+
+    } else {
+
+    }*/
+
+  prevUDF = UDFNUML;
 }

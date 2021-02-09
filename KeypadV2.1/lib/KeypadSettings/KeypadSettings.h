@@ -46,3 +46,5 @@ const char up[] = {(char)128, (char)32, '\0'};
 const char down[] = {(char)129, (char)32, '\0'};
 const char left[] = {(char)131, (char)32, '\0'};
 const char right[] = {(char)130, (char)32, '\0'};
+
+#define UDFTIMEOUT_STRIKES 50

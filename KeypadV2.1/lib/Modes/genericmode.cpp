@@ -1,8 +1,8 @@
 #include "genericmode.h"
 
-//void Mode::clearActiveButtons() {
-  //for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
-    //activeButtons[i] = false;
+// void Mode::clearActiveButtons() {
+// for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
+// activeButtons[i] = false;
 //  }
 //}
 
@@ -93,6 +93,12 @@ void Mode::printInvertingButton(const char *text, uint8_t button_index,
   }
 
   printInvertingButton(new_x, new_y, text, button_index, force_on);
+}
+
+void Mode::clearTempPressesAndRedraw() {
+  _Buttons->clearAction(1);
+  _Buttons->clearAction(2);
+  _redraw_menu = true;
 }
 
 void Mode::modeMenu() {

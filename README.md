@@ -46,7 +46,7 @@ This mode is very simple, pushing a button on the keypad will light up the pushe
 
 
 
-([F22-24 can be enabled](https://i.imgur.com/sLxJfZK.jpg). See below in Settings)
+([F22-24 can be enabled](https://i.imgur.com/sLxJfZK.jpg) in Settings, or by pressing R (`>`) when in the mode.)
 
 ## Arrow Keys
 ![Arrow Keys menu](https://i.imgur.com/a8PC4KJ.jpg)
@@ -197,7 +197,7 @@ Main Settings Menu, same controls as the Main Menu.
 
 ## Secret Functions
 
-- When in a keyboard-using mode, if you Hold **B** and press R (`>`), it will enable keyboard button toggling. Holding **B** and pressing L (`<`) will disable.\
+- When in a keyboard-using mode, if you Hold **B** and press R (`>`), it will enable keyboard button toggling. Holding **B** and pressing L (`<`) will disable.
 - When in the Mouse mode, pressing L (`<`) and R (`>`) together will toggle the Border Mouse mode.
 
 ## Firmware Update
