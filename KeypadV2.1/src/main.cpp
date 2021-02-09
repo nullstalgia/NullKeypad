@@ -4,15 +4,16 @@
 #include "KeypadButtons.h"
 #include "MemoryFree.h"
 //#include "lcdgfx.h"
+#include "Adafruit5x7_slim.h"
 #include "SSD1306Ascii.h"
 #include "SSD1306AsciiAvrI2c.h"
 #include "SimpleMacros.h"
+#include "USBAPI.h"
 #include "keyboardmodes.h"
 #include "menu.h"
 #include "mousemodes.h"
 #include "oledAsciiMenu.h"
 #include "settingsmodes.h"
-#include "Adafruit5x7_slim.h"
 
 /* This variable will hold menu state, processed by SSD1306 API functions */
 
@@ -50,6 +51,37 @@ MouseMode* mousemode;
 
 SimpleMacros* macros;
 
+SleepConfig sleepConfig;
+
+bool sleeping = false;
+bool beenConfigured = false;
+uint8_t prevUDF = 0;
+uint8_t sameUDFCount = 0;
+
+unsigned long lastTimePressed = 0;
+// unsigned long currentMillis;
+
+void startSleep() {
+  sleeping = true;
+  if (sleepConfig.sleepOLED) {
+    display.ssd1306WriteCmd(SSD1306_DISPLAYOFF);
+  }
+  if (sleepConfig.sleepRGB) {
+    rgb.setBrightness(0);
+  }
+}
+
+void stopSleep() {
+  sleeping = false;
+  sameUDFCount = 0;
+  if (sleepConfig.sleepRGB) {
+    rgb.setBrightness(rgb.brightness);
+  }
+  if (sleepConfig.sleepOLED) {
+    display.ssd1306WriteCmd(SSD1306_DISPLAYON);
+  }
+}
+
 void setup() {
   display.begin(&Adafruit128x64, I2C_ADDRESS);
   display.setFont(Adafruit5x7_slim);
@@ -57,6 +89,7 @@ void setup() {
 
   rgb.init();
   buttons.init();
+  sleepConfig.init();
   uint8_t itemCount = sizeof(order) / sizeof(char*);
   setupMenu(&menu, &display, order, itemCount, buttons.getMenuButton());
 
@@ -105,7 +138,7 @@ void loop() {
       currentMode = modeNumberWASD;
       wasdmode = new WASDMode(&display, &buttons);
       wasdmode->modeSetup();
-    } else if (order[changeMode] == mItemMacros){
+    } else if (order[changeMode] == mItemMacros) {
       currentMode = modeNumberMacros;
       macros = new SimpleMacros(&display, &buttons, 12);
       macros->modeSetup();
@@ -122,7 +155,63 @@ void loop() {
     arrowkeysmode->modeLoop();
   } else if (currentMode == modeNumberWASD) {
     wasdmode->modeLoop();
-  } else if (currentMode == modeNumberMacros){
+  } else if (currentMode == modeNumberMacros) {
     macros->modeLoop();
+  }
+
+  if (sleepConfig.sleepEnabled) {
+    if (sleepConfig.sleepTimer) {
+      bool isAnythingPressed = false;
+      for (uint8_t i = 0; i < NUM_ALL_BUTTONS; i++) {
+        if (buttons.isPressed[i]) {
+          isAnythingPressed = true;
+          break;
+        }
+      }
+      if (isAnythingPressed) {
+        lastTimePressed = millis();
+        if (sleeping) {
+          stopSleep();
+        }
+
+      } else {
+        if (millis() - lastTimePressed >= (sleepConfig.sleepTimer * 1000) &&
+            !sleeping) {
+          startSleep();
+        }
+      }
+      if (beenConfigured && sleeping) {
+        if (UDFNUML != prevUDF) {
+          stopSleep();
+        }
+      }
+      if (beenConfigured) {
+        if (prevUDF == UDFNUML) {
+          sameUDFCount++;
+          if (sameUDFCount == UDFTIMEOUT_STRIKES) {
+            startSleep();
+          }
+        }
+      } else if (!beenConfigured) {
+        beenConfigured = USBDevice.configured();
+      }
+      /*
+        if (beenConfigured) {
+          if (prevUDF == UDFNUML) {
+            if (!usbDisconnected) {
+              sameUDFCount++;
+              if (sameUDFCount == UDFTIMEOUT_STRIKES) usbDisconnected = true;
+            }
+          } else {
+            usbDisconnected = false;
+            sameUDFCount = 0;
+          }
+
+        } else {
+
+        }*/
+
+      prevUDF = UDFNUML;
+    }
   }
 }

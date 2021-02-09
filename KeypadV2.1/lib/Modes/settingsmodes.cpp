@@ -30,6 +30,14 @@ const char _rgbInfoSpeed[] PROGMEM = {
 const char _buttonPrompt[] PROGMEM = {
     "A/Middle Row: Toggle\nB/Bottom Row: Back"};
 
+const char _menuDescriptionUSBSleep[] PROGMEM = {
+    "If the keypad detects the computer turning off/sleeping "
+    "it will trigger sleep if enabled."};
+
+const char _menuDescriptionSleepHelp[] PROGMEM = {
+    "If the keypad detects the computer turning off/sleeping "
+    "it will trigger sleep if enabled."};
+
 void SettingsMode::modeSetup() {
   _Display->clear();
   _submenu = modeNumberSettings;
@@ -69,6 +77,10 @@ void SettingsMode::modeLoop() {
         _submenu = modeNumberSettingsRGB;
         _rgbMode = new RGBSettingsMode(_rgb, _menu, _Display, _Buttons);
         _rgbMode->modeSetup();
+      } else if (changeMenu == 4) {
+        _submenu = modeNumberSettingsSleep;
+        _sleepMode = new SleepSettingsMode(_menu, _Display, _Buttons);
+        _sleepMode->modeSetup();
       }
     }
   } else if (_submenu == modeNumberSettingsMouse) {
@@ -84,6 +96,11 @@ void SettingsMode::modeLoop() {
   } else if (_submenu == modeNumberSettingsKeyboard) {
     if (_keyboardMode->modeLoop()) {
       delete _keyboardMode;
+      modeSetup();
+    }
+  } else if (_submenu == modeNumberSettingsSleep) {
+    if (_sleepMode->modeLoop()) {
+      delete _sleepMode;
       modeSetup();
     }
   }
@@ -383,6 +400,210 @@ bool RGBSettingsMode::modeLoop() {
   }
   return false;
 }
+////////////////////////////
+
+void SleepSettingsMode::modeSetup() {
+  _goBackDownAmount = 1;
+  modeBackToMain();
+}
+
+void SleepSettingsMode::modeBackToMain() {
+  _Display->clear();
+  _sleepsubmenu = sleepMainMenu;
+  uint8_t itemCount = sizeof(_sleepMenuItems) / sizeof(char *);
+  MenuKey menuButton = _Buttons->getMenuButton();
+  setupMenu(_menu, _Display, _sleepMenuItems, itemCount, menuButton,
+            _goBackDownAmount);
+}
+
+/*
+typedef enum {
+  sleepMainMenu = -1,
+  sleepMenuUSBSleep,
+  sleepMenuSleepTimer,
+  sleepMenuSleepers,
+  sleepMenuHelp
+} sleepMenuNumbers;
+*/
+
+bool SleepSettingsMode::modeLoop() {
+  MenuKey menuButton;
+  int changeMenu;
+  menuButton = _Buttons->getMenuButton();
+  changeMenu = workMenu(_menu, menuButton, _Display);
+  // Sleep Main Menu
+  if (_sleepsubmenu == sleepMainMenu) {
+    if (changeMenu != -1) {
+      if (changeMenu == 0) {
+        return true;
+      }
+      changeMenu--;
+      // If they choose an option
+      _sleepsubmenu = changeMenu;
+      _goBackDownAmount = changeMenu + 1;
+      _previousMenuHoverSelection = -1;
+      if (changeMenu == sleepMenuUSBSleep) {
+        showOption(sleepMenuUSBSleep);
+        //_Display->printFixed(0,0,"ff");
+      } else if (changeMenu == sleepMenuSleepTimer) {
+        uint8_t itemCount = sizeof(_sleepTimerMenuItems) / sizeof(char *);
+        setupMenu(_menu, _Display, _sleepTimerMenuItems, itemCount, menuButton);
+        //_Display->printFixed(0,0,"ff");
+      } else if (changeMenu == sleepMenuSleepers) {
+        uint8_t itemCount = sizeof(_sleeperMenuItems) / sizeof(char *);
+        setupMenu(_menu, _Display, _sleeperMenuItems, itemCount, menuButton);
+        //_Display->printFixed(0,0,"ff");
+      } else if (changeMenu == sleepMenuSleepers) {
+        showOption(sleepMenuUSBSleep);
+      }
+    }
+  } else if (_sleepsubmenu == sleepMenuUSBSleep) {
+    showOptionLoop(sleepMenuUSBSleep);
+  } else if (_sleepsubmenu == sleepMenuSleepTimer) {
+    uint8_t menuHoverSelection = _menu->currentSelection;
+    if (menuHoverSelection != _previousMenuHoverSelection) {
+      uint16_t sleepTimer = 0;
+      switch (menuHoverSelection) {
+        case 0:
+          sleepTimer = (15 * 60);
+          break;
+
+        case 1:
+          sleepTimer = (30 * 60);
+          break;
+
+        case 2:
+          sleepTimer = (1 * 3600);
+          break;
+
+        case 3:
+          sleepTimer = (2 * 3600);
+          break;
+
+        case 4:
+          sleepTimer = (3 * 3600);
+          break;
+
+        case 5:
+          sleepTimer = (4 * 3600);
+          break;
+
+        case 6:
+          sleepTimer = (6 * 3600);
+          break;
+
+        case 7:
+          sleepTimer = (8 * 3600);
+          break;
+
+        case 8:
+          sleepTimer = (10 * 3600);
+          break;
+
+        case 9:
+          sleepTimer = (12 * 3600);
+          break;
+
+        default:
+          break;
+      }
+      _sleepConfig->sleepTimer = sleepTimer;
+    }
+    _previousMenuHoverSelection = menuHoverSelection;
+    if (changeMenu != -1) {
+      _sleepConfig->saveSleepEEPROM();
+      modeBackToMain();
+    }
+  } else if (_sleepsubmenu == sleepMenuSleepers) {
+    uint8_t menuHoverSelection = _menu->currentSelection;
+    if (menuHoverSelection != _previousMenuHoverSelection) {
+      switch (menuHoverSelection)
+      {
+      case 0:
+        _sleepConfig->sleepOLED = false;
+        _sleepConfig->sleepRGB = true;
+        break;
+
+      case 1:
+        _sleepConfig->sleepOLED = true;
+        _sleepConfig->sleepRGB = false;
+        break;
+
+      case 2:
+        _sleepConfig->sleepOLED = true;
+        _sleepConfig->sleepRGB = true;
+        break;
+      
+      default:
+        break;
+      }
+    }
+    _previousMenuHoverSelection = menuHoverSelection;
+    if (changeMenu != -1) {
+      _sleepConfig->saveSleepEEPROM();
+      modeBackToMain();
+    }
+  } else if (_sleepsubmenu == sleepMenuHelp) {
+    showOption(sleepMenuHelp);
+  }
+  return false;
+}
+
+void SleepSettingsMode::showOption(uint8_t option) {
+  _Display->clear();
+  _Display->setCursor(0, 0);
+  switch (option) {
+    case sleepMenuUSBSleep:
+      printWrappingLineProgmem(_Display, _menuDescriptionUSBSleep);
+      break;
+    case sleepMenuHelp:
+      printWrappingLineProgmem(_Display, _menuDescriptionSleepHelp);
+      break;
+    default:
+      break;
+  }
+  printButtonPrompt(_Display);
+  _Display->setInvertMode(true);
+}
+
+void SleepSettingsMode::showOptionLoop(uint8_t option) {
+  bool optionBool = _sleepConfig->getOption(option);
+  MenuKey menuButton = _Buttons->getToggleButton();
+  if (menuButton == MenuKey::BT_DOWN) {
+    _sleepConfig->saveSleepEEPROM();
+    modeBackToMain();
+    return;
+  }
+
+  if(option == sleepMenuUSBSleep){
+    if (menuButton == MenuKey::BT_SELECT) {
+    optionBool = !optionBool;
+    _sleepConfig->setOption(option, optionBool);
+  }
+  _Display->setCursor(46, 4);
+  _Display->set2X();
+  _Display->print(_menuBools[optionBool]);
+  _Display->set1X();
+  }
+}
+/*
+void SleepSettingsMode::showOptionLoop(uint8_t option) {
+  bool optionBool = _keyboardConfig->getOption(option);
+  MenuKey menuButton = _Buttons->getToggleButton();
+  if (menuButton == MenuKey::BT_DOWN) {
+    _keyboardConfig->saveKeyboardEEPROM();
+    modeBackToMain();
+    return;
+  } else if (menuButton == MenuKey::BT_SELECT) {
+    optionBool = !optionBool;
+    _keyboardConfig->setOption(option, optionBool);
+  }
+  _Display->setCursor(46, 4);
+  _Display->set2X();
+  _Display->print(_menuBools[optionBool]);
+  _Display->set1X();
+}*/
+///////////////
 
 void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display,
                               const char *signMessage PROGMEM) {

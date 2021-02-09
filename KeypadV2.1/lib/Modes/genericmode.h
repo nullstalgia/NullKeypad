@@ -17,6 +17,7 @@ typedef enum {
   modeNumberSettingsRGB,
   modeNumberSettingsMouse,
   modeNumberSettingsKeyboard,
+  modeNumberSettingsSleep,
   modeNumberMediaKeys,
   modeNumberArrowKeys,
   modeNumberCounter,
@@ -44,6 +45,7 @@ class Mode {
                             uint8_t grid_height, bool force_on = false);
   void printInvertingButton(const char *text, uint8_t button_index,
                             bool force_on = false);
+  void clearTempPressesAndRedraw();
   virtual void modeMenu();
   /*
   virtual void modeSetup();
@@ -58,7 +60,7 @@ class Mode {
   SSD1306AsciiAvrI2c *_Display;
   KeypadButtons *_Buttons;
   const char **_keylabels;
-  const uint8_t _keyCount;
+  uint8_t _keyCount;
   uint8_t _grid_width;
   uint8_t _grid_height;
   bool _redraw_menu;

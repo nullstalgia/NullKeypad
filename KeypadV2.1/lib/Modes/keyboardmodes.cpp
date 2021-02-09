@@ -96,6 +96,9 @@ void KeyboardMode::modeSetup() {
   _Display->clear();
   _keyboardConfig = new KeyboardConfig();
   _keyboardConfig->init();
+  if (_keylabels[0] == F13toF21Labels[0]) {
+    _modeIsF13 = true;
+  }
   Keyboard.begin();
   delay(500);
   //_Buttons->runThroughButtons();
@@ -137,20 +140,19 @@ void KeyboardMode::modeMenu() {
 
 void KeyboardMode::modeLoop() {
   _redraw_menu = false;
-if ((_Buttons->wasPressed[QUICK_TOGGLE_OFF] ||
-       _Buttons->wasPressed[QUICK_TOGGLE_ON]) &&
-      _Buttons->isPressed[QUICK_TOGGLE_ENABLE]) {
+  if ((_Buttons->wasPressed[QUICK_TOGGLE_OFF] || _Buttons->wasPressed[QUICK_TOGGLE_ON]) && _Buttons->isPressed[QUICK_TOGGLE_ENABLE]) {
     _keyboardConfig->setOption(keyboardToggleButtons, false);
-    for (uint8_t i = 0; i < _keyCount; i++) {
-      activeKeyboardButtons[i] = true;
-      keyboardAction(_keyboardbuttons, _keyboardConfig, i, RELEASED,
-                     USING_BUTTON);
-    }
-    _keyboardConfig->setOption(keyboardToggleButtons,
-                               _Buttons->wasPressed[QUICK_TOGGLE_ON]);
-    _Buttons->clearAction(1);
-    _Buttons->clearAction(2);
-    _redraw_menu = true;
+    clearactiveKeyboardButtons();
+    Keyboard.releaseAll();
+    _keyboardConfig->setOption(keyboardToggleButtons, _Buttons->wasPressed[QUICK_TOGGLE_ON]);
+    clearTempPressesAndRedraw();
+  } else if(_modeIsF13 && _Buttons->wasPressed[ablrR]){
+    clearactiveKeyboardButtons();
+    Keyboard.releaseAll();
+    _keyboardConfig->setOption(keyboardF24, !_keyboardConfig->f24);
+    _keyCount = _keyboardConfig->f24 ? 12 : 9;
+    clearTempPressesAndRedraw();
+    _Display->clear();
   }
   modeWasPressed();
   modeWasReleased();
@@ -206,16 +208,11 @@ void ConsumerMode::modeLoop() {
        _Buttons->wasPressed[QUICK_TOGGLE_ON]) &&
       _Buttons->isPressed[QUICK_TOGGLE_ENABLE]) {
     _keyboardConfig->setOption(keyboardToggleButtons, false);
-    for (uint8_t i = 0; i < _keyCount; i++) {
-      activeKeyboardButtons[i] = true;
-      keyboardAction(_consumerbuttons, _keyboardConfig, i, RELEASED,
-                     USING_BUTTON);
-    }
+    clearactiveKeyboardButtons();
+    Consumer.releaseAll();
     _keyboardConfig->setOption(keyboardToggleButtons,
                                _Buttons->wasPressed[QUICK_TOGGLE_ON]);
-    _Buttons->clearAction(1);
-    _Buttons->clearAction(2);
-    _redraw_menu = true;
+    clearTempPressesAndRedraw();
   }
   modeWasPressed();
   modeWasReleased();
@@ -437,15 +434,11 @@ void WASDMode::modeLoop() {
        _Buttons->wasPressed[QUICK_TOGGLE_ON]) &&
       _Buttons->isPressed[QUICK_TOGGLE_ENABLE]) {
     _keyboardConfig->setOption(keyboardToggleButtons, false);
-    for (uint8_t i = 0; i < _keyCount; i++) {
-      activeKeyboardButtons[i] = true;
-      WASDAction(WASDButtons, i, RELEASED, USING_BUTTON);
-    }
+    clearactiveKeyboardButtons();
+    Keyboard.releaseAll();
     _keyboardConfig->setOption(keyboardToggleButtons,
                                _Buttons->wasPressed[QUICK_TOGGLE_ON]);
-    _Buttons->clearAction(1);
-    _Buttons->clearAction(2);
-    _redraw_menu = true;
+    clearTempPressesAndRedraw();
   }
   modeWasPressed();
   modeWasReleased();

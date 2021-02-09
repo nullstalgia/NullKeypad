@@ -18,7 +18,7 @@
 #define ablrL 11
 #define ablrR 12
 
-// EEPROM Addresses for reference:
+// EEPROM Addresses for reference: (OLD-ISH)
 // 1  - RGBConfig (4 bytes long)
 // 12 - Counter X
 // 14 - Counter Y
@@ -33,6 +33,7 @@
 
 #define EEPROM_OFFSET_MOUSE 20
 #define EEPROM_OFFSET_KEYBOARD 40
+#define EEPROM_OFFSET_SLEEP 60
 
 #define EEPROM_TEST_VAL 69
 
@@ -46,3 +47,10 @@ const char up[] = {(char)128, (char)32, '\0'};
 const char down[] = {(char)129, (char)32, '\0'};
 const char left[] = {(char)131, (char)32, '\0'};
 const char right[] = {(char)130, (char)32, '\0'};
+
+#define UDFTIMEOUT_STRIKES 50
+
+#define bit_set(p,m) ((p) |= (m))
+#define bit_clear(p,m) ((p) &= ~(m))
+#define bit_write(c,p,m) (c ? bit_set(p,m) : bit_clear(p,m))
+#define bit_check(value, bit) (((value) >> (bit)) & 0x01)

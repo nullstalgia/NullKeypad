@@ -159,3 +159,91 @@ bool KeyboardConfig::getOption(uint8_t option) {
   }
   return false;
 }
+
+////////////////////////
+
+void SleepConfig::init() {
+  sleepEnabled = false;
+  sleepOLED = false;
+  sleepRGB = false;
+  sleepTimer = 0;
+  sleepViaUSB = false;
+  loadSleepEEPROM();
+}
+
+void SleepConfig::loadSleepEEPROM() {
+  // EEPROM Address list in "KeypadSettings.h"
+  SleepConfigStruct sleepConfig;
+
+  EEPROM.get(EEPROM_OFFSET_SLEEP, sleepConfig);
+
+  // In case it was a new device or an invalid config.
+  if (sleepConfig.test_for_new != EEPROM_TEST_VAL) {
+    sleepEnabled = false;
+    sleepOLED = false;
+    sleepRGB = false;
+    sleepTimer = 0;
+    sleepViaUSB = false;
+    saveSleepEEPROM();
+  } else {
+    // Proper config.
+    sleepEnabled = sleepConfig.sleepViaUSB || sleepConfig.timeIdleForSleep;
+    sleepOLED = sleepConfig.sleepOLED;
+    sleepRGB = sleepConfig.sleepRGB;
+    sleepTimer = sleepConfig.timeIdleForSleep;
+    sleepViaUSB = sleepConfig.sleepViaUSB;
+  }
+}
+
+void SleepConfig::saveSleepEEPROM() {
+  SleepConfigStruct sleepConfig;
+
+  sleepConfig.sleepOLED = sleepOLED;
+  sleepConfig.sleepRGB = sleepRGB;
+  sleepConfig.timeIdleForSleep = sleepTimer;
+  sleepConfig.sleepViaUSB = sleepViaUSB;
+  sleepConfig.test_for_new = EEPROM_TEST_VAL;
+
+  EEPROM.put(EEPROM_OFFSET_SLEEP, sleepConfig);
+}
+
+void SleepConfig::setOption(uint8_t option, uint16_t new_setting) {
+  switch (option) {
+    case sleepOptionOLED:
+      sleepOLED = new_setting;
+      break;
+    case sleepOptionRGB:
+      sleepRGB = new_setting;
+      break;
+    case sleepOptionTimer:
+      sleepTimer = new_setting;
+      break;
+    case sleepOptionUSB:
+      sleepViaUSB = new_setting;
+      break;
+
+    default:
+      break;
+  }
+}
+
+uint16_t SleepConfig::getOption(uint8_t option) {
+  switch (option) {
+    case sleepOptionOLED:
+      return sleepOLED;
+      break;
+    case sleepOptionRGB:
+      return sleepRGB;
+      break;
+    case sleepOptionTimer:
+      return sleepTimer;
+      break;
+    case sleepOptionUSB:
+      return sleepViaUSB;
+      break;
+
+    default:
+      break;
+  }
+  return false;
+}

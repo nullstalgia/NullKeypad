@@ -1,10 +1,17 @@
 #pragma once
 #include <Arduino.h>
+#include <avr/wdt.h>
 
 #include "mousemodes.h"
 #include "rgb.h"
-#include <avr/wdt.h>
 #define WDTO_250MS 4
+
+void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display,
+                              const char *signMessage PROGMEM);
+void printWrappingLine(SSD1306AsciiAvrI2c *_Display, const char *line);
+
+void printButtonPrompt(SSD1306AsciiAvrI2c *_Display);
+
 typedef enum {
   rgbMainMenu = -1,
   rgbMenuBrightness,
@@ -13,12 +20,6 @@ typedef enum {
   rgbMenuSpeed,
   rgbMenuInfoTest
 } rgbMenuNumbers;
-
-void printWrappingLineProgmem(SSD1306AsciiAvrI2c *_Display,
-                              const char *signMessage PROGMEM);
-void printWrappingLine(SSD1306AsciiAvrI2c *_Display, const char *line);
-
-void printButtonPrompt(SSD1306AsciiAvrI2c *_Display);
 
 class RGBSettingsMode : public Mode {
  public:
@@ -42,8 +43,8 @@ class RGBSettingsMode : public Mode {
                           "Rainb. Reverse",
                           "Rainb. Rib. Rev",
                           "Rainb. LongRib. Rev"},
-        _rgbOnPushMenuItems{"None", "Usr > White", "Usr > Black",
-                            "White > Usr", "Black > Usr"} {}
+        _rgbOnPushMenuItems{"None", "Usr > White", "Usr > Black", "White > Usr",
+                            "Black > Usr"} {}
   virtual void modeSetup();
   virtual void modeBackToMain();
   virtual bool modeLoop();
@@ -111,6 +112,43 @@ class KeyboardSettingsMode : public Mode {
   uint8_t _goBackDownAmount;
 };
 
+typedef enum {
+  sleepMainMenu = -1,
+  sleepMenuUSBSleep,
+  sleepMenuSleepTimer,
+  sleepMenuSleepers,
+  sleepMenuHelp
+} sleepMenuNumbers;
+
+class SleepSettingsMode : public Mode {
+ public:
+  SleepSettingsMode(oledAsciiMenu *menu, SSD1306AsciiAvrI2c *Display,
+                    KeypadButtons *Buttons)
+      : Mode(Display, Buttons, {}),
+        _menu(menu),
+        _sleepMenuItems{"Back", "USB Sleep", "Sleep Timer", "Sleepers", "Help"},
+        _sleepTimerMenuItems{"Clear Timer", "15m", "30m", "1h",  "2h", "3h",
+                             "4h",          "6h",  "8h",  "10h", "12h"},
+        _menuBools{"OFF", "ON "},  // Has to be in FALSE, TRUE order
+        _sleeperMenuItems{"RGB", "OLED", "Both"} {}
+  virtual void modeSetup();
+  virtual void modeBackToMain();
+  virtual bool modeLoop();
+  void showOption(uint8_t option);
+  void showOptionLoop(uint8_t option);
+
+ private:
+  oledAsciiMenu *_menu;
+  SleepConfig *_sleepConfig;
+  int _sleepsubmenu;
+  const char *_sleepMenuItems[6];
+  const char *_sleepTimerMenuItems[11];
+  const char *_sleeperMenuItems[3];
+  const char *_menuBools[2];
+  int _previousMenuHoverSelection;
+  uint8_t _goBackDownAmount;
+};
+
 class SettingsMode : public Mode {
  public:
   SettingsMode(RGBController *rgb, oledAsciiMenu *menu,
@@ -130,4 +168,5 @@ class SettingsMode : public Mode {
   MouseSettingsMode *_mouseMode;
   RGBSettingsMode *_rgbMode;
   KeyboardSettingsMode *_keyboardMode;
+  SleepSettingsMode *_sleepMode;
 };
