@@ -1,0 +1,164 @@
+
+#include <Arduino.h>
+#include <U8x8lib.h>
+
+// Arduboy 10 (Production, Kickstarter Edition)
+U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE); 	
+
+class Mode {
+  Mode() {
+    i = 1;
+  }
+  public:
+    int i;
+    void loop(){
+      ;
+    }
+};
+
+void setup(void)
+{
+  pinMode(16, INPUT_PULLUP);
+  pinMode(14, INPUT_PULLUP);
+  pinMode(15, INPUT_PULLUP);
+
+  pinMode(10, INPUT_PULLUP);
+  pinMode(8, INPUT_PULLUP);
+  pinMode(7, INPUT_PULLUP);
+
+  pinMode(6, INPUT_PULLUP);
+  pinMode(5, INPUT_PULLUP);
+  pinMode(4, INPUT_PULLUP);
+  
+  pinMode(A3, INPUT_PULLUP);
+  pinMode(A2, INPUT_PULLUP);
+  pinMode(A1, INPUT_PULLUP);
+  pinMode(A0, INPUT_PULLUP);
+
+  u8x8.begin(/*Select=*/ 8, /*Right/Next=*/ 7, /*Left/Prev=*/ 10, /*Up=*/ 14, /*Down=*/ 5, /*Home/Cancel=*/ A2); // Arduboy 10 (Production)
+  u8x8.setFont(u8x8_font_chroma48medium8_r);
+
+}
+
+void msg(const char *txt)
+{
+  u8x8.clear();
+  u8x8.print(txt);
+}
+
+void loop(void)
+{
+  static uint8_t c = 1;
+  //static uint8_t v = 0;
+  c = u8x8.userInterfaceSelectionList("NullKeypad\n", c, "F13-21 Keys\nRGB Settings\nArrow Keys\nCounter\nMedia Keys\nMacros (wip)\nMouse\nWASD Keyboard\nAbout");
+  if ( c == 2 || c == 1 )
+  {
+    u8x8.clear();
+    int max_length = 3;
+    int padding = 1;
+    int first_column = 2;
+    int middle_column = first_column + max_length + padding;
+    int last_column = middle_column + max_length + padding;
+    padding = 1;
+    int first_row = 3;
+    int middle_row = first_row + padding + 1;
+    int last_row = middle_row + padding + 1;
+    u8x8.setCursor(7,0);
+    u8x8.print("A+B: Quit");
+    for(;;)
+    {
+      u8x8.setCursor(0,0);
+      //u8x8.noInverse();
+      //u8x8.print("PeePee");
+      
+      u8x8.noInverse();
+      if ( !digitalRead(A3) )
+        u8x8.inverse();
+      u8x8.setCursor(0,0);
+      u8x8.print("A  ");
+
+      u8x8.noInverse();
+      if ( !digitalRead(A2) )
+        u8x8.inverse();
+      u8x8.setCursor(3,0);
+      u8x8.print("B  ");
+
+      if( !digitalRead(A3) && !digitalRead(A2) )
+        break;
+
+      u8x8.noInverse();
+      if ( !digitalRead(A1) )
+        u8x8.inverse();
+      u8x8.setCursor(0,1);
+      u8x8.print("F22");
+
+      u8x8.noInverse();
+      if ( !digitalRead(A0) )
+        u8x8.inverse();
+      u8x8.setCursor(3,1);
+      u8x8.print("F23");
+
+
+
+      u8x8.noInverse();
+      if ( !digitalRead(16) )
+        u8x8.inverse();
+      u8x8.setCursor(first_column,first_row);
+      u8x8.print("F13");
+      
+      u8x8.noInverse();
+      if ( !digitalRead(14) )
+        u8x8.inverse();
+      u8x8.setCursor(middle_column,first_row);
+      u8x8.print("F14");
+
+      u8x8.noInverse();
+      if ( !digitalRead(15) )
+        u8x8.inverse();
+      u8x8.setCursor(last_column,first_row);
+      u8x8.print("F15");
+
+      u8x8.noInverse();
+      if ( !digitalRead(10) )
+        u8x8.inverse();
+      u8x8.setCursor(first_column,middle_row);
+      u8x8.print("F16");
+
+      u8x8.noInverse();
+      if ( !digitalRead(8) )
+        u8x8.inverse();
+      u8x8.setCursor(middle_column,middle_row);
+      u8x8.print("F17");
+
+      u8x8.noInverse();
+      if ( !digitalRead(7) )
+        u8x8.inverse();
+      u8x8.setCursor(last_column,middle_row);
+      u8x8.print("F18");
+
+      u8x8.noInverse();
+      if ( !digitalRead(6) )
+        u8x8.inverse();
+      u8x8.setCursor(first_column,last_row);
+      u8x8.print("F19");
+
+      u8x8.noInverse();
+      if ( !digitalRead(5) )
+        u8x8.inverse();
+      u8x8.setCursor(middle_column,last_row);
+      u8x8.print("F20");
+
+      u8x8.noInverse();
+      if ( !digitalRead(4) )
+        u8x8.inverse();
+      u8x8.setCursor(last_column,last_row);
+      u8x8.print("F21");
+    }
+  }
+  else if ( c == 3 )
+  {
+    u8x8.clear();
+    u8x8.print("Speaker Test");
+    delay(1000);
+  }
+}
