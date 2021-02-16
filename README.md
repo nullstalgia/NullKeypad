@@ -53,6 +53,8 @@ This mode is very simple, pushing a button on the keypad will light up the pushe
 
 Useful for navigating a PC BIOS while on the floor looking up at the monitor.
 
+(Ctrl is now Del)
+
 ## Mouse
 
 ![Mouse Mode Menu](https://i.imgur.com/Ka9kbcS.jpg)

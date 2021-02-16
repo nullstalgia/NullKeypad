@@ -41,11 +41,11 @@ const ConsumerKeycode MediaKeyButtons[] = {
 
 const char *ArrowKeyLabels[] = {"Tab", up,     "LAlt",  //
                                 left,  down,   right,   //
-                                "ESC", "Ctrl", "Enter"};
+                                "ESC", "Del", "Enter"};
 const KeyboardKeycode ArrowKeyButtons[] = {
     KEY_TAB,        KEY_UP_ARROW,   KEY_LEFT_ALT,     //
     KEY_LEFT_ARROW, KEY_DOWN_ARROW, KEY_RIGHT_ARROW,  //
-    KEY_ESC,        KEY_LEFT_CTRL,  KEY_RETURN};
+    KEY_ESC,        KEY_DELETE,  KEY_RETURN};
 
 const char *WASDLabels[] = {"E",    "W",  "R",  //
                             "A",    "S",  "D",  //
