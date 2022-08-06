@@ -21,6 +21,9 @@ class SimpleMacros : public Mode {
  private:
   bool _kbWiggle;
   bool _mWiggle;
+  bool _M1Spam;
+  bool _M2Spam;
+  bool _M3Spam;
   int _macroPage;
   int _previousPage;
   uint8_t _numPages;

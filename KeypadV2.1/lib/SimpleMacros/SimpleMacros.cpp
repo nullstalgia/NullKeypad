@@ -13,6 +13,9 @@ void SimpleMacros::modeSetup() {
   Mouse.begin();
   _kbWiggle = false;
   _mWiggle = false;
+  _M1Spam = false;
+  _M2Spam = false;
+  _M3Spam = false;
   _macroPage = 0;
   _previousPage = _macroPage;
   _numPages = 3;
@@ -44,6 +47,24 @@ void SimpleMacros::modeLoop() {
     // Mouse.move(-5,0);
     Mouse.move(0, 5);
   }
+  if (_M1Spam) {
+    Mouse.press(MOUSE_LEFT);
+    delay(1);
+    Mouse.release(MOUSE_LEFT);
+    delay(1);
+  }
+  if (_M2Spam) {
+    Mouse.press(MOUSE_RIGHT);
+    delay(1);
+    Mouse.release(MOUSE_RIGHT);
+    delay(1);
+  }
+  if (_M3Spam) {
+    Mouse.press(MOUSE_MIDDLE);
+    delay(1);
+    Mouse.release(MOUSE_MIDDLE);
+    delay(1);
+  }
 }
 
 void SimpleMacros::modeWasPressed() {
@@ -69,14 +90,21 @@ void SimpleMacros::modeWasPressed() {
   //////////////////
 
   if (_macroPage == 0) {
-    if (_Buttons->wasPressed[1]) {
+    if (_Buttons->wasPressed[2]) {
       _kbWiggle = !_kbWiggle;
     }
-    if (_Buttons->wasPressed[4]) {
+    if (_Buttons->wasPressed[5]) {
       _mWiggle = !_mWiggle;
     }
-    if (_Buttons->wasPressed[7]) {
+    if (_Buttons->wasPressed[0]) {
       // Keyboard.print("(っಠ‿ಠ)っ"); didn't work
+      _M1Spam = !_M1Spam;
+    }
+    if (_Buttons->wasPressed[3]) {
+      _M2Spam = !_M2Spam;
+    }
+    if (_Buttons->wasPressed[6]) {
+      _M3Spam = !_M3Spam;
     }
   } else if (_macroPage == 1) {     // Arduino
     if (_Buttons->wasPressed[1]) {  // Prog
@@ -136,9 +164,11 @@ void SimpleMacros::modeMenu() {
   //    printMacroButton(MacrosPage1[i], i);
   //}
   if (_macroPage == 0) {
-    printInvertingButton(4, 3, "KB Wake", 1, _kbWiggle);
-    printInvertingButton(4, 5, "M Wake", 4, _mWiggle);
-    //printInvertingButton(4, 7, "Test", 7, _mWiggle);
+    printInvertingButton(6, 3, "KB Wake", 2, _kbWiggle);
+    printInvertingButton(6, 5, "M Wake", 5, _mWiggle);
+    printInvertingButton(0, 3, "M1 Spam", 0, _M1Spam);
+    printInvertingButton(0, 5, "M2 Spam", 3, _M2Spam);
+    printInvertingButton(0, 7, "M3 Spam", 6, _M3Spam);
   } else if (_macroPage == 1 || _macroPage == 2) {
     printInvertingButton(2, 3, "Upload w/ Prog", 1);
     printInvertingButton(4, 5, "Upload", 4);
