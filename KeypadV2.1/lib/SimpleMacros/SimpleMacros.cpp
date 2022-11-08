@@ -149,6 +149,11 @@ void SimpleMacros::modeWasPressed() {
       Keyboard.press(KEY_LEFT_ALT);
       Keyboard.press('u');
       Keyboard.releaseAll();
+    } else if (_Buttons->wasPressed[6]) {  // Open Serial Terminal
+      Keyboard.press(KEY_LEFT_CTRL);
+      Keyboard.press(KEY_LEFT_ALT);
+      Keyboard.press('s');
+      Keyboard.releaseAll();
     } else if (_Buttons->wasPressed[7]) {  // Build
       Keyboard.press(KEY_LEFT_CTRL);
       Keyboard.press(KEY_LEFT_ALT);
@@ -176,6 +181,8 @@ void SimpleMacros::modeMenu() {
     if (_macroPage == 1) {
       printInvertingButton(8, 5, "Bootl", 5);
       printInvertingButton(1, 7, "Bin", 6);
+    } else {
+      printInvertingButton(1, 7, "Term", 6);
     }
     _Display->setInvertMode(false);
     _Display->setCursor(105, 0);
